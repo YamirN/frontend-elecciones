@@ -5,6 +5,7 @@ import router from './router';
 import Aura from '@primevue/themes/aura';
 import PrimeVue from 'primevue/config';
 import ConfirmationService from 'primevue/confirmationservice';
+import Toast from 'primevue/toast';
 import ToastService from 'primevue/toastservice';
 
 import '@/assets/styles.scss';
@@ -13,6 +14,7 @@ import '@/assets/tailwind.css';
 const app = createApp(App);
 
 app.use(router);
+
 app.use(PrimeVue, {
     theme: {
         preset: Aura,
@@ -23,5 +25,5 @@ app.use(PrimeVue, {
 });
 app.use(ToastService);
 app.use(ConfirmationService);
-
+app.component('Toast', Toast);
 app.mount('#app');
