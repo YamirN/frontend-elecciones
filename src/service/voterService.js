@@ -21,7 +21,7 @@ export const fetchVoterData = async () => {
         return response.data;
 
     } catch (error) {
-        console.error('Error obteniendo los datos del usuario:', error);
+        // console.error('Error obteniendo los datos del usuario:', error);
         throw error;
     }
 };
@@ -32,25 +32,22 @@ export const createVotante = async (votanteData) => {
         const response = await apiClient.post('/votantes', votanteData);
         return response.data;
     } catch (error) {
-        console.error('Error creating votante:', error);
+        // console.error('Error creating votante:', error);
         throw error;
     }
 };
 
-export const voteForCandidate = async (dni, candidatoId) => {
+export const emitirVoto = async (dni, candidatoId, fechaVoto) => {
     try {
-        const now = new Date();
-        const fechaVoto = now.toISOString().slice(0, 19).replace('T', ' '); // Formato compatible con MySQL
 
-        // Realizar la solicitud de voto
         const response = await apiClient.post('/emitir-voto', {
-            dni: dni,
+            dni,
             candidato_id: candidatoId,
             fecha_voto: fechaVoto // Fecha correctamente formateada
         });
         return response.data;
     } catch (error) {
-        console.error('Error voting for candidate:', error);
+        // console.error('Error voting for candidate:', error);
         throw error;
     }
 };
@@ -60,9 +57,70 @@ export const logoutResponse = async () => {
         const response = await apiClient.post('/logout');  // Asegúrate de que esta ruta exista
         return response.data;
     } catch (logoutError) {
-        console.error('Error al cerrar la sesión:', logoutError);
+        // console.error('Error al cerrar la sesión:', logoutError);
         throw error;
     }
 
 };
 
+export const ObtenerNoVotantes = async () => {
+    try {
+        const response = await apiClient.get('/no-voto');
+        return response.data;
+    } catch (Error) {
+        throw Error;
+    }
+};
+
+export const ObtenerVotantes = async () => {
+    try {
+        const response = await apiClient.get('/CantidadVotantes');
+        return response.data;
+    } catch (Error) {
+        throw Error;
+    }
+};
+export const fetchVoter = async () => {
+    try {
+        const response = await apiClient.get('/votantes');
+        return response.data;
+    } catch (error) {
+        console.error('Error al obtener votantes:', error);
+        throw error;
+    }
+};
+export const ObtenerVotantesOk = async () => {
+    try {
+        const response = await apiClient.get('/voto');
+        return response.data;
+    } catch (Error) {
+        throw Error;
+    }
+};
+
+export const importVotantes = async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+        const response = await apiClient.post('/import-votantes', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        return response.data;
+    } catch (error) {
+        throw error.response.data;
+    }
+};
+
+export const exportVotantes = async () => {
+    try {
+        const response = await apiClient.get('/votantes-exportar', {
+            responseType: 'blob', // Para manejar archivos de tipo Blob como Excel
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error al exportar votantes:', error);
+        throw error;
+    }
+};

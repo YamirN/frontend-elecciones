@@ -34,18 +34,6 @@ const routes = [
                 component: () => import('@/views/Dashboard.vue')
             },
 
-
-            {
-                path: '/uikit/message',
-                name: 'message',
-                component: () => import('@/views/uikit/MessagesDoc.vue')
-            },
-            {
-                path: '/uikit/file',
-                name: 'file',
-                component: () => import('@/views/uikit/FileDoc.vue')
-            },
-
             {
                 path: '/uikit/charts',
                 name: 'charts',
@@ -68,10 +56,15 @@ const routes = [
                 component: () => import('@/views/pages/user/Usercrud.vue')
             },
             {
-                path: '/documentation',
-                name: 'documentation',
-                component: () => import('@/views/pages/Documentation.vue')
-            }
+                path: '/user/candidatecrud',
+                name: 'candidatecrud',
+                component: () => import('@/views/pages/user/Candidatecrud.vue')
+            },
+            {
+                path: '/user/votercrud',
+                name: 'votercrud',
+                component: () => import('@/views/pages/user/Votercrud.vue')
+            },
         ]
     },
     {
@@ -120,14 +113,14 @@ router.beforeEach((to, from, next) => {
     const isLoggedIn = isAuthenticatedVoter();
 
     if (to.meta.requiresAuthVoter && !isLoggedIn) {
-      // Redirige al login si se requiere autenticación y el usuario no está autenticado
-      next({ name: 'loginelecciones' });
+        // Redirige al login si se requiere autenticación y el usuario no está autenticado
+        next({ name: 'loginelecciones' });
     } else if (to.name === 'loginelecciones' && isLoggedIn) {
-      // Redirige al dashboard si el usuario está autenticado y trata de acceder al login
-      next({ name: 'vote' });
+        // Redirige al dashboard si el usuario está autenticado y trata de acceder al login
+        next({ name: 'vote' });
     } else {
-      next(); // Permite el acceso a la ruta
+        next(); // Permite el acceso a la ruta
     }
-  });
+});
 
 export default router;

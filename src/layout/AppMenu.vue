@@ -23,19 +23,18 @@ const model = ref([
                         to: '/user/usercrud'
                     },
                     {
-                        label: 'Roles',
-                        icon: 'pi pi-fw pi-lock',
-                        to: '/auth/access'
+                        label: 'Candidatos',
+                        icon: 'pi pi-fw pi-user',
+                        to: '/user/candidatecrud'
                     },
                     {
-                        label: 'Permisos',
-                        icon: 'pi pi-fw pi-lock',
-                        to: '/auth/access'
+                        label: 'Votantes',
+                        icon: 'pi pi-users',
+                        to: '/user/votercrud'
                     }
                 ]
             },
-            { label: 'Message', icon: 'pi pi-fw pi-comment', to: '/uikit/message' },
-            { label: 'File', icon: 'pi pi-fw pi-file', to: '/uikit/file' },
+
             { label: 'Chart', icon: 'pi pi-fw pi-chart-bar', to: '/uikit/charts' }
         ]
     },

@@ -1,8 +1,7 @@
 <script setup>
 
-import apiClient from '@/service/axios';
-import { fetchCandidatos } from '@/service/candidateService';
-import { fetchVoterData } from '@/service/voterService';
+import { fetchCandidate } from '@/service/candidateService';
+import { emitirVoto, fetchVoterData } from '@/service/voterService';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
 const showNotification = ref(false)
@@ -10,7 +9,8 @@ const toast = useToast();
 const user = ref([]);
 const candidatos = ref([]);
 const selectedCandidate = ref(null)
-const message = ref('')
+const message = ref('');
+const errors = ref('');
 
 // Función para obtener los datos del usuario
 const getUserData = async () => {
@@ -25,7 +25,7 @@ const getUserData = async () => {
 // Funcion para obtener los candidatos
 const loadCandidatos = async () => {
     try {
-        const response = await fetchCandidatos();
+        const response = await fetchCandidate();
         candidatos.value = response.candidato;
     } catch (error) {
         console.error('Error loading candidatos:', error);
@@ -35,47 +35,41 @@ const loadCandidatos = async () => {
 const vote = async () => {
     try {
         const dni = user.value.userable.dni;
-
-        // Convertir la fecha actual al formato que MySQL espera: 'YYYY-MM-DD HH:MM:SS'
         const now = new Date();
         const fechaVoto = now.toISOString().slice(0, 19).replace('T', ' '); // Formato correcto para MySQL
-        showNotification.value = true
 
-        // Enviar la solicitud de voto
-        const response = await apiClient.post('/emitir-voto', {
-            dni: dni,
-            candidato_id: selectedCandidate.value,
-            fecha_voto: fechaVoto // Fecha correctamente formateada
-        });
-
-        if (response.data.success) {
-            sessionStorage.removeItem('authToken');
+        const response = await emitirVoto(dni, selectedCandidate.value, fechaVoto);
+        if (response.success) {
             showNotification.value = true
+            // Si es exitoso
+            sessionStorage.removeItem('authToken');
+            showNotification.value = true;
+
             setTimeout(() => {
-                showNotification.value = false
-                selectedCandidate.value = null
+                showNotification.value = false;
+                selectedCandidate.value = null;
                 window.location.href = '/auth/loginelecciones';
-            }, 2000)
-
-            selectedCandidate.value = null;
-        } else {
-            alert(response.data.message);
+            }, 2000);
         }
-
-
-
 
     } catch (error) {
         console.error('Error al registrar el voto:', error);
-        toast.add({ severity: 'error', summary: 'Error', detail: 'Ocurrió un error al registrar el voto. Inténtalo de nuevo.', life: 3000 });
+        sessionStorage.removeItem('authToken');
+        window.location.href = '/auth/loginelecciones';
+        toast.add({ severity: 'error', summary: 'Error', detail: 'Ya has votado.', life: 3000 });
     }
 };
 
+const getImageUrl = (foto) => {
+    // Devuelve la URL completa de la imagen
+    return `${import.meta.env.VITE_APP_API_URL}/storage/${foto}`;
+
+};
 
 const selectCandidate = (id) => {
     selectedCandidate.value = id
 }
-
+onMounted(getImageUrl);
 onMounted(getUserData);
 onMounted(loadCandidatos);
 </script>
@@ -97,7 +91,7 @@ onMounted(loadCandidatos);
                         { 'ring-4 ring-red-500 shadow-lg scale-105': selectedCandidate === candidato.id }
                     ]">
                         <div class="relative mb-4">
-                            <img :src="candidato.foto" :alt="candidato.name"
+                            <img :src="getImageUrl(candidato.foto)" :alt="candidato.name"
                                 class="w-full h-48 object-cover rounded-lg shadow-md" />
                             <div
                                 class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent rounded-lg flex items-end justify-center p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
