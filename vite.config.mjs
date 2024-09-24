@@ -20,5 +20,19 @@ export default defineConfig({
         alias: {
             '@': fileURLToPath(new URL('./src', import.meta.url))
         }
+    },
+    test: {
+        environment: 'jsdom'
+    },
+    build: {
+        rollupOptions: {
+            input: {
+                main: './src/main.js'
+            },
+            output: {
+                format: 'es' // Asegúrate de que el formato de salida sea 'es'
+            }
+        }
     }
+
 });

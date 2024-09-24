@@ -1,7 +1,4 @@
 <script setup>
-import InputError from '@/components/InputError.vue';
-import InputLabel from '@/components/InputLabel.vue';
-import TextInput from '@/components/TextInput.vue';
 import { createUser, deleteUserById, fetchUsers, updateUser } from '@/service/userService';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
@@ -118,11 +115,12 @@ onMounted(fetchUsersList);
         <div class="card">
             <Toolbar class="mb-6">
                 <template #start>
-                    <Button label="New" icon="pi pi-plus" severity="secondary" class="mr-2" @click="openNew" />
+                    <Button label="New" icon="pi pi-plus" severity="secondary" class="mr-2" @click="openNew" disabled />
                 </template>
 
                 <template #end>
-                    <Button label="Export" icon="pi pi-upload" severity="secondary" @click="exportCSV($event)" />
+                    <Button label="Export" icon="pi pi-upload" severity="secondary" @click="exportCSV($event)"
+                        disabled />
                 </template>
             </Toolbar>
 
@@ -132,7 +130,7 @@ onMounted(fetchUsersList);
                 currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} usuarios">
                 <template #header>
                     <div class="flex flex-wrap gap-2 items-center justify-between">
-                        <h4 class="m-0">Administrar Usuarios</h4>
+                        <h4 class="m-0">Lista de Usuarios</h4>
                         <IconField>
                             <InputIcon>
                                 <i class="pi pi-search" />
@@ -142,71 +140,12 @@ onMounted(fetchUsersList);
                     </div>
                 </template>
 
-                <Column field="name" header="Name" sortable style="width: 25%"></Column>
-                <Column field="email" header="Email" style="width: 35%"></Column>
-                <Column field="password" header="Password" style="width: 25%"></Column>
-                <Column :exportable="false" style="min-width: 12rem" header="Acciones">
-                    <template #body="slotProps">
-                        <Button icon="pi pi-eye" outlined rounded class="mr-2"
-                            @click="opendialogview(slotProps.data)" />
-                        <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="openEdit(slotProps.data)" />
-                        <Button icon="pi pi-trash" outlined rounded severity="danger"
-                            @click="confirmDeleteUser(slotProps.data)" />
-                    </template>
-                </Column>
+                <Column field="name" header="Name" sortable style="width: 50%"></Column>
+
+
             </DataTable>
         </div>
 
-        <Dialog v-model:visible="userCreateDialog" :modal="true" header="Crear Usuario" :style="{ width: '25rem' }">
-            <div class="flex flex-col gap-6">
-                <div>
-                    <InputLabel for="name" value="Nombre" />
 
-                    <TextInput id="name" type="text" class="mt-1 block w-full" v-model="form.name" required
-                        autocomplete="name" />
-
-                    <InputError class="mt-2" :message="errors.name ? errors.name.join(', ') : ''" />
-                </div>
-
-                <div class="mt-4">
-                    <InputLabel for="email" value="Correo Electronico" />
-                    <TextInput id="email" type="email" class="mt-1 block w-full" v-model="form.email" required
-                        autocomplete="username" />
-                    <InputError class="mt-2" :message="errors.email ? errors.email.join(', ') : ''" />
-                </div>
-
-                <div class="mt-4">
-                    <InputLabel for="password" value="Contraseña" />
-                    <TextInput id="password" type="password" class="mt-1 block w-full" v-model="form.password" required
-                        autocomplete="new-password" />
-                    <InputError class="mt-2"
-                        :message="errors.password_confirmation ? errors.password_confirmation.join(', ') : ''" />
-                </div>
-
-                <div class="mt-4">
-                    <InputLabel for="password_confirmation" value="Confirmar Contraseña" />
-                    <TextInput id="password_confirmation" type="password" class="mt-1 block w-full"
-                        v-model="form.password_confirmation" required autocomplete="new-password" />
-                    <InputError class="mt-2" :message="errors.password ? errors.password.join(', ') : ''" />
-                </div>
-
-                <div class="flex justify-center"></div>
-            </div>
-            <template #footer>
-                <Button label="Cancel" icon="pi pi-times" text @click="userCreateDialog = false" />
-                <Button label="Save" icon="pi pi-check" @click="handleSave" />
-            </template>
-        </Dialog>
-
-        <Dialog v-model:visible="deleteUserDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
-            <div class="flex items-center gap-4">
-                <i class="pi pi-exclamation-triangle !text-3xl" />
-                <span v-if="selectedUser">Estas seguro que quieres eliminar a <b>{{ selectedUser.name }}</b>?</span>
-            </div>
-            <template #footer>
-                <Button label="No" icon="pi pi-times" text @click="deleteUserDialog = false" />
-                <Button label="Yes" icon="pi pi-check" @click="deleteUserHandler" />
-            </template>
-        </Dialog>
     </div>
 </template>

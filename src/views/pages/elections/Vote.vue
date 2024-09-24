@@ -81,7 +81,7 @@ onMounted(loadCandidatos);
             <div v-if="user" class="text-2xl font-bold text-center mb-4 text-gray-800">
                 <p>Hola, {{ user.name }} {{ user.last_name }}</p>
             </div>
-            <h1 class="text-4xl font-bold text-center mb-8 text-gray-800">Elije tu Candidato</h1>
+            <h1 class="text-4xl font-bold text-center mb-8 text-gray-800">Emite tu voto</h1>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div v-for="candidato in candidatos" :key="candidato.id" @click="selectCandidate(candidato.id)"

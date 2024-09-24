@@ -23,3 +23,24 @@ export const createCandidate = async (data) => {
         throw error;
     }
 };
+
+export const deleteCandidateById = async (candidateId) => {
+    try {
+        const response = await apiClient.delete(`/candidatos/${candidateId}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error en la API al eliminar el candidato:', error);
+        throw error;
+    }
+};
+
+export const updateCandidate = async (candidateData) => {
+    try {
+        const response = await apiClient.put(`/candidatos/${candidateData.id}`, candidateData);
+
+        return response.data;
+    } catch (error) {
+        console.error('Error al actualizar el candidato:', error);
+        throw error;
+    }
+};

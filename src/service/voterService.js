@@ -27,10 +27,11 @@ export const fetchVoterData = async () => {
 };
 
 // Funcion para crear al votante
-export const createVotante = async (votanteData) => {
+export const createVoter = async (votanteData) => {
     try {
         const response = await apiClient.post('/votantes', votanteData);
         return response.data;
+
     } catch (error) {
         // console.error('Error creating votante:', error);
         throw error;
@@ -46,6 +47,7 @@ export const emitirVoto = async (dni, candidatoId, fechaVoto) => {
             fecha_voto: fechaVoto // Fecha correctamente formateada
         });
         return response.data;
+
     } catch (error) {
         // console.error('Error voting for candidate:', error);
         throw error;
@@ -85,7 +87,7 @@ export const fetchVoter = async () => {
         const response = await apiClient.get('/votantes');
         return response.data;
     } catch (error) {
-        console.error('Error al obtener votantes:', error);
+
         throw error;
     }
 };
@@ -120,7 +122,27 @@ export const exportVotantes = async () => {
         });
         return response.data;
     } catch (error) {
-        console.error('Error al exportar votantes:', error);
+
+        throw error;
+    }
+};
+
+export const deleteVoterById = async (voterId) => {
+    try {
+        const response = await apiClient.delete(`/votantes/${voterId}`);
+        return response.data;
+    } catch (error) {
+
+        throw error;
+    }
+};
+
+export const updateVoter = async (voterData) => {
+    try {
+        const response = await apiClient.put(`/votantes/${voterData.id}`, voterData);
+        return response.data;
+    } catch (error) {
+
         throw error;
     }
 };

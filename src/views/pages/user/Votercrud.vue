@@ -1,26 +1,73 @@
 <script setup>
 import InputError from '@/components/InputError.vue';
 import InputLabel from '@/components/InputLabel.vue';
-import { createCandidate } from '@/service/candidateService';
-import { exportVotantes, fetchVoter, importVotantes } from '@/service/voterService';
+import { formatDateForApi, formatDateForCreateUsers, formatDateInList } from '@/service/utils/dateUtil.js';
+import { createVoter, deleteVoterById, exportVotantes, fetchVoter, importVotantes, updateVoter } from '@/service/voterService';
 import { useToast } from 'primevue/usetoast';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
 const toast = useToast();
 const votantes = ref([]);
 const filters = ref({ global: { value: '' } });
-const candidateCreateDialog = ref(false);
+const voterCreateDialog = ref(false);
 const isEditMode = ref(false);
-const deleteUserDialog = ref(false);
-const selectedUser = ref(null);
+const deleteVoterDialog = ref(false);
+const selectedVoter = ref(null);
 const errors = ref({});
 const fileupload = ref(null);
+const optionsSexo = ref([
+    'Masculino',
+    'Femenino'
+]);
+const optionsNivel = ref([
+    'Primaria',
+    'Secundaria'
+]);
+
+const gradoOptions = ref({
+    Primaria: [
+        { label: '1ro', disabled: false },
+        { label: '2do', disabled: false },
+        { label: '3ro', disabled: false },
+        { label: '4to', disabled: false },
+        { label: '5to', disabled: false },
+        { label: '6to', disabled: false }
+    ],
+    Secundaria: [
+        { label: '1ro', disabled: false },
+        { label: '2do', disabled: false },
+        { label: '3ro', disabled: false },
+        { label: '4to', disabled: false }
+    ]
+});
+
+const filteredGradoOptions = computed(() => {
+    if (form.value.nivel === 'Primaria') {
+        return gradoOptions.value.Primaria;
+    } else if (form.value.nivel === 'Secundaria') {
+        return gradoOptions.value.Secundaria;
+    } else {
+        // Si no se ha seleccionado nivel, deshabilitar todas las opciones
+        return [
+            { label: '1ro', disabled: true },
+            { label: '2do', disabled: true },
+            { label: '3ro', disabled: true },
+            { label: '4to', disabled: true },
+            { label: '5to', disabled: true },
+            { label: '6to', disabled: true },
+        ];
+    }
+});
+
 const form = ref({
     name: '',
     last_name: '',
     dni: '',
+    grado: '',
+    seccion: '',
+    nivel: '',
+    fecha_nacimiento: '',
     sexo: '',
-    fecha_postulacion: '',
     estado: 'activo',
 
 });
@@ -28,55 +75,65 @@ const form = ref({
 
 const openNew = () => {
     isEditMode.value = false;
-    errors.value = {};
     form.value = {
         name: '',
         last_name: '',
-        foto: '',
+        dni: '',
+        grado: '',
+        seccion: '',
+        nivel: '',
+        fecha_nacimiento: '',
         sexo: '',
-        fecha_postulacion: '',
 
     };
-    candidateCreateDialog.value = true;
+    errors.value = {};
+    voterCreateDialog.value = true;
 };
 
-const openEdit = (user) => {
+const openEdit = (votante) => {
     isEditMode.value = true;
     form.value = {
-        id: user.id,
-        name: user.name,
-        foto: user.foto,
-        sexo: user.sexo,
-        fecha_postulacion: user.fecha_postulacion,
+        id: votante.id,
+        name: votante.name,
+        last_name: votante.last_name,
+        dni: votante.dni,
+        grado: votante.grado,
+        seccion: votante.seccion,
+        nivel: votante.nivel,
+        fecha_nacimiento: votante.fecha_nacimiento,
+        sexo: votante.sexo,
     };
-    candidateCreateDialog.value = true;
+    errors.value = {};
+
+    voterCreateDialog.value = true;
 };
-const confirmDeleteUser = (user) => {
-    selectedUser.value = user;
-    deleteUserDialog.value = true;
+const confirmDeleteUser = (voter) => {
+    selectedVoter.value = voter;
+    deleteVoterDialog.value = true;
 };
 
-const createAUser = async () => {
+const createAVoter = async () => {
     try {
-        const now = new Date();
-        const fechaPostulacion = now.toISOString().slice(0, 19).replace('T', ' '); // Formato correcto para MySQL
-        form.value.fecha_postulacion = fechaPostulacion;
-        await createCandidate(form.value);
-        candidateCreateDialog.value = false;
+
+        form.value.fecha_nacimiento = formatDateForCreateUsers(form.value.fecha_nacimiento);
+        await createVoter(form.value);
+        voterCreateDialog.value = false;
         form.value = {
             name: '',
             last_name: '',
-            foto: '',
+            dni: '',
+            grado: '',
+            seccion: '',
+            nivel: '',
+            fecha_nacimiento: '',
             sexo: '',
-            fecha_postulacion: '',
             estado: 'activo',
 
         };
-
-        await fetchCandidateList();
+        await fetchVoterList();
         toast.add({ severity: 'success', summary: 'Usuario creado', detail: 'Detalle del mensaje', life: 3000 });
     } catch (error) {
-        console.error('Error al crear usuario:', error);
+
         errors.value = error.response.data.errors;
     }
 };
@@ -84,33 +141,46 @@ const createAUser = async () => {
 const fetchVoterList = async () => {
     try {
         const response = await fetchVoter();
-        votantes.value = response.votante.map(votante => ({
-            dni: votante.dni,
-            nameComplete: `${votante.user?.name || 'N/A'} ${votante.user?.last_name || 'N/A'}`,
-            gradeSection: `${votante.grado || 'N/A'} ${votante.seccion || 'N/A'}`,
-            nivel: votante.nivel,
-            sexo: votante.sexo,
-            estado: votante.estado,
+        votantes.value = response.votante
+            .map(votante => {
+                const name = votante.user?.name || 'N/A';
+                const last_name = votante.user?.last_name || 'N/A';
+                const nameComplete = `${name} ${last_name}`;
+                const grado = votante.grado;
+                const seccion = votante.seccion;
+                const gradeSection = `${grado} ${seccion}`;
+                return {
+                    id: votante.id,
+                    dni: votante.dni,
+                    nameComplete,
+                    name,
+                    last_name,
+                    gradeSection,
+                    grado: votante.grado,
+                    seccion: votante.seccion,
+                    nivel: votante.nivel,
+                    sexo: votante.sexo,
+                    estado: votante.estado,
+                    fecha_nacimiento: formatDateInList(votante.fecha_nacimiento),
+                };
+            });
 
-        }));
     } catch (error) {
-        console.error('Error al obtener usuarios:', error);
+
     }
 };
 
 const onFileSelect = async (event) => {
-    const file = event.files[0]; // Asegúrate de que estás obteniendo el archivo
+    const file = event.files[0];
     if (file) {
         try {
             await importVotantes(file);
             toast.add({ severity: 'success', summary: 'Datos subidos', detail: 'Archivo importado con exito!', life: 3000 });
             await fetchVoterList();
         } catch (error) {
-            console.error('carga invalida');
+
 
         }
-    } else {
-        console.error('No se seleccionó ningún archivo');
     }
 };
 const onError = () => {
@@ -120,51 +190,58 @@ const onError = () => {
 const exportCSV = async () => {
     try {
         const data = await exportVotantes();
-        // Crear un enlace para descargar el archivo
+
         const url = window.URL.createObjectURL(new Blob([data]));
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', 'ListaVotantes.xlsx'); // El nombre del archivo
+        link.setAttribute('download', 'ListaVotantes.xlsx');
         document.body.appendChild(link);
         link.click();
     } catch (error) {
-        console.error('Error durante la exportación:', error);
+
     }
 };
-const updateUserHandler = async () => {
+const updateAvoter = async () => {
     try {
-        await updateUser(form.value);
-        candidateCreateDialog.value = false;
-        await fetchUsersList();
-        toast.add({ severity: 'success', summary: 'Usuario actualizado', detail: 'Detalle del mensaje', life: 3000 });
+        if (form.value.fecha_nacimiento) {
+            // Solo formatea si hay un valor
+            const formattedDate = formatDateForApi(form.value.fecha_nacimiento);
+            if (formattedDate) {
+                form.value.fecha_nacimiento = formattedDate;
+            }
+        }
+
+        await updateVoter(form.value);
+        voterCreateDialog.value = false;
+        await fetchVoterList();
+        toast.add({ severity: 'success', summary: 'Accion exitosa', detail: 'Votante actualizado', life: 3000 });
     } catch (error) {
-        console.error('Error al actualizar usuario:', error);
+
+
         errors.value = error.response?.data?.errors || {};
     }
 };
-const deleteUserHandler = async () => {
+
+const deleteVoter = async () => {
     try {
-        await deleteUserById(selectedUser.value.id);
-        deleteUserDialog.value = false;
-        await fetchUsersList(); // Vuelve a cargar la lista de usuarios
-        toast.add({ severity: 'success', summary: 'Usuario eliminado', detail: 'Detalle del mensaje', life: 3000 });
-        selectedUser.value = null;
+        await deleteVoterById(selectedVoter.value.id);
+        deleteVoterDialog.value = false;
+        await fetchVoterList();
+        toast.add({ severity: 'success', summary: 'Accion exitosa', detail: 'Votante Eliminado', life: 3000 });
+        selectedVoter.value = null;
     } catch (error) {
-        console.error('Error al eliminar el usuario:', error);
+
     }
 };
 
 const handleSave = () => {
     if (isEditMode.value) {
-        updateUserHandler();
+        updateAvoter();
     } else {
-        createAUser();
+        createAVoter();
     }
 };
-const formatearFecha = (fechaISO) => {
-    const [anio, mes, dia] = fechaISO.split('-');
-    return `${dia}/${mes}/${anio}`;
-};
+
 onMounted(fetchVoterList);
 </script>
 
@@ -173,7 +250,7 @@ onMounted(fetchVoterList);
         <div class="card">
             <Toolbar class="mb-6">
                 <template #start>
-                    <Button label="Crear votante" icon="pi pi-plus" severity="secondary" class="mr-2"
+                    <Button label="Agregar votante" icon="pi pi-plus-circle" severity="secondary" class="mr-2"
                         @click="openNew" />
                 </template>
 
@@ -217,50 +294,78 @@ onMounted(fetchVoterList);
             </DataTable>
         </div>
 
-        <Dialog v-model:visible="candidateCreateDialog" :modal="true" :style="{ width: '30rem' }" :closable="false">
+        <Dialog v-model:visible="voterCreateDialog" :modal="true" :style="{ width: '30rem' }" :closable="false">
             <div class="flex flex-col gap-5 px-3">
-                <h2 class="text-2xl font-bold text-gray-800 mb-2 text-center">Crea un candidato</h2>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2 text-center">Detalles del Votante</h2>
 
-                <div>
-                    <InputLabel for="name" value="Nombre" />
-                    <InputText class="mt-1 block w-full" v-model="form.name" :invalid="!!errors.name" />
-                    <InputError class="mt-2" :message="errors.name ? errors.name.join(', ') : ''" />
-                </div>
-                <div>
-                    <InputLabel for="last_name" value="Apellido" />
-                    <InputText class="mt-1 block w-full" v-model="form.last_name" :invalid="!!errors.last_name" />
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4"> <!-- Usamos grid para dividir en dos columnas -->
+                    <div>
+                        <InputLabel for="name" value="Nombre" />
+                        <InputText class="mt-1 block w-full" v-model="form.name" :invalid="!!errors.name" />
+                        <InputError class="mt-2" :message="errors.name ? errors.name.join(', ') : ''" />
+                    </div>
 
-                    <InputError class="mt-2" :message="errors.name ? errors.name.join(', ') : ''" />
-                </div>
+                    <div>
+                        <InputLabel for="last_name" value="Apellido" />
+                        <InputText class="mt-1 block w-full" v-model="form.last_name" :invalid="!!errors.last_name" />
+                        <InputError class="mt-2" :message="errors.last_name ? errors.last_name.join(', ') : ''" />
+                    </div>
 
-                <div>
-                    <InputLabel for="sexo" value="Sexo" />
-                    <InputText class="mt-1 block w-full" v-model="form.sexo" :invalid="!!errors.sexo" />
-                    <InputError class="mt-2" :message="errors.name ? errors.name.join(', ') : ''" />
-                </div>
-                <div>
-                    <InputLabel for="sexo" value="Fecha de postulacion" />
-                    <DatePicker class="mt-1 block w-full" v-model="form.fecha_postulacion" dateFormat="dd/mm/yy" />
+                    <div>
+                        <InputLabel for="dni" value="DNI" />
+                        <InputText class="mt-1 block w-full" v-model="form.dni" :invalid="!!errors.dni" />
+                        <InputError class="mt-2" :message="errors.dni ? errors.dni.join(', ') : ''" />
+                    </div>
 
-                    <InputError class="mt-2" :message="errors.name ? errors.name.join(', ') : ''" />
+                    <div>
+                        <InputLabel for="seccion" value="Sección" />
+                        <InputText class="mt-1 block w-full" v-model="form.seccion" :invalid="!!errors.seccion" />
+                        <InputError class="mt-2" :message="errors.seccion ? errors.seccion.join(', ') : ''" />
+                    </div>
+
+                    <div>
+                        <InputLabel for="nivel" value="Nivel" />
+                        <SelectButton v-model="form.nivel" :options="optionsNivel" aria-labelledby="nivel" />
+                        <InputError class="mt-2" :message="errors.nivel ? errors.nivel.join(', ') : ''" />
+
+                        <InputLabel for="grado" value="Grado" />
+                        <SelectButton v-model="form.grado" :options="filteredGradoOptions" optionLabel="label"
+                            optionValue="label" optionDisabled="disabled" aria-labelledby="grado"
+                            placeholder="Selecciona un nivel primero" />
+                    </div>
+
+                    <div>
+                        <InputLabel for="sexo" value="Sexo" />
+                        <SelectButton v-model="form.sexo" :options="optionsSexo" aria-labelledby="sexo" />
+                        <InputError class="mt-2" :message="errors.sexo ? errors.sexo.join(', ') : ''" />
+                    </div>
+
+                    <div>
+                        <InputLabel for="fecha_nacimiento" value="Fecha de Nacimiento" />
+                        <DatePicker class="mt-1 block w-full" v-model="form.fecha_nacimiento" dateFormat="dd/mm/yy" />
+                    </div>
                 </div>
 
                 <div class="flex justify-center"></div>
             </div>
+
             <template #footer>
-                <Button label="Cancel" icon="pi pi-times" text @click="candidateCreateDialog = false" />
+                <Button label="Cancel" icon="pi pi-times" text @click="voterCreateDialog = false" />
                 <Button label="Save" class="custom-cancel-button" text icon="pi pi-check" @click="handleSave" />
             </template>
         </Dialog>
 
-        <Dialog v-model:visible="deleteUserDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+
+        <Dialog v-model:visible="deleteVoterDialog" :style="{ width: '450px' }" header="Confirmar" :modal="true">
             <div class="flex items-center gap-4">
-                <i class="pi pi-exclamation-triangle !text-3xl" />
-                <span v-if="selectedUser">Estas seguro que quieres eliminar a <b>{{ selectedUser.name }}</b>?</span>
+                <i class="pi pi-exclamation-triangle !text-3xl" style="color: red" />
+                <span class="text-red-500" v-if="selectedVoter">Estas seguro que quieres eliminar a <b>{{
+                    selectedVoter.nameComplete
+                        }}</b>?</span>
             </div>
             <template #footer>
-                <Button label="No" icon="pi pi-times" text @click="deleteUserDialog = false" />
-                <Button label="Yes" icon="pi pi-check" @click="deleteUserHandler" />
+                <Button label="No" icon="pi pi-times" severity="secondary" text @click="deleteVoterDialog = false" />
+                <Button label="Yes" icon="pi pi-check" @click="deleteVoter" severity="danger" />
             </template>
         </Dialog>
     </div>

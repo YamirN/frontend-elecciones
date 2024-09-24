@@ -1,19 +1,26 @@
 <script setup>
 import InputError from '@/components/InputError.vue';
 import InputLabel from '@/components/InputLabel.vue';
-import { createCandidate, fetchCandidate } from '@/service/candidateService';
+import { createCandidate, deleteCandidateById, fetchCandidate, updateCandidate } from '@/service/candidateService';
+import { formatDateForApi, formatDateForCreateUsers, formatDateInList } from '@/service/utils/dateUtil.js';
+import SelectButton from 'primevue/selectbutton';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
-const imagePreview = ref(null);
+const imagePreview = ref('null');
 const toast = useToast();
 const candidatos = ref([]);
 const filters = ref({ global: { value: '' } });
 const candidateCreateDialog = ref(false);
 const isEditMode = ref(false);
-const deleteUserDialog = ref(false);
-const selectedUser = ref(null);
+const deleteCandidateDialog = ref(false);
+const selectedCandidate = ref(null);
 const fileInput = ref(null);
-const errors = ref({});
+const errors = ref([]);
+
+const options = ref([
+    'Masculino',
+    'Femenino'
+]);
 const form = ref({
     name: '',
     last_name: '',
@@ -24,40 +31,47 @@ const form = ref({
 
 });
 
-
 const openNew = () => {
     isEditMode.value = false;
-
     form.value = {
         name: '',
         last_name: '',
         foto: '',
         sexo: '',
         fecha_postulacion: '',
-
     };
+    errors.value = {};
+    imagePreview.value = '';
     candidateCreateDialog.value = true;
 };
 
-const openEdit = (user) => {
+const openEdit = (candidate) => {
+
     isEditMode.value = true;
     form.value = {
-        id: user.id,
-        name: user.name,
-        foto: user.foto,
-        sexo: user.sexo,
-        fecha_postulacion: user.fecha_postulacion,
+        id: candidate.id,
+        name: candidate.name,
+        last_name: candidate.last_name,
+        foto: candidate.foto,
+        sexo: candidate.sexo,
+        fecha_postulacion: candidate.fecha_postulacion,
+        estado: candidate.estado
     };
+    imagePreview.value = getImageUrl(candidate.foto) || '';
     candidateCreateDialog.value = true;
 };
-const confirmDeleteUser = (user) => {
-    selectedUser.value = user;
-    deleteUserDialog.value = true;
+const getImageUrl = (foto) => {
+
+    return `${import.meta.env.VITE_APP_API_URL}/storage/${foto}`;
+
+};
+const confirmDeleteCandidate = (candidate) => {
+    selectedCandidate.value = candidate;
+    deleteCandidateDialog.value = true;
 };
 
 const onFileSelect = (event) => {
     const file = event.target.files[0];
-    console.log(file);
     if (file) {
         form.value.foto = file;
         const reader = new FileReader();
@@ -70,11 +84,11 @@ const onFileSelect = (event) => {
 }
 const createAUser = async () => {
     try {
-        const now = new Date();
-        const fechaPostulacion = now.toISOString().slice(0, 19).replace('T', ' '); // Formato correcto para MySQL
-        form.value.fecha_postulacion = fechaPostulacion;
+
+        form.value.fecha_postulacion = formatDateForCreateUsers(form.value.fecha_postulacion);
         await createCandidate(form.value);
         candidateCreateDialog.value = false;
+
         form.value = {
             name: '',
             last_name: '',
@@ -82,66 +96,82 @@ const createAUser = async () => {
             sexo: '',
             fecha_postulacion: '',
             estado: 'activo',
-
+            fecha_nacimiento: '',
         };
+
         await fetchCandidateList();
         toast.add({ severity: 'success', summary: 'Usuario creado', detail: 'Detalle del mensaje', life: 3000 });
     } catch (error) {
-        console.error('Error al crear usuario:', error);
-        errors.value = error.response.data.errors;
 
+        errors.value = error.response?.data?.errors || [error.message];
     }
 };
+
 
 const fetchCandidateList = async () => {
     try {
         const response = await fetchCandidate();
         candidatos.value = response.candidato
             .filter(candidato => candidato.estado === 'activo')
-            .map(candidato => ({
-                nameComplete: `${candidato.users[0]?.name || 'N/A'} ${candidato.users[0]?.last_name || 'N/A'}`,
-                sexo: candidato.sexo,
-                estado: candidato.estado,
-                fecha_postulacion: formatearFecha(candidato.fecha_postulacion),
-            }));
+            .map(candidato => {
+                const name = candidato.users[0]?.name || 'N/A';
+                const last_name = candidato.users[0]?.last_name || 'N/A';
+                const nameComplete = `${name} ${last_name}`;
+
+                return {
+                    id: candidato.id,
+                    nameComplete,
+                    name,
+                    last_name,
+                    sexo: candidato.sexo,
+                    estado: candidato.estado,
+                    foto: candidato.foto,
+                    fecha_postulacion: formatDateInList(candidato.fecha_postulacion),
+                };
+            });
     } catch (error) {
-        console.error('Error al obtener usuarios:', error);
+
     }
 };
 
-const updateUserHandler = async () => {
+const updateAcandidate = async () => {
     try {
-        await updateUser(form.value);
+        if (form.value.fecha_postulacion) {
+            // Solo formatea si hay un valor
+            const formattedDate = formatDateForApi(form.value.fecha_postulacion);
+            if (formattedDate) {
+                form.value.fecha_postulacion = formattedDate;
+            }
+        }
+
+        await updateCandidate(form.value);
         candidateCreateDialog.value = false;
-        await fetchUsersList();
-        toast.add({ severity: 'success', summary: 'Usuario actualizado', detail: 'Detalle del mensaje', life: 3000 });
+        await fetchCandidateList();
+        toast.add({ severity: 'success', summary: 'Accion exitosa', detail: 'Candidato actualizado', life: 3000 });
     } catch (error) {
-        console.error('Error al actualizar usuario:', error);
+
         errors.value = error.response?.data?.errors || {};
     }
 };
-const deleteUserHandler = async () => {
+const deleteCandidate = async () => {
     try {
-        await deleteUserById(selectedUser.value.id);
-        deleteUserDialog.value = false;
-        await fetchUsersList(); // Vuelve a cargar la lista de usuarios
-        toast.add({ severity: 'success', summary: 'Usuario eliminado', detail: 'Detalle del mensaje', life: 3000 });
-        selectedUser.value = null;
+        await deleteCandidateById(selectedCandidate.value.id);
+        deleteCandidateDialog.value = false;
+        await fetchCandidateList();
+        toast.add({ severity: 'success', summary: 'Accion exitosa', detail: 'Usuario eliminado', life: 3000 });
+        selectedCandidate.value = null;
     } catch (error) {
-        console.error('Error al eliminar el usuario:', error);
+
     }
 };
 const handleSave = () => {
     if (isEditMode.value) {
-        updateUserHandler();
+        updateAcandidate();
     } else {
         createAUser();
     }
 };
-const formatearFecha = (fechaISO) => {
-    const [anio, mes, dia] = fechaISO.split('-');
-    return `${dia}/${mes}/${anio}`;
-};
+
 onMounted(fetchCandidateList);
 </script>
 
@@ -150,11 +180,13 @@ onMounted(fetchCandidateList);
         <div class="card">
             <Toolbar class="mb-6">
                 <template #start>
-                    <Button label="New" icon="pi pi-plus" severity="secondary" class="mr-2" @click="openNew" />
+                    <Button label="Agregar candidato" icon="pi pi-plus-circle" severity="secondary" class="mr-2"
+                        @click="openNew" />
                 </template>
 
                 <template #end>
-                    <Button label="Export" icon="pi pi-upload" severity="secondary" @click="exportCSV($event)" />
+                    <Button label="Exportar datos" icon="pi pi-upload" severity="secondary" disabled
+                        @click="exportCSV($event)" />
                 </template>
             </Toolbar>
 
@@ -182,7 +214,7 @@ onMounted(fetchCandidateList);
                     <template #body="slotProps">
                         <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="openEdit(slotProps.data)" />
                         <Button icon="pi pi-trash" outlined rounded severity="danger"
-                            @click="confirmDeleteUser(slotProps.data)" />
+                            @click="confirmDeleteCandidate(slotProps.data)" />
                     </template>
                 </Column>
             </DataTable>
@@ -190,13 +222,14 @@ onMounted(fetchCandidateList);
 
         <Dialog v-model:visible="candidateCreateDialog" :modal="true" :style="{ width: '30rem' }" :closable="false">
             <div class="flex flex-col gap-5 px-3">
-                <h2 class="text-2xl font-bold text-gray-800 mb-2 text-center">Crea un candidato</h2>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2 text-center">Detalles del Candidato</h2>
                 <div class="mb-1">
                     <div class="flex flex-col items-center">
                         <div class="w-32 h-32 mb-4 relative">
                             <img v-if="imagePreview" :src="imagePreview" alt="Vista previa de la imagen de perfil"
                                 class="w-full h-full object-cover rounded-full border-4 border-indigo-500"
                                 loading="lazy" />
+
                             <div v-else class="w-full h-full rounded-full bg-gray-200 flex items-center justify-center">
                                 <i class="pi pi-user" style="font-size: 3rem"></i>
                             </div>
@@ -228,12 +261,16 @@ onMounted(fetchCandidateList);
 
                 <div>
                     <InputLabel for="sexo" value="Sexo" />
-                    <InputText class="mt-1 block w-full" v-model="form.sexo" :invalid="!!errors.sexo" />
+                    <SelectButton v-model="form.sexo" :options="options" aria-labelledby="basic"
+                        :invalid="!!errors.sexo" />
+
+
                     <InputError class="mt-2" :message="errors.sexo ? errors.sexo.join(', ') : ''" />
                 </div>
                 <div>
                     <InputLabel for="sexo" value="Fecha de postulacion" />
-                    <DatePicker class="mt-1 block w-full" v-model="form.fecha_postulacion" dateFormat="dd/mm/yy" />
+                    <DatePicker class="mt-1 block w-full" v-model="form.fecha_postulacion" dateFormat="yy-mm-dd"
+                        :invalid="!!errors.fecha_postulacion" />
 
                     <InputError class="mt-2"
                         :message="errors.fecha_postulacion ? errors.fecha_postulacion.join(', ') : ''" />
@@ -247,14 +284,18 @@ onMounted(fetchCandidateList);
             </template>
         </Dialog>
 
-        <Dialog v-model:visible="deleteUserDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+        <Dialog v-model:visible="deleteCandidateDialog" :style="{ width: '450px', textColor: '#ffebee' }"
+            header="Confirmar" :modal="true">
             <div class="flex items-center gap-4">
-                <i class="pi pi-exclamation-triangle !text-3xl" />
-                <span v-if="selectedUser">Estas seguro que quieres eliminar a <b>{{ selectedUser.name }}</b>?</span>
+                <i class="pi pi-exclamation-triangle !text-3xl " style="color: red" />
+                <span class="text-red-500" v-if="selectedCandidate">Estas seguro que quieres eliminar a <b>{{
+                    selectedCandidate.nameComplete
+                        }}</b>?</span>
             </div>
             <template #footer>
-                <Button label="No" icon="pi pi-times" text @click="deleteUserDialog = false" />
-                <Button label="Yes" icon="pi pi-check" @click="deleteUserHandler" />
+                <Button label="No" icon="pi pi-times" severity="secondary" text
+                    @click="deleteCandidateDialog = false" />
+                <Button label="Yes" icon="pi pi-check" @click="deleteCandidate" severity="danger" />
             </template>
         </Dialog>
     </div>
