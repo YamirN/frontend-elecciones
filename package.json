@@ -9,11 +9,20 @@
         "lint": "eslint --fix . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
     },
     "dependencies": {
+        "@eslint/config-array": "^0.18.0",
+        "@eslint/object-schema": "^2.1.4",
         "@primevue/themes": "^4.0.0",
         "axios": "^1.7.5",
         "chart.js": "3.3.2",
+        "glob": "^11.0.0",
+        "inflight": "^1.0.6",
+        "laravel-echo": "^1.16.1",
+        "mitt": "^3.0.1",
+        "pinia": "^2.2.6",
         "primeicons": "^6.0.1",
         "primevue": "^4.0.0",
+        "pusher-js": "^7.6.0",
+        "rimraf": "^6.0.1",
         "vue": "^3.4.34",
         "vue-router": "^4.4.0"
     },
@@ -34,6 +43,7 @@
         "tailwindcss-primeui": "^0.3.2",
         "unplugin-vue-components": "^0.27.3",
         "vite": "^5.3.1",
+        "vite-plugin-vue-devtools": "^7.6.3",
         "vitest": "^2.1.1"
     }
 }

@@ -65,13 +65,14 @@ const routes = [
                 name: 'votercrud',
                 component: () => import('@/views/pages/user/Votercrud.vue')
             },
+            {
+                path: '/pages/mesas',
+                name: 'mesas',
+                component: () => import('@/views/pages/elections/mesacrud.vue')
+            },
         ]
     },
-    {
-        path: '/pages/notfound',
-        name: 'notfound',
-        component: () => import('@/views/pages/NotFound.vue')
-    },
+
 
     {
         path: '/auth/access',

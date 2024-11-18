@@ -1,71 +1,61 @@
 <script setup>
 import { useLayout } from '@/layout/composables/layout';
-import { fetchCandidate } from '@/service/candidateService';
-import { ObtenerNoVotantes, ObtenerVotantes, ObtenerVotantesOk } from '@/service/voterService';
+import echo from '@/service/echo';
+import { obtenerResultados } from '@/service/voterService';
 import { onMounted, ref, watch } from 'vue';
 const { getPrimary, getSurface, isDarkTheme } = useLayout();
-const chartData = ref(null);
 const chartOptions = ref(null);
-const cantidadNoVotantes = ref();
-const cantidadVotantes = ref();
-const cantidadVotantesOk = ref();
+const totalVotantes = ref(0);
+const votantesQueVotaron = ref(0);
+const votantesPendientes = ref(0);
+const resultados = ref({});
+const estadisticas = ref({});
+const chartData = ref({});
 
-const getNoVoters = async () => {
+
+
+const fetchResultados = async () => {
     try {
-        const response = await ObtenerNoVotantes();
-        cantidadNoVotantes.value = response.cantidad;
-
+        const data = await obtenerResultados(); // Llama a la API
+        resultados.value = data.resultados;     // Asigna solo los resultados de los candidatos
+        totalVotantes.value = data.estadisticas.totalVotantes;
+        votantesQueVotaron.value = data.estadisticas.votantesQueVotaron;
+        votantesPendientes.value = data.estadisticas.votantesPendientes; // Asigna solo las estadísticas de votantes
+        setChartData(data.resultados);
     } catch (error) {
-        error.value = 'Ocurrió un error al obtener los datos del usuario.';
+        console.error('Error al actualizar los resultados:', error);
     }
 };
 
-const getVoters = async () => {
-    try {
-        const response = await ObtenerVotantes();
-        cantidadVotantes.value = response.cantidad;
 
-    } catch (error) {
-        error.value = 'Ocurrió un error al obtener los datos del usuario.';
-    }
-};
 
-const getVotersOk = async () => {
-    try {
-        const response = await ObtenerVotantesOk();
-        cantidadVotantesOk.value = response.cantidad;
+const setChartData = (resultados) => {
 
-    } catch (error) {
-        error.value = 'Ocurrió un error al obtener los datos del usuario.';
-    }
-};
 
-const candidatos = ref([]);
-const getCandidate = async () => {
-    try {
-        const response = await fetchCandidate();
-        candidatos.value = response.candidato;
-
-    } catch (error) {
-        error.value = 'Ocurrió un error al obtener los datos del usuario.';
-    }
-};
-
-onMounted(async () => {
-
-    await Promise.all([getCandidate(), getVotersOk(), getNoVoters(), getVoters()]);
-
-    chartData.value = setChartData();
-    chartOptions.value = setChartOptions();
-});
-
-function setChartData() {
     const documentStyle = getComputedStyle(document.documentElement);
-    const candidateFullNames = candidatos.value.map(c =>
-        `${c.users[0]?.name || 'vacio'} ${c.users[0]?.last_name}`
-    );
-    const cantidadVotos = candidatos.value.map(c => c.votos_count || '0');
-    return {
+
+    if (!resultados || typeof resultados !== 'object' || Object.keys(resultados).length === 0) {
+        console.warn('No se encontraron resultados válidos.');
+        chartData.value = {
+            labels: [],
+            datasets: [
+                {
+                    type: 'bar',
+                    label: 'Votos',
+                    backgroundColor: documentStyle.getPropertyValue('--p-primary-500'),
+                    data: [],
+                    barThickness: 32,
+                },
+            ],
+        };
+        return;
+    }
+
+    // Mapea los datos de la respuesta
+    const candidateFullNames = Object.values(resultados).map(c => c.nombre || 'Nombre no disponible');
+    const cantidadVotos = Object.values(resultados).map(c => c.votos || 0);
+
+    chartData.value = {
         labels: candidateFullNames,
         datasets: [
             {
@@ -76,9 +66,10 @@ function setChartData() {
                 barThickness: 32,
             },
         ],
-
     };
-}
+};
+
+
 
 function setChartOptions() {
     const documentStyle = getComputedStyle(document.documentElement);
@@ -117,15 +108,36 @@ function setChartOptions() {
 
 
 const getImageUrl = (foto) => {
-    // Devuelve la URL completa de la imagen
-    return `${import.meta.env.VITE_APP_API_URL}/storage/${foto}`;
-
+    if (!foto) {
+        return '/path/to/default/image.png'; // Ruta a una imagen por defecto si no hay foto
+    }
+    // Remover el prefijo 'api' de la URL
+    return `${import.meta.env.VITE_APP_API_URL.replace('/api', '')}/storage/${foto}`;
 };
-onMounted(getImageUrl);
 
+
+
+
+onMounted(() => {
+    // Conéctate al canal "votos" y escucha el evento "NuevoVoto"
+    echo.channel('votos')
+        .listen('NuevoVoto', (event) => {
+
+            setChartData(event.resultados.resultados);
+            resultados.value = event.resultados.resultados;
+
+
+            totalVotantes.value = event.resultados.estadisticas.totalVotantes;
+            votantesQueVotaron.value = event.resultados.estadisticas.votantesQueVotaron;
+            votantesPendientes.value = event.resultados.estadisticas.votantesPendientes;
+        });
+
+    // Llama a tus funciones iniciales
+    fetchResultados();
+    getImageUrl();
+});
 
 watch([getPrimary, getSurface, isDarkTheme], () => {
-    chartData.value = setChartData();
     chartOptions.value = setChartOptions();
 });
 
@@ -138,7 +150,8 @@ watch([getPrimary, getSurface, isDarkTheme], () => {
                 <div class="flex justify-between mb-4">
                     <div>
                         <span class="block text-muted-color font-medium mb-4">Numero total de votantes</span>
-                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ cantidadVotantes }}
+                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{
+                            totalVotantes }}
                         </div>
                     </div>
                     <div class="flex items-center justify-center bg-blue-100 dark:bg-blue-400/10 rounded-border"
@@ -146,8 +159,7 @@ watch([getPrimary, getSurface, isDarkTheme], () => {
                         <i class="pi pi-users text-blue-500 !text-xl"></i>
                     </div>
                 </div>
-                <span class="text-primary font-medium">X nuevos </span>
-                <span class="text-muted-color">votantes recientes registrados</span>
+
             </div>
         </div>
         <div class="col-span-12 lg:col-span-6 xl:col-span-4">
@@ -155,7 +167,8 @@ watch([getPrimary, getSurface, isDarkTheme], () => {
                 <div class="flex justify-between mb-4">
                     <div>
                         <span class="block text-muted-color font-medium mb-4">Numero total de votos emitidos</span>
-                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ cantidadVotantesOk }}
+                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{
+                            votantesQueVotaron }}
                         </div>
                     </div>
                     <div class="flex items-center justify-center bg-green-100 dark:bg-orange-400/10 rounded-border"
@@ -163,16 +176,15 @@ watch([getPrimary, getSurface, isDarkTheme], () => {
                         <i class="pi pi-user text-green-500 !text-xl"></i>
                     </div>
                 </div>
-                <span class="text-primary font-medium">X </span>
-                <span class="text-muted-color">nuevos votos recientes registrados</span>
             </div>
         </div>
         <div class="col-span-12 lg:col-span-6 xl:col-span-4">
             <div class="card mb-0">
                 <div class="flex justify-between mb-4">
                     <div>
-                        <span class="block text-muted-color font-medium mb-4">No Votaron</span>
-                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ cantidadNoVotantes }}
+                        <span class="block text-muted-color font-medium mb-4">Faltan votar</span>
+                        <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{
+                            votantesPendientes }}
                         </div>
                     </div>
                     <div class="flex items-center justify-center bg-red-100 dark:bg-cyan-400/10 rounded-border"
@@ -180,8 +192,6 @@ watch([getPrimary, getSurface, isDarkTheme], () => {
                         <i class="pi pi-user-minus text-red-500 !text-xl"></i>
                     </div>
                 </div>
-
-                <span class="text-muted-color"> Estudiantes sin voto</span>
             </div>
         </div>
 
@@ -189,50 +199,51 @@ watch([getPrimary, getSurface, isDarkTheme], () => {
 
         <div class="col-span-12 xl:col-span-5">
 
-            <div v-if="candidatos.length">
 
-                <div class="card">
-                    <h2 class="text-xl font-semibold  mb-4">Ranking de Candidatos</h2>
-                    <div class="space-y-4">
-                        <div class="bg-gray-100 dark:bg-gray-400/10 rounded-lg p-4 flex items-center space-x-4 transition-all duration-300 hover:shadow-md"
-                            v-for="(candidato, index) in candidatos" :key="candidato.id">
 
-                            <div class="text-2xl font-bold text-gray-500 w-8">{{ index + 1 }}</div>
-                            <div class="md:flex-shrink-0">
+            <div class="card">
+                <h2 class="text-xl font-semibold  mb-4">Ranking de Candidatos</h2>
+                <div class="space-y-4">
 
-                                <img class="h-40 w-full object-cover md:w-40" :src="getImageUrl(candidato.foto)"
-                                    loading="lazy" />
+                    <div class="bg-gray-100 dark:bg-gray-400/10 rounded-lg p-4 flex items-center space-x-4 transition-all duration-300 hover:shadow-md"
+                        v-for="(candidato) in resultados" :key="candidato.id">
+
+
+                        <div class="md:flex-shrink-0">
+
+                            <img class="h-40 w-full object-cover md:w-40" :src="getImageUrl(candidato.foto)"
+                                loading="lazy" />
+                        </div>
+                        <div class="w-full p-8 flex flex-col justify-center">
+                            <div class="uppercase tracking-wide text-sm text-indigo-500 font-semibold">
+                                Candidato
                             </div>
-                            <div class="w-full p-8 flex flex-col justify-center">
-                                <div class="uppercase tracking-wide text-sm text-indigo-500 font-semibold">
-                                    Candidato
-                                </div>
-                                <h2 class="block mt-1 text-lg leading-tight font-medium text-gray-500">
-                                    {{ candidato.users[0]?.name }} {{ candidato.users[0]?.last_name }}
-                                </h2>
+                            <h2 class="block mt-1 text-lg leading-tight font-medium text-gray-500">
+                                {{ candidato.nombre }}
+                            </h2>
 
-                                <div class="mt-4">
-                                    <div class="flex items-center">
-                                        <div class="text-3xl font-bold text-indigo-500 mr-2">
-                                            {{ ((candidato.votos_count / cantidadVotantes) * 100).toFixed(2) }}%
-                                        </div>
-                                        <div class="w-full bg-gray-300 rounded-full h-2.5">
-                                            <div class="bg-indigo-600 h-2.5 rounded-full"
-                                                :style="{ width: `${((candidato.votos_count / cantidadVotantes) * 100)}%` }">
-                                            </div>
-
-                                        </div>
+                            <div class="mt-4">
+                                <div class="flex items-center">
+                                    <div class="text-3xl font-bold text-indigo-500 mr-2">
+                                        {{ candidato.porcentaje }}%
                                     </div>
-                                    <p class="mt-2 text-gray-500">Porcentaje de votos</p>
-                                </div>
+                                    <div class="w-full bg-gray-300 rounded-full h-2.5">
+                                        <div class="bg-indigo-600 h-2.5 rounded-full"
+                                            :style="{ width: `${(candidato.porcentaje)}%` }">
+                                        </div>
 
+                                    </div>
+                                </div>
+                                <p class="mt-2 text-gray-500">Porcentaje de votos</p>
                             </div>
+
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
+
+
         <div class="col-span-12 xl:col-span-7">
             <div class="card">
                 <div class="font-semibold text-xl mb-4">Cantidad de votos por candidato</div>

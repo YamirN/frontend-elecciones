@@ -1,11 +1,15 @@
 <script setup>
 import InputError from '@/components/InputError.vue';
 import InputLabel from '@/components/InputLabel.vue';
-import { createCandidate, deleteCandidateById, fetchCandidate, updateCandidate } from '@/service/candidateService';
-import { formatDateForApi, formatDateForCreateUsers, formatDateInList } from '@/service/utils/dateUtil.js';
+import { deleteCandidateById, updateCandidate } from '@/service/candidateService';
+import { formatDateForApi } from '@/service/utils/dateUtil.js';
+import { useCandidatoStore } from '@/stores/candidatos';
 import SelectButton from 'primevue/selectbutton';
 import { useToast } from 'primevue/usetoast';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
+
+const candidatoStore = useCandidatoStore();
+const errors = computed(() => candidatoStore.errors);
 const imagePreview = ref('null');
 const toast = useToast();
 const candidatos = ref([]);
@@ -15,7 +19,7 @@ const isEditMode = ref(false);
 const deleteCandidateDialog = ref(false);
 const selectedCandidate = ref(null);
 const fileInput = ref(null);
-const errors = ref([]);
+// const errors = ref([]);
 
 const options = ref([
     'Masculino',
@@ -40,22 +44,19 @@ const openNew = () => {
         sexo: '',
         fecha_postulacion: '',
     };
-    errors.value = {};
     imagePreview.value = '';
     candidateCreateDialog.value = true;
 };
 
 const openEdit = (candidate) => {
-
     isEditMode.value = true;
     form.value = {
         id: candidate.id,
-        name: candidate.name,
-        last_name: candidate.last_name,
+        name: candidate.nombre,
+        last_name: candidate.apellido,
         foto: candidate.foto,
         sexo: candidate.sexo,
         fecha_postulacion: candidate.fecha_postulacion,
-        estado: candidate.estado
     };
     imagePreview.value = getImageUrl(candidate.foto) || '';
     candidateCreateDialog.value = true;
@@ -82,13 +83,11 @@ const onFileSelect = (event) => {
         reader.readAsDataURL(file);
     }
 }
-const createAUser = async () => {
-    try {
+const createACandidate = async () => {
 
-        form.value.fecha_postulacion = formatDateForCreateUsers(form.value.fecha_postulacion);
-        await createCandidate(form.value);
+    const createSuccess = await candidatoStore.crearCandidato(form.value);
+    if (createSuccess) {
         candidateCreateDialog.value = false;
-
         form.value = {
             name: '',
             last_name: '',
@@ -98,40 +97,16 @@ const createAUser = async () => {
             estado: 'activo',
             fecha_nacimiento: '',
         };
-
-        await fetchCandidateList();
-        toast.add({ severity: 'success', summary: 'Usuario creado', detail: 'Detalle del mensaje', life: 3000 });
-    } catch (error) {
-
-        errors.value = error.response?.data?.errors || [error.message];
+        await candidatoStore.ObtenerCandidatos();
+        // Mostramos el mensaje de éxito
+        toast.add({
+            severity: 'success',
+            summary: 'Candidato creado',
+            detail: 'El candidato ha sido creado correctamente',
+            life: 3000,
+        });
     }
-};
 
-
-const fetchCandidateList = async () => {
-    try {
-        const response = await fetchCandidate();
-        candidatos.value = response.candidato
-            .filter(candidato => candidato.estado === 'activo')
-            .map(candidato => {
-                const name = candidato.users[0]?.name || 'N/A';
-                const last_name = candidato.users[0]?.last_name || 'N/A';
-                const nameComplete = `${name} ${last_name}`;
-
-                return {
-                    id: candidato.id,
-                    nameComplete,
-                    name,
-                    last_name,
-                    sexo: candidato.sexo,
-                    estado: candidato.estado,
-                    foto: candidato.foto,
-                    fecha_postulacion: formatDateInList(candidato.fecha_postulacion),
-                };
-            });
-    } catch (error) {
-
-    }
 };
 
 const updateAcandidate = async () => {
@@ -146,7 +121,7 @@ const updateAcandidate = async () => {
 
         await updateCandidate(form.value);
         candidateCreateDialog.value = false;
-        await fetchCandidateList();
+        await candidatoStore.ObtenerCandidatos();
         toast.add({ severity: 'success', summary: 'Accion exitosa', detail: 'Candidato actualizado', life: 3000 });
     } catch (error) {
 
@@ -157,7 +132,7 @@ const deleteCandidate = async () => {
     try {
         await deleteCandidateById(selectedCandidate.value.id);
         deleteCandidateDialog.value = false;
-        await fetchCandidateList();
+        await candidatoStore.ObtenerCandidatos();
         toast.add({ severity: 'success', summary: 'Accion exitosa', detail: 'Usuario eliminado', life: 3000 });
         selectedCandidate.value = null;
     } catch (error) {
@@ -168,15 +143,19 @@ const handleSave = () => {
     if (isEditMode.value) {
         updateAcandidate();
     } else {
-        createAUser();
+        createACandidate();
     }
 };
 
-onMounted(fetchCandidateList);
+
+onMounted(() => {
+    candidatoStore.ObtenerCandidatos();
+});
 </script>
 
 <template>
     <div>
+
         <div class="card">
             <Toolbar class="mb-6">
                 <template #start>
@@ -190,7 +169,7 @@ onMounted(fetchCandidateList);
                 </template>
             </Toolbar>
 
-            <DataTable :value="candidatos" :paginator="true" :rows="8" :filters="filters"
+            <DataTable :value="candidatoStore.candidatos" :paginator="true" :rows="8" :filters="filters"
                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                 tableStyle="min-width: 40rem"
                 currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} usuarios">
@@ -206,8 +185,9 @@ onMounted(fetchCandidateList);
                     </div>
                 </template>
 
-                <Column field="nameComplete" header="Nombre" sortable style="width: 25%"></Column>
-                <Column field="sexo" header="Sexo" style="width: 25%"></Column>
+                <Column field="nombre" header="Nombre" sortable style="width: 25%"></Column>
+                <Column field="apellido" header="Apellido" style="width: 25%"></Column>
+                <Column field="estado" header="Estado" style="width: 25%"></Column>
                 <Column field="fecha_postulacion" header="Fecha de postulacion" style="width: 25%"></Column>
 
                 <Column :exportable="false" style="min-width: 12rem" header="Acciones">
@@ -242,13 +222,13 @@ onMounted(fetchCandidateList);
                             </button>
 
                         </div>
-                        <p class="text-sm text-gray-500 mb-2">Subir la foto del candidato</p>
+                        <p class="text-sm text-gray-500 mb-2">Subir la foto del Candidato o Logo</p>
 
                         <InputError class="mt-2" :message="errors.foto ? errors.foto.join(', ') : ''" />
                     </div>
                 </div>
                 <div>
-                    <InputLabel for="name" value="Nombre" />
+                    <InputLabel for="nombre" value="Nombre" />
                     <InputText class="mt-1 block w-full" v-model="form.name" :invalid="!!errors.name" />
                     <InputError class="mt-2" :message="errors.name ? errors.name.join(', ') : ''" />
                 </div>
@@ -268,7 +248,7 @@ onMounted(fetchCandidateList);
                     <InputError class="mt-2" :message="errors.sexo ? errors.sexo.join(', ') : ''" />
                 </div>
                 <div>
-                    <InputLabel for="sexo" value="Fecha de postulacion" />
+                    <InputLabel for="Fecha_postulacion" value="Fecha de postulacion" />
                     <DatePicker class="mt-1 block w-full" v-model="form.fecha_postulacion" dateFormat="yy-mm-dd"
                         :invalid="!!errors.fecha_postulacion" />
 
@@ -289,7 +269,9 @@ onMounted(fetchCandidateList);
             <div class="flex items-center gap-4">
                 <i class="pi pi-exclamation-triangle !text-3xl " style="color: red" />
                 <span class="text-red-500" v-if="selectedCandidate">Estas seguro que quieres eliminar a <b>{{
-                    selectedCandidate.nameComplete
+                    selectedCandidate.nombre
+                        }} {{
+                            selectedCandidate.apellido
                         }}</b>?</span>
             </div>
             <template #footer>

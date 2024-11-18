@@ -1,144 +1,136 @@
 <script setup>
 
-import { fetchCandidate } from '@/service/candidateService';
-import { emitirVoto, fetchVoterData } from '@/service/voterService';
+import { useAuthStore } from '@/stores/auth';
+import { useCandidatoStore } from '@/stores/candidatos';
+import { useVoteStore } from '@/stores/vote';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
+import { useRouter } from "vue-router";
+
+const router = useRouter(); // Accede al router
+const voteStore = useVoteStore();
 const showNotification = ref(false)
 const toast = useToast();
-const user = ref([]);
 const candidatos = ref([]);
 const selectedCandidate = ref(null)
 const message = ref('');
 const errors = ref('');
 
-// Función para obtener los datos del usuario
-const getUserData = async () => {
-    try {
-        const response = await fetchVoterData(); // Llama a la función del servicio
-        user.value = response; // Asigna los datos del usuario
-    } catch (error) {
-        error.value = 'Ocurrió un error al obtener los datos del usuario.';
-    }
-};
+const authStore = useAuthStore();
 
-// Funcion para obtener los candidatos
-const loadCandidatos = async () => {
-    try {
-        const response = await fetchCandidate();
-        candidatos.value = response.candidato;
-    } catch (error) {
-        console.error('Error loading candidatos:', error);
-    }
-};
-
-const vote = async () => {
-    try {
-        const dni = user.value.userable.dni;
-        const now = new Date();
-        const fechaVoto = now.toISOString().slice(0, 19).replace('T', ' '); // Formato correcto para MySQL
-
-        const response = await emitirVoto(dni, selectedCandidate.value, fechaVoto);
-        if (response.success) {
-            showNotification.value = true
-            // Si es exitoso
-            sessionStorage.removeItem('authToken');
-            showNotification.value = true;
-
-            setTimeout(() => {
-                showNotification.value = false;
-                selectedCandidate.value = null;
-                window.location.href = '/auth/loginelecciones';
-            }, 2000);
-        }
-
-    } catch (error) {
-        console.error('Error al registrar el voto:', error);
-        sessionStorage.removeItem('authToken');
-        window.location.href = '/auth/loginelecciones';
-        toast.add({ severity: 'error', summary: 'Error', detail: 'Ya has votado.', life: 3000 });
-    }
-};
-
-const getImageUrl = (foto) => {
-    // Devuelve la URL completa de la imagen
-    return `${import.meta.env.VITE_APP_API_URL}/storage/${foto}`;
-
-};
+const candidatoStore = useCandidatoStore();
 
 const selectCandidate = (id) => {
     selectedCandidate.value = id
 }
+
+const vote = async () => {
+    try {
+        const dni = authStore.user.dni;
+        const isVoteSuccessful = await voteStore.submitVote({ dni: dni, candidateId: selectedCandidate.value });
+        if (isVoteSuccessful) {
+            showNotification.value = true;
+            authStore.logout();
+            setTimeout(() => {
+                showNotification.value = false;
+                selectedCandidate.value = null;
+                router.push({ name: 'loginelecciones' });
+            }, 2000);
+        }
+    } catch (error) {
+        console.error('Error al registrar el voto:', error);
+        authStore.logout(); // Redirige si hay un error
+        router.push({ name: 'loginelecciones' });
+    }
+};
+
+const getImageUrl = (foto) => {
+    if (!foto) {
+        return '/path/to/default/image.png'; // Ruta a una imagen por defecto si no hay foto
+    }
+    // Remover el prefijo 'api' de la URL
+    return `${import.meta.env.VITE_APP_API_URL.replace('/api', '')}/storage/${foto}`;
+};
+
+
 onMounted(getImageUrl);
-onMounted(getUserData);
-onMounted(loadCandidatos);
+onMounted(() => {
+    candidatoStore.ObtenerCandidatos();
+});
 </script>
 
 <template>
+    <div class="min-h-screen bg-gradient-to-br from-red-800 to-white flex items-center justify-center p-4">
+        <div class="bg-white bg-opacity-95 border-2 border-gray-200 rounded-lg shadow-xl p-6 w-full max-w-2xl">
+            <header class="text-center mb-6">
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">CÉDULA DE VOTACIÓN</h1>
+                <h2 class="text-xl text-black-600">Elecciones para Presidente del Consejo Estudiantil</h2>
+            </header>
 
-    <div class="min-h-screen bg-gradient-to-br from-red-800 to-white flex items-center justify-center p-6">
-        <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-4xl">
-            <div v-if="user" class="text-2xl font-bold text-center mb-4 text-gray-800">
-                <p>Hola, {{ user.name }} {{ user.last_name }}</p>
+            <div class="mb-6">
+                <p class="text-sm text-gray-600 text-center font-medium">Haga clic en la imagen del candidato de su
+                    preferencia para marcar con una X</p>
             </div>
-            <h1 class="text-4xl font-bold text-center mb-8 text-gray-800">Emite tu voto</h1>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div v-for="candidato in candidatos" :key="candidato.id" @click="selectCandidate(candidato.id)"
-                    class="relative cursor-pointer group">
-                    <div :class="[
-                        'bg-gray-50 rounded-xl p-4 transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg',
-                        { 'ring-4 ring-red-500 shadow-lg scale-105': selectedCandidate === candidato.id }
-                    ]">
-                        <div class="relative mb-4">
-                            <img :src="getImageUrl(candidato.foto)" :alt="candidato.name"
-                                class="w-full h-48 object-cover rounded-lg shadow-md" />
-                            <div
-                                class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent rounded-lg flex items-end justify-center p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                <span class="text-white text-lg font-semibold">{{ candidato.users[0]?.name }} {{
-                                    candidato.users[0]?.last_name }} </span>
-                            </div>
-                        </div>
-
+            <div class="space-y-3">
+                <div v-for="candidato in candidatoStore.candidatos" :key="candidato.id"
+                    class="flex items-center border-2 rounded-lg p-3 transition-all duration-300 ease-in-out" :class="[selectedCandidate === candidato.id
+                        ? 'border-green-400 bg-green-50'
+                        : 'border-gray-200 bg-gray-50 hover:border-gray-300 hover:bg-gray-100']">
+                    <div class="flex-grow">
+                        <p class="font-semibold text-gray-800">{{ candidato.nombre }}</p>
+                        <p class="text-sm text-gray-600">{{ candidato.name }}</p>
                     </div>
-                    <div v-if="selectedCandidate === candidato.id"
-                        class="absolute top-2 right-2 bg-red-500 text-white rounded-full flex items-center justify-center"
-                        style="width: 2rem; height: 2rem;">
-                        <i class="pi pi-check" style="font-size: 1rem"></i>
+                    <div class="relative w-16 h-16">
+                        <img :src="getImageUrl(candidato.foto)" :alt="candidato.name"
+                            class="w-full h-full object-cover rounded-lg cursor-pointer shadow-md"
+                            @click="selectCandidate(candidato.id)">
+                        <div v-if="selectedCandidate === candidato.id"
+                            class="absolute inset-0 flex items-center justify-center">
+                            <div class="absolute inset-0 bg-white opacity-70 rounded-lg"></div>
+                            <svg class="absolute inset-0 w-full h-full text-black" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <button @click="vote" :disabled="!selectedCandidate"
-                className="mt-8 w-full bg-gradient-to-r from-red-600 to-red-600 text-white py-3 px-4 rounded-lg font-semibold text-lg transition duration-300 ease-in-out hover:from-red-600 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105">
-                Votar
-            </button>
+            <div class="flex justify-center mt-8">
+                <button @click="vote"
+                    class="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-bold py-3 px-6 rounded-full focus:outline-none focus:shadow-outline transition duration-300 ease-in-out transform hover:scale-105"
+                    :disabled="!selectedCandidate">
+                    Emitir Voto
+                </button>
+            </div>
 
             <Transition name="fade">
                 <p v-if="message" class="mt-4 text-center text-green-600 font-medium">{{ message }}</p>
             </Transition>
-        </div>
-        <Teleport to="body">
-            <Transition name="fade">
-                <div v-if="showNotification"
-                    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div class="bg-white rounded-lg p-8 max-w-sm w-full mx-4 shadow-2xl transform transition-all duration-300 ease-out"
-                        :class="{ 'scale-100 opacity-100': showNotification, 'scale-95 opacity-0': !showNotification }">
-                        <div class="text-center">
-                            <i class="pi pi-check-circle mx-auto text-green-500 mb-4" style="font-size: 5rem"></i>
 
-                            <h2 class=" text-2xl font-bold mb-2 text-gray-800">¡Gracias por votar!</h2>
-                            <p class="text-lg text-gray-600 mb-4">Tu voto ha sido registrado con éxito.</p>
-                            <div class="w-full bg-gray-200 rounded-full h-2.5 mb-4 overflow-hidden">
-                                <div class="bg-green-500 h-full rounded-full countdown-progress"></div>
+            <Teleport to="body">
+                <Transition name="fade">
+                    <div v-if="showNotification"
+                        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                        <div class="bg-white rounded-lg p-8 max-w-sm w-full mx-4 shadow-2xl transform transition-all duration-300 ease-out"
+                            :class="{ 'scale-100 opacity-100': showNotification, 'scale-95 opacity-0': !showNotification }">
+                            <div class="text-center">
+                                <i class="pi pi-check-circle mx-auto text-green-500 mb-4" style="font-size: 5rem"></i>
+                                <h2 class="text-2xl font-bold mb-2 text-gray-800">¡Gracias por votar!</h2>
+                                <p class="text-lg text-gray-600 mb-4">Tu voto ha sido registrado con éxito.</p>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5 mb-4 overflow-hidden">
+                                    <div class="bg-green-500 h-full rounded-full countdown-progress"></div>
+                                </div>
+                                <p class="text-sm text-gray-500">Su sesión se cerrará en breve</p>
                             </div>
-                            <p class="text-sm text-gray-500">Su sesion se cerrará en breve</p>
                         </div>
                     </div>
-                </div>
-            </Transition>
-        </Teleport>
-        <Toast />
+                </Transition>
+            </Teleport>
+            <Toast />
+        </div>
     </div>
 </template>
 

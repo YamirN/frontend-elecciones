@@ -1,31 +1,6 @@
 
 import apiClient from './axios'; // Asegúrate de ajustar la ruta
 
-// Funcion para obtener al votante autenticado
-export const fetchVoterData = async () => {
-    try {
-        // Obtener el token desde localStorage
-        const token = sessionStorage.getItem('authToken');
-
-        if (!token) {
-            throw new Error('No se encontró el token de autenticación.');
-        }
-
-        // Realizar la solicitud API para obtener los datos del usuario
-        const response = await apiClient.get('/me', {
-            headers: {
-                Authorization: `Bearer ${token}` // Enviar el token en los headers
-            }
-        });
-
-        return response.data;
-
-    } catch (error) {
-        // console.error('Error obteniendo los datos del usuario:', error);
-        throw error;
-    }
-};
-
 // Funcion para crear al votante
 export const createVoter = async (votanteData) => {
     try {
@@ -38,21 +13,10 @@ export const createVoter = async (votanteData) => {
     }
 };
 
-export const emitirVoto = async (dni, candidatoId, fechaVoto) => {
-    try {
-
-        const response = await apiClient.post('/emitir-voto', {
-            dni,
-            candidato_id: candidatoId,
-            fecha_voto: fechaVoto // Fecha correctamente formateada
-        });
-        return response.data;
-
-    } catch (error) {
-        // console.error('Error voting for candidate:', error);
-        throw error;
-    }
+export const emitirVoto = async (dni, candidato_id, fecha_voto) => {
+    return await apiClient.post('/emitir-voto', { dni, candidato_id, fecha_voto });
 };
+
 
 export const logoutResponse = async () => {
     try {
@@ -65,55 +29,40 @@ export const logoutResponse = async () => {
 
 };
 
-export const ObtenerNoVotantes = async () => {
-    try {
-        const response = await apiClient.get('/no-voto');
-        return response.data;
-    } catch (Error) {
-        throw Error;
-    }
+
+export const fetchVoter = async () => {
+    return await apiClient.get('/votantes');
 };
 
-export const ObtenerVotantes = async () => {
+export const obtenerResultados = async () => {
     try {
-        const response = await apiClient.get('/CantidadVotantes');
-        return response.data;
-    } catch (Error) {
-        throw Error;
-    }
-};
-export const fetchVoter = async () => {
-    try {
-        const response = await apiClient.get('/votantes');
+        const response = await apiClient.get('/resultados');
+
         return response.data;
     } catch (error) {
-
+        console.error('Error al obtener los resultados:', error);
         throw error;
     }
 };
-export const ObtenerVotantesOk = async () => {
-    try {
-        const response = await apiClient.get('/voto');
-        return response.data;
-    } catch (Error) {
-        throw Error;
-    }
-};
+
 
 export const importVotantes = async (file) => {
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('file', file); // Añadir el archivo al FormData
+
     try {
         const response = await apiClient.post('/import-votantes', formData, {
             headers: {
-                'Content-Type': 'multipart/form-data',
-            },
+                'Content-Type': 'multipart/form-data', // Asegurarse de que se reconoce como un archivo
+            }
         });
-        return response.data;
+        return response.data; // Devuelve la respuesta del backend
     } catch (error) {
-        throw error.response.data;
+        console.error("Error al importar votantes:", error);
+        throw error; // Lanza el error para ser capturado en el store o componente
     }
 };
+
 
 export const exportVotantes = async () => {
     try {
@@ -135,6 +84,10 @@ export const deleteVoterById = async (voterId) => {
 
         throw error;
     }
+};
+
+export const DeleteAllVoter = async () => {
+    return await apiClient.delete('/votantes-deleteall');
 };
 
 export const updateVoter = async (voterData) => {

@@ -2,10 +2,10 @@ import axios from 'axios';
 
 // Configuración base de Axios
 const apiClient = axios.create({
-    baseURL: 'http://127.0.0.1:8000/api', // Cambia esto por la URL de tu API
+    baseURL: import.meta.env.VITE_APP_API_URL,
     headers: {
+        Accept: 'application/json',
         'Content-Type': 'application/json',
-        Accept: 'application/json'
     },
     withCredentials: true // Esto es necesario si tu API utiliza cookies para autenticación
 });
