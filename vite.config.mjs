@@ -5,6 +5,7 @@ import vue from '@vitejs/plugin-vue';
 import Components from 'unplugin-vue-components/vite';
 import { defineConfig } from 'vite';
 import vueDevTools from 'vite-plugin-vue-devtools';
+
 // https://vitejs.dev/config/
 export default defineConfig({
     optimizeDeps: {
@@ -27,14 +28,11 @@ export default defineConfig({
         environment: 'jsdom'
     },
     build: {
+        outDir: 'dist', // Asegúrate de que la salida sea 'dist'
         rollupOptions: {
-            input: {
-                main: './src/main.js'
-            },
             output: {
-                format: 'es' // Asegúrate de que el formato de salida sea 'es'
+                format: 'es'
             }
         }
     }
-
 });
