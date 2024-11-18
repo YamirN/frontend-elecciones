@@ -45,11 +45,7 @@ const routes = [
                 name: 'empty',
                 component: () => import('@/views/pages/Empty.vue')
             },
-            {
-                path: '/pages/crud',
-                name: 'crud',
-                component: () => import('@/views/pages/Crud.vue')
-            },
+
             {
                 path: '/user/usercrud',
                 name: 'usercrud',
@@ -74,16 +70,8 @@ const routes = [
     },
 
 
-    {
-        path: '/auth/access',
-        name: 'accessDenied',
-        component: () => import('@/views/pages/auth/Access.vue')
-    },
-    {
-        path: '/auth/error',
-        name: 'error',
-        component: () => import('@/views/pages/auth/Error.vue')
-    }
+
+
 ];
 
 const router = createRouter({

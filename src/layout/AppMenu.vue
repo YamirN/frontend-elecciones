@@ -22,11 +22,7 @@ const model = ref([
                 label: 'Gestionar Usuarios',
                 icon: 'pi pi-fw pi-user-edit',
                 items: [
-                    // {
-                    //     label: 'Usuarios',
-                    //     icon: 'pi pi-fw pi-users',
-                    //     to: '/user/usercrud'
-                    // },
+
                     {
                         label: 'Candidatos',
                         icon: 'pi pi-fw pi-user',
