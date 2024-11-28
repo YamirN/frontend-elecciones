@@ -9,9 +9,9 @@ const echo = new Echo({
     broadcaster: 'pusher',
     key: 'c71bbb99156889c0a715',
     cluster: 'us2',
-    wsHost: window.location.hostname,
+    wsHost: 'elecciones-fronted-vue.vercel.app',
     wsPort: 6001,
-    forceTLS: false,
+    forceTLS: true,
     disableStats: true,
     enabledTransports: ['ws', 'wss'], // Permite WebSocket y WebSocket seguro
 });
