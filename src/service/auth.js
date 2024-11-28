@@ -10,11 +10,11 @@ export const isAuthenticatedVoter = () => {
 
 
 export const loginVotante = async (dni) => {
-    return await apiClient.post('/auth/votante/login', { dni });
+    return await apiClient.post('/api/auth/votante/login', { dni });
 
 };
 
 export const loginAdmin = async (email, password) => {
-    return await apiClient.post('/auth/login', { email, password });
+    return await apiClient.post('/api/auth/login', { email, password });
 
 };

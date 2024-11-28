@@ -2,7 +2,7 @@ import apiClient from './axios'; // Asegúrate de ajustar la ruta
 
 export const fetchUsers = async () => {
     try {
-        const response = await apiClient.get('/users');
+        const response = await apiClient.get('/api/users');
         return response.data.users || [];
     } catch (error) {
         console.error('Error al obtener usuarios:', error);
@@ -12,7 +12,7 @@ export const fetchUsers = async () => {
 
 export const createUser = async (userData) => {
     try {
-        const response = await apiClient.post('/users', userData);
+        const response = await apiClient.post('/api/users', userData);
         return response.data;
     } catch (error) {
         console.error('Error al crear el usuario:', error);
@@ -22,7 +22,7 @@ export const createUser = async (userData) => {
 
 export const updateUser = async (userData) => {
     try {
-        const response = await apiClient.put(`/users/${userData.id}`, userData);
+        const response = await apiClient.put(`/api/users/${userData.id}`, userData);
         return response.data;
     } catch (error) {
         console.error('Error al actualizar el usuario:', error);
@@ -32,7 +32,7 @@ export const updateUser = async (userData) => {
 
 export const deleteUserById = async (userId) => {
     try {
-        const response = await apiClient.delete(`/users/${userId}`);
+        const response = await apiClient.delete(`/api/users/${userId}`);
         return response.data;
     } catch (error) {
         console.error('Error en la API al eliminar el usuario:', error);

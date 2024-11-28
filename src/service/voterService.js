@@ -4,7 +4,7 @@ import apiClient from './axios'; // Asegúrate de ajustar la ruta
 // Funcion para crear al votante
 export const createVoter = async (votanteData) => {
     try {
-        const response = await apiClient.post('/votantes', votanteData);
+        const response = await apiClient.post('/api/votantes', votanteData);
         return response.data;
 
     } catch (error) {
@@ -14,13 +14,13 @@ export const createVoter = async (votanteData) => {
 };
 
 export const emitirVoto = async (dni, candidato_id, fecha_voto) => {
-    return await apiClient.post('/emitir-voto', { dni, candidato_id, fecha_voto });
+    return await apiClient.post('/api/emitir-voto', { dni, candidato_id, fecha_voto });
 };
 
 
 export const logoutResponse = async () => {
     try {
-        const response = await apiClient.post('/logout');  // Asegúrate de que esta ruta exista
+        const response = await apiClient.post('/api/logout');  // Asegúrate de que esta ruta exista
         return response.data;
     } catch (logoutError) {
         // console.error('Error al cerrar la sesión:', logoutError);
@@ -31,12 +31,12 @@ export const logoutResponse = async () => {
 
 
 export const fetchVoter = async () => {
-    return await apiClient.get('/votantes');
+    return await apiClient.get('/api/votantes');
 };
 
 export const obtenerResultados = async () => {
     try {
-        const response = await apiClient.get('/resultados');
+        const response = await apiClient.get('/api/resultados');
 
         return response.data;
     } catch (error) {
@@ -51,7 +51,7 @@ export const importVotantes = async (file) => {
     formData.append('file', file); // Añadir el archivo al FormData
 
     try {
-        const response = await apiClient.post('/import-votantes', formData, {
+        const response = await apiClient.post('/api/import-votantes', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data', // Asegurarse de que se reconoce como un archivo
             }
@@ -66,7 +66,7 @@ export const importVotantes = async (file) => {
 
 export const exportVotantes = async () => {
     try {
-        const response = await apiClient.get('/votantes-exportar', {
+        const response = await apiClient.get('/api/votantes-exportar', {
             responseType: 'blob', // Para manejar archivos de tipo Blob como Excel
         });
         return response.data;
@@ -78,7 +78,7 @@ export const exportVotantes = async () => {
 
 export const deleteVoterById = async (voterId) => {
     try {
-        const response = await apiClient.delete(`/votantes/${voterId}`);
+        const response = await apiClient.delete(`/api/votantes/${voterId}`);
         return response.data;
     } catch (error) {
 
@@ -87,12 +87,12 @@ export const deleteVoterById = async (voterId) => {
 };
 
 export const DeleteAllVoter = async () => {
-    return await apiClient.delete('/votantes-deleteall');
+    return await apiClient.delete('/api/votantes-deleteall');
 };
 
 export const updateVoter = async (voterData) => {
     try {
-        const response = await apiClient.put(`/votantes/${voterData.id}`, voterData);
+        const response = await apiClient.put(`/api/votantes/${voterData.id}`, voterData);
         return response.data;
     } catch (error) {
 
