@@ -9,7 +9,7 @@ const echo = new Echo({
     broadcaster: 'pusher',
     key: 'c71bbb99156889c0a715',
     cluster: 'us2',
-    wsHost: 'elecciones-fronted-vue.vercel.app',
+    wsHost: 'votacionesbondy.icu',
     wsPort: 6001,
     forceTLS: true,
     disableStats: true,
