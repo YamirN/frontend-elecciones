@@ -9,10 +9,11 @@ const echo = new Echo({
     broadcaster: 'pusher',
     key: 'c71bbb99156889c0a715',
     wsHost: 'api.coordinacionbondy.com',
-    wsPort: 6001,
-    wssPort: 6001,
+    wsPort: 443,
+    wssPort: 443,
     forceTLS: true,
     disableStats: true,
+    enabledTransports: ['ws', 'wss'],
 
 });
 
