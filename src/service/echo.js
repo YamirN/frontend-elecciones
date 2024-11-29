@@ -7,13 +7,11 @@ window.Pusher = Pusher;
 
 const echo = new Echo({
     broadcaster: 'pusher',
-    key: 'c71bbb99156889c0a715',
-    wsHost: 'api.coordinacionbondy.com',
-    wsPort: 6001,
-    wssPort: 6001,
+    key: process.env.MIX_PUSHER_APP_KEY,
+    cluster: process.env.MIX_PUSHER_APP_CLUSTER,
     forceTLS: true,
     disableStats: true,
-    enabledTransports: ['ws', 'wss'],
+    // enabledTransports: ['ws', 'wss'],
 
 });
 
