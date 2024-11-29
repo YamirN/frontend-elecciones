@@ -106,33 +106,25 @@ function setChartOptions() {
     };
 }
 
-
 const getImageUrl = (foto) => {
     if (!foto) {
-        return '/path/to/default/image.png'; // Ruta a una imagen por defecto si no hay foto
+        return '/path/to/default/image.png';
     }
-    // Remover el prefijo 'api' de la URL
     return `${import.meta.env.VITE_APP_API_URL}/storage/${foto}`;
 };
 
-
-
-
 onMounted(() => {
-    // Conéctate al canal "votos" y escucha el evento "NuevoVoto"
     echo.channel('votos')
         .listen('NuevoVoto', (event) => {
 
             setChartData(event.resultados.resultados);
             resultados.value = event.resultados.resultados;
 
-
             totalVotantes.value = event.resultados.estadisticas.totalVotantes;
             votantesQueVotaron.value = event.resultados.estadisticas.votantesQueVotaron;
             votantesPendientes.value = event.resultados.estadisticas.votantesPendientes;
         });
 
-    // Llama a tus funciones iniciales
     fetchResultados();
     getImageUrl();
 });
@@ -202,7 +194,7 @@ watch([getPrimary, getSurface, isDarkTheme], () => {
 
 
             <div class="card">
-                <h2 class="text-xl font-semibold  mb-4">Ranking de Candidatos</h2>
+                <h2 class="text-xl font-semibold mb-4">Ranking de Candidatos</h2>
                 <div class="space-y-4">
 
                     <div class="bg-gray-100 dark:bg-gray-400/10 rounded-lg p-4 flex items-center space-x-4 transition-all duration-300 hover:shadow-md"
@@ -243,9 +235,9 @@ watch([getPrimary, getSurface, isDarkTheme], () => {
             </div>
         </div>
 
+        <div class="card">
+            <div class="col-span-12 xl:col-span-7">
 
-        <div class="col-span-12 xl:col-span-7">
-            <div class="card">
                 <div class="font-semibold text-xl mb-4">Cantidad de votos por candidato</div>
                 <Chart type="bar" :data="chartData" :options="chartOptions" class="h-80" />
             </div>
