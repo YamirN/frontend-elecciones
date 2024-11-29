@@ -235,11 +235,11 @@ watch([getPrimary, getSurface, isDarkTheme], () => {
             </div>
         </div>
 
-        <div class="card">
-            <div class="col-span-12 xl:col-span-7">
 
+        <div class="col-span-12 xl:col-span-7">
+            <div class="card">
                 <div class="font-semibold text-xl mb-4">Cantidad de votos por candidato</div>
-                <Chart type="bar" :data="chartData" :options="chartOptions" class="h-80" />
+                <Chart type="bar" :data="chartData" :options="chartOptions" class="h-100" />
             </div>
 
         </div>
