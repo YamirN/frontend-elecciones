@@ -7,7 +7,7 @@ window.Pusher = Pusher;
 
 const echo = new Echo({
     broadcaster: 'pusher',
-    key: process.env.MIX_PUSHER_APP_KEY,
+    key: 'c71bbb99156889c0a715',
     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
     forceTLS: true,
     disableStats: true,
