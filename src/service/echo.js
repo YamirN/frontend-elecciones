@@ -7,7 +7,7 @@ window.Pusher = Pusher;
 
 const echo = new Echo({
     broadcaster: 'pusher',
-    key: '1478963',
+    key: 'some_key',
     wsHost: 'api.coordinacionbondy.com',
     wsPort: 6001,
     wssPort: 6001,
