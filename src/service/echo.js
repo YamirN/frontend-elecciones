@@ -9,7 +9,7 @@ const echo = new Echo({
     broadcaster: 'pusher',
     key: 'c71bbb99156889c0a715',
     cluster: 'us2',
-    wsHost: 'api.coordinacionbondy.com',
+    wsHost: window.location.hostname,
     wsPort: 6001,
     wssPort: 6001,
     forceTLS: true,
