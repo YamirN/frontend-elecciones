@@ -49,7 +49,7 @@ const getImageUrl = (foto) => {
         return '/path/to/default/image.png'; // Ruta a una imagen por defecto si no hay foto
     }
     // Remover el prefijo 'api' de la URL
-    return `${import.meta.env.VITE_APP_API_URL.replace('/api', '')}/storage/${foto}`;
+    return `${import.meta.env.VITE_APP_API_URL}/storage/${foto}`;
 };
 
 
