@@ -194,7 +194,7 @@ watch([getPrimary, getSurface, isDarkTheme], () => {
 
 
             <div class="card">
-                <h2 class="text-xl font-semibold mb-4">Ranking de Candidatos</h2>
+                <h2 class="text-xl font-semibold mb-4">Candidatos - Porcentajes</h2>
                 <div class="space-y-4">
 
                     <div class="bg-gray-100 dark:bg-gray-400/10 rounded-lg p-4 flex items-center space-x-4 transition-all duration-300 hover:shadow-md"

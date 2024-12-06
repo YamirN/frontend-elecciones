@@ -5,7 +5,7 @@ import AppMenuItem from './AppMenuItem.vue';
 
 const model = ref([
     {
-        label: 'Home',
+        label: 'Inicio',
         items: [{ label: 'Estadisticas', icon: 'pi pi-fw pi-home', to: '/dashboard' }]
     },
 
@@ -29,7 +29,7 @@ const model = ref([
                         to: '/user/candidatecrud'
                     },
                     {
-                        label: 'Electores',
+                        label: 'Estudiantes',
                         icon: 'pi pi-users',
                         to: '/user/votercrud'
                     }
@@ -40,7 +40,7 @@ const model = ref([
         ]
     },
     {
-        label: 'Configuraciones',
+        label: 'REPORTES',
         to: '/pages',
         items: [
 
@@ -48,7 +48,7 @@ const model = ref([
 
 
             {
-                label: 'Reportes',
+                label: 'Actas',
                 icon: 'pi pi-file-pdf',
                 to: '/pages/empty'
             }

@@ -367,8 +367,8 @@ watch(() => form.value, validateSelection, { deep: true });
             </div>
 
             <template #footer>
-                <Button label="Cancel" icon="pi pi-times" text @click="voterCreateDialog = false" />
-                <Button label="Save" class="custom-cancel-button" text icon="pi pi-check" @click="handleSave"
+                <Button label="Cancelar" icon="pi pi-times" text @click="voterCreateDialog = false" />
+                <Button label="Guardar" class="custom-cancel-button" text icon="pi pi-check" @click="handleSave"
                     :disabled="!isValidSelection" />
             </template>
         </Dialog>
@@ -385,7 +385,7 @@ watch(() => form.value, validateSelection, { deep: true });
             </div>
             <template #footer>
                 <Button label="No" icon="pi pi-times" severity="secondary" text @click="deleteVoterDialog = false" />
-                <Button label="Yes" icon="pi pi-check" @click="deleteVoter" severity="danger" />
+                <Button label="Si" icon="pi pi-check" @click="deleteVoter" severity="danger" />
             </template>
         </Dialog>
 
@@ -399,12 +399,9 @@ watch(() => form.value, validateSelection, { deep: true });
         :dismissableMask="true">
         <div class="p-4">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-2xl font-bold">Subir Excel de los Electores</h2>
+                <h2 class="text-2xl font-bold">Subir Excel de los Estudiantes</h2>
                 <Button icon="pi pi-times" @click="closeDialog" class="p-button-rounded p-button-text" />
             </div>
-
-
-
             <Message severity="warn" :closable="false" class="mb-6">
                 <template #icon>
                     <i class="pi pi-exclamation-triangle mr-2"></i>
@@ -469,7 +466,7 @@ watch(() => form.value, validateSelection, { deep: true });
     <Dialog v-model:visible="deleteConfirmVisible" modal header="Confirmar eliminación" :style="{ width: '350px' }">
         <div class="flex align-items-center justify-content-center">
             <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-            <span>¿Está seguro de que desea eliminar a todos los votantes?</span>
+            <span>¿Está seguro de que desea eliminar todos los registros de estudiantes?</span>
         </div>
         <template #footer>
             <Button label="No" icon="pi pi-times" @click="deleteConfirmVisible = false" class="p-button-text" />

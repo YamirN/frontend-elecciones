@@ -259,8 +259,8 @@ onMounted(() => {
                 <div class="flex justify-center"></div>
             </div>
             <template #footer>
-                <Button label="Cancel" icon="pi pi-times" text @click="candidateCreateDialog = false" />
-                <Button label="Save" class="custom-cancel-button" text icon="pi pi-check" @click="handleSave" />
+                <Button label="Cancelar" icon="pi pi-times" text @click="candidateCreateDialog = false" />
+                <Button label="Guardar" class="custom-cancel-button" text icon="pi pi-check" @click="handleSave" />
             </template>
         </Dialog>
 
@@ -277,7 +277,7 @@ onMounted(() => {
             <template #footer>
                 <Button label="No" icon="pi pi-times" severity="secondary" text
                     @click="deleteCandidateDialog = false" />
-                <Button label="Yes" icon="pi pi-check" @click="deleteCandidate" severity="danger" />
+                <Button label="Si" icon="pi pi-check" @click="deleteCandidate" severity="danger" />
             </template>
         </Dialog>
     </div>
