@@ -41,7 +41,7 @@ export default defineConfig({
         allowedHosts: [
             'localhost',
             '127.0.0.1',
-            '16eb-38-255-111-144.ngrok-free.app' // ✅ Sin https://
+            'c55f-38-255-111-144.ngrok-free.app' // ✅ Sin https://
         ]
     }
 });
