@@ -1,25 +1,58 @@
-/* Utils */
-.clearfix:after {
-    content: ' ';
-    display: block;
-    clear: both;
+/* Clearfix */
+.clearfix::after {
+  content: '';
+  display: table;
+  clear: both;
 }
 
+/* Card estilo AdminLTE */
 .card {
-    background: var(--surface-card);
-    padding: 2rem;
-    margin-bottom: 2rem;
-    border-radius: var(--content-border-radius);
+  background-color: #ffffff; // Fondo blanco como AdminLTE
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-radius: 4px;
+  border: 1px solid #d2d6de; // Gris claro AdminLTE
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.3s ease;
 
-    &:last-child {
-        margin-bottom: 0;
-    }
+  &:hover {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 }
 
+/* PrimeVue Toast ajustado */
 .p-toast {
-    &.p-toast-top-right,
-    &.p-toast-top-left,
-    &.p-toast-top-center {
-        top: 100px;
-    }
+  &.p-toast-top-right,
+  &.p-toast-top-left,
+  &.p-toast-top-center {
+    top: 100px; // Espacio para topbar fijo
+  }
+
+  .p-toast-message {
+    background-color: #fefefe;
+    color: #333;
+    border-left: 4px solid #007bff; // Color info AdminLTE
+    padding: 1rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .p-toast-message-error {
+    border-left-color: #dc3545;
+  }
+
+  .p-toast-message-success {
+    border-left-color: #28a745;
+  }
+
+  .p-toast-message-warn {
+    border-left-color: #ffc107;
+  }
+
+  .p-toast-message-info {
+    border-left-color: #17a2b8;
+  }
 }

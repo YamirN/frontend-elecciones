@@ -1,13 +1,56 @@
 .layout-main-container {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    justify-content: space-between;
-    padding: 6rem 2rem 0 2rem;
-    transition: margin-left var(--layout-section-transition-duration);
+  display: flex;
+  flex-direction: column;
+  min-height: 250vh;
+  justify-content: space-between;
+  padding: 6rem 2rem 0 2rem;
+  transition: margin-left var(--layout-section-transition-duration);
+  background-color: #ecf0f5; // Fondo AdminLTE base
+
 }
 
 .layout-main {
-    flex: 1 1 auto;
-    padding-bottom: 2rem;
+  flex: 1 1 auto;
+  padding-bottom: 2rem;
+
+  > * {
+    background-color: #ecf0f5; // Fondo blanco para tarjetas/contenido
+    border-radius: 4px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05); // Sombra sutil
+    transition: box-shadow 0.3s ease;
+
+    &:hover {
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    }
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .layout-main-container {
+    padding: 5rem 1rem 0 1rem;
+  }
+
+  .layout-main {
+    padding-bottom: 1rem;
+
+    > * {
+      padding: 1rem;
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  .layout-main-container {
+    padding: 4rem 0.75rem 0 0.75rem;
+  }
+
+  .layout-main > * {
+    border-radius: 3px;
+    border: 1px solid #d2d6de;
+    box-shadow: none;
+  }
 }

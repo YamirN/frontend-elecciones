@@ -1,5 +1,5 @@
 
-import { emitirVoto } from '@/service/voterService';
+import { emitirVoto } from '@/service/estudianteService';
 import { defineStore } from 'pinia';
 export const useVoteStore = defineStore('vote', {
     state: () => ({

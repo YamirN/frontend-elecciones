@@ -1,178 +1,208 @@
 <script setup>
-import InputError from '@/components/InputError.vue';
-import InputLabel from '@/components/InputLabel.vue';
-import { deleteCandidateById, updateCandidate } from '@/service/candidateService';
-import { formatDateForApi } from '@/service/utils/dateUtil.js';
+import AutocompleteEstudiante from '@/components/AutocompleteEstudiante.vue';
 import { useCandidatoStore } from '@/stores/candidatos';
-import SelectButton from 'primevue/selectbutton';
+import { useCargoStore } from '@/stores/cargoStore';
+import { useEleccionStore } from '@/stores/eleccionesStore';
+import { useEstudianteStore } from '@/stores/estudianteStore';
+import { usePartidoStore } from '@/stores/partidoStore';
+import { storeToRefs } from 'pinia';
 import { useToast } from 'primevue/usetoast';
-import { computed, onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 
+// States y Stores
+const eleccionStore = useEleccionStore();
 const candidatoStore = useCandidatoStore();
-const errors = computed(() => candidatoStore.errors);
-const imagePreview = ref('null');
-const toast = useToast();
-const candidatos = ref([]);
-const filters = ref({ global: { value: '' } });
-const candidateCreateDialog = ref(false);
-const isEditMode = ref(false);
-const deleteCandidateDialog = ref(false);
+const estudianteStore = useEstudianteStore();
+const cargoStore = useCargoStore();
+const partidoStore = usePartidoStore();
+
+const { elecciones, loading: loadingElecciones } = storeToRefs(eleccionStore);
+const { candidatos, loading: loadingCandidatos } = storeToRefs(candidatoStore);
+const { estudiantes, loadingEstudiantes } = storeToRefs(estudianteStore);
+const { cargos } = storeToRefs(cargoStore);
+const { partidos } = storeToRefs(partidoStore);
+
+const eleccionSeleccionada = ref('');
 const selectedCandidate = ref(null);
-const fileInput = ref(null);
-// const errors = ref([]);
+const isEditMode = ref(false);
+const showFormDialog = ref(false);
+const showDeleteDialog = ref(false);
+const toast = useToast();
 
-const options = ref([
-    'Masculino',
-    'Femenino'
-]);
-const form = ref({
-    name: '',
-    last_name: '',
-    foto: null,
-    sexo: '',
-    fecha_postulacion: '',
-    estado: 'activo',
+const filters = ref({ global: { value: '' } });
+const skeletonRows = Array.from({ length: 8 }, () => ({}));
 
+// 🧾 Valores iniciales del formulario
+const initialValues = ref({
+    estudiante: null,
+    partido_politico_id: '',
+    cargo_id: '',
+    eleccion_id: ''
 });
 
+const errors = ref({});
+
+// 🧼 Reset del formulario
+const resetForm = () => {
+    initialValues.value = {
+        estudiante_id: '',
+        partido_politico_id: '',
+        cargo_id: '',
+        eleccion_id: eleccionSeleccionada.value || ''
+    };
+    errors.value = {};
+};
+
+// 🆕 Crear nuevo candidato
 const openNew = () => {
     isEditMode.value = false;
-    form.value = {
-        name: '',
-        last_name: '',
-        foto: '',
-        sexo: '',
-        fecha_postulacion: '',
-    };
-    imagePreview.value = '';
-    candidateCreateDialog.value = true;
+    resetForm();
+    showFormDialog.value = true;
 };
 
-const openEdit = (candidate) => {
+// ✏️ Editar candidato
+const openEdit = (candidato) => {
     isEditMode.value = true;
-    form.value = {
-        id: candidate.id,
-        name: candidate.nombre,
-        last_name: candidate.apellido,
-        foto: candidate.foto,
-        sexo: candidate.sexo,
-        fecha_postulacion: candidate.fecha_postulacion,
+    initialValues.value = {
+        id: candidato.id,
+        estudiante_id: candidato.estudiante_id,
+        partido_politico_id: candidato.partido_politico_id,
+        cargo_id: candidato.cargo_id,
+        eleccion_id: candidato.eleccion_id,
+        estado_candidatura: candidato.estado_candidatura
     };
-    imagePreview.value = getImageUrl(candidate.foto) || '';
-    candidateCreateDialog.value = true;
-};
-const getImageUrl = (foto) => {
-
-    return `${import.meta.env.VITE_APP_API_URL}/storage/${foto}`;
-
-};
-const confirmDeleteCandidate = (candidate) => {
-    selectedCandidate.value = candidate;
-    deleteCandidateDialog.value = true;
+    showFormDialog.value = true;
 };
 
-const onFileSelect = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-        form.value.foto = file;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            imagePreview.value = e.target.result;
+const resolver = ({ values }) => {
+    const errors = {};
 
-        };
-        reader.readAsDataURL(file);
+    if (!values.estudiante?.id) {
+        errors.estudiante = [{ message: 'Debe seleccionar un estudiante válido.' }];
     }
-}
-const createACandidate = async () => {
 
-    const createSuccess = await candidatoStore.crearCandidato(form.value);
-    if (createSuccess) {
-        candidateCreateDialog.value = false;
-        form.value = {
-            name: '',
-            last_name: '',
-            foto: '',
-            sexo: '',
-            fecha_postulacion: '',
-            estado: 'activo',
-            fecha_nacimiento: '',
-        };
-        await candidatoStore.ObtenerCandidatos();
-        // Mostramos el mensaje de éxito
+    // Validaciones adicionales
+    if (!values.partido_politico_id) {
+        errors.partido_politico_id = [{ message: 'Debe seleccionar un partido político.' }];
+    }
+    if (!values.cargo_id) {
+        errors.cargo_id = [{ message: 'Debe seleccionar un cargo.' }];
+    }
+    if (!values.eleccion_id) {
+        errors.eleccion_id = [{ message: 'Debe seleccionar una elección.' }];
+    }
+
+    return { errors };
+};
+
+const onFormSubmit = async ({ values, valid }) => {
+    if (!valid) return;
+
+    const payload = { ...values };
+
+    const success = isEditMode.value ? await candidatoStore.actualizarCandidato(payload, selectedCandidate.value?.id) : await candidatoStore.crearCandidato(payload);
+
+    if (success) {
         toast.add({
             severity: 'success',
-            summary: 'Candidato creado',
-            detail: 'El candidato ha sido creado correctamente',
-            life: 3000,
+            summary: isEditMode.value ? 'Candidato actualizado' : 'Candidato creado',
+            detail: 'La operación fue exitosa.',
+            life: 3000
         });
-    }
 
-};
-
-const updateAcandidate = async () => {
-    try {
-        if (form.value.fecha_postulacion) {
-            // Solo formatea si hay un valor
-            const formattedDate = formatDateForApi(form.value.fecha_postulacion);
-            if (formattedDate) {
-                form.value.fecha_postulacion = formattedDate;
-            }
-        }
-
-        await updateCandidate(form.value);
-        candidateCreateDialog.value = false;
-        await candidatoStore.ObtenerCandidatos();
-        toast.add({ severity: 'success', summary: 'Accion exitosa', detail: 'Candidato actualizado', life: 3000 });
-    } catch (error) {
-
-        errors.value = error.response?.data?.errors || {};
-    }
-};
-const deleteCandidate = async () => {
-    try {
-        await deleteCandidateById(selectedCandidate.value.id);
-        deleteCandidateDialog.value = false;
-        await candidatoStore.ObtenerCandidatos();
-        toast.add({ severity: 'success', summary: 'Accion exitosa', detail: 'Usuario eliminado', life: 3000 });
+        showFormDialog.value = false;
         selectedCandidate.value = null;
-    } catch (error) {
 
+        if (eleccionSeleccionada.value) {
+            await candidatoStore.ListaCandidatosPorEleccion(eleccionSeleccionada.value);
+        }
     }
 };
-const handleSave = () => {
-    if (isEditMode.value) {
-        updateAcandidate();
+
+// ❌ Confirmar eliminación
+const confirmDeleteCandidate = (candidato) => {
+    selectedCandidate.value = candidato;
+    showDeleteDialog.value = true;
+};
+
+// 🗑️ Eliminar candidato
+const deleteCandidate = async () => {
+    const success = await candidatoStore.eliminarCandidato(selectedCandidate.value.id);
+    if (success) {
+        toast.add({
+            severity: 'success',
+            summary: 'Candidato eliminado',
+            detail: 'Se eliminó correctamente',
+            life: 3000
+        });
+
+        showDeleteDialog.value = false;
+        selectedCandidate.value = null;
+
+        if (eleccionSeleccionada.value) {
+            await candidatoStore.ListaCandidatosPorEleccion(eleccionSeleccionada.value);
+        }
+    }
+};
+
+// Datos y búsqueda de estudiantes
+const onBuscarEstudiante = (query) => {
+    const term = query?.trim();
+    if (term && term.length >= 3) {
+        estudianteStore.buscarPorNombre(term);
+    }
+};
+
+// 🔄 Carga inicial
+onMounted(async () => {
+    candidatoStore.reset();
+
+    await Promise.all([eleccionStore.ListaEleccion(), cargoStore.ListaCargo(), partidoStore.ListaPartido()]);
+});
+
+// 🎯 Filtro de candidatos
+watch(eleccionSeleccionada, async (id) => {
+    if (id) {
+        await candidatoStore.ListaCandidatosPorEleccion(id);
     } else {
-        createACandidate();
+        candidatoStore.reset();
     }
-};
-
-
-onMounted(() => {
-    candidatoStore.ObtenerCandidatos();
 });
 </script>
 
 <template>
     <div>
-
         <div class="card">
+            <!-- Toolbar superior -->
             <Toolbar class="mb-6">
                 <template #start>
-                    <Button label="Agregar candidato" icon="pi pi-plus-circle" severity="secondary" class="mr-2"
-                        @click="openNew" />
-                </template>
-
-                <template #end>
-                    <Button label="Exportar datos" icon="pi pi-upload" severity="secondary" disabled
-                        @click="exportCSV($event)" />
+                    <Button label="Agregar candidato" icon="pi pi-plus-circle" severity="secondary" class="mr-2" @click="openNew" :disabled="loadingElecciones || loadingCandidatos" />
                 </template>
             </Toolbar>
 
-            <DataTable :value="candidatoStore.candidatos" :paginator="true" :rows="8" :filters="filters"
-                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            <!-- 🟡 Selector de Elección con Skeleton -->
+            <div class="space-y-4">
+                <div>
+                    <label class="block font-medium mb-1">Selecciona una elección:</label>
+                    <Skeleton v-if="loadingElecciones" height="2.5rem" class="w-full rounded" />
+                    <select v-else v-model="eleccionSeleccionada" class="border rounded px-3 py-2 w-full">
+                        <option disabled value="">-- Selecciona --</option>
+                        <option v-for="eleccion in elecciones" :key="eleccion.id" :value="eleccion.id">
+                            {{ eleccion.nombre }}
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <DataTable
+                :value="loadingCandidatos ? skeletonRows : candidatos"
+                :paginator="true"
+                :rows="8"
+                :filters="filters"
+                :globalFilterFields="['estudiante.nombre_completo', 'estudiante.aula', 'cargo.nombre', 'partido.nombre', 'estado_candidatura']"
                 tableStyle="min-width: 40rem"
-                currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} usuarios">
+                currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} usuarios"
+            >
                 <template #header>
                     <div class="flex flex-wrap gap-2 items-center justify-between">
                         <h4 class="m-0">Administrar Candidatos</h4>
@@ -185,99 +215,145 @@ onMounted(() => {
                     </div>
                 </template>
 
-                <Column field="nombre" header="Nombre" sortable style="width: 25%"></Column>
-                <Column field="apellido" header="Apellido" style="width: 25%"></Column>
-                <Column field="estado" header="Estado" style="width: 25%"></Column>
-                <Column field="fecha_postulacion" header="Fecha de postulacion" style="width: 25%"></Column>
-
-                <Column :exportable="false" style="min-width: 12rem" header="Acciones">
+                <!-- Columna 1: Nombre -->
+                <Column header="Nombre" style="width: 25%">
                     <template #body="slotProps">
-                        <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="openEdit(slotProps.data)" />
-                        <Button icon="pi pi-trash" outlined rounded severity="danger"
-                            @click="confirmDeleteCandidate(slotProps.data)" />
+                        <Skeleton v-if="loadingCandidatos" height="1rem" width="80%"></Skeleton>
+
+                        <span v-else>{{ slotProps.data.estudiante?.nombre_completo }}</span>
+                    </template>
+                </Column>
+
+                <!-- Columna 2: Aula -->
+                <Column header="Aula" style="width: 10%">
+                    <template #body="slotProps">
+                        <Skeleton v-if="loadingCandidatos" height="1rem" width="60%" />
+                        <span v-else>{{ slotProps.data.estudiante?.aula }}</span>
+                    </template>
+                </Column>
+
+                <!-- Columna 3: Cargo -->
+                <Column header="Cargo" style="width: 25%">
+                    <template #body="slotProps">
+                        <Skeleton v-if="loadingCandidatos" height="1rem" width="70%" />
+                        <span v-else>{{ slotProps.data.cargo?.nombre }}</span>
+                    </template>
+                </Column>
+
+                <!-- Columna 4: Lista -->
+                <Column header="Lista" style="width: 30%">
+                    <template #body="slotProps">
+                        <Skeleton v-if="loadingCandidatos" height="1rem" width="60%" />
+                        <span v-else>{{ slotProps.data.partido?.nombre }}</span>
+                    </template>
+                </Column>
+
+                <!-- Columna 5: Estado -->
+                <Column header="Estado" style="width: 25%">
+                    <template #body="slotProps">
+                        <Skeleton v-if="loadingCandidatos" height="1rem" width="50%" />
+                        <span v-else>{{ slotProps.data.estado_candidatura }}</span>
+                    </template>
+                </Column>
+
+                <!-- Acciones -->
+                <Column header="Acciones" style="min-width: 12rem">
+                    <template #body="slotProps">
+                        <template v-if="loadingCandidatos">
+                            <Skeleton shape="circle" size="2rem" class="mr-2" />
+                            <Skeleton shape="circle" size="2rem" />
+                        </template>
+                        <template v-else>
+                            <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="openEdit(slotProps.data)" />
+                            <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteCandidate(slotProps.data)" />
+                        </template>
                     </template>
                 </Column>
             </DataTable>
         </div>
 
-        <Dialog v-model:visible="candidateCreateDialog" :modal="true" :style="{ width: '30rem' }" :closable="false">
-            <div class="flex flex-col gap-5 px-3">
-                <h2 class="text-2xl font-bold text-gray-800 mb-2 text-center">Detalles del Candidato</h2>
-                <div class="mb-1">
-                    <div class="flex flex-col items-center">
-                        <div class="w-32 h-32 mb-4 relative">
-                            <img v-if="imagePreview" :src="imagePreview" alt="Vista previa de la imagen de perfil"
-                                class="w-full h-full object-cover rounded-full border-4 border-indigo-500"
-                                loading="lazy" />
+        <Dialog v-model:visible="showFormDialog" modal :style="{ width: '30rem' }" :closable="false">
+            <Form v-slot="$form" :initialValues="initialValues" :resolver="resolver" :validateOnBlur="true" :validateOnMount="false" :validateOnValueUpdate="false" @submit="onFormSubmit" class="flex flex-col gap-5 px-4">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">
+                    {{ isEditMode ? 'Editar Candidato' : 'Nuevo Candidato' }}
+                </h2>
 
-                            <div v-else class="w-full h-full rounded-full bg-gray-200 flex items-center justify-center">
-                                <i class="pi pi-user" style="font-size: 3rem"></i>
-                            </div>
-                            <input type="file" id="foto" ref="fileInput" accept="image/*" class="hidden"
-                                @change="onFileSelect" />
-
-                            <button type="button" @click="$refs.fileInput.click()"
-                                class="absolute bottom-0 right-0 bg-indigo-600 text-white rounded-full p-2 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                <i class="pi pi-camera" style="font-size: 1.5rem"></i>
-                            </button>
-
-                        </div>
-                        <p class="text-sm text-gray-500 mb-2">Subir la foto del Candidato o Logo</p>
-
-                        <InputError class="mt-2" :message="errors.foto ? errors.foto.join(', ') : ''" />
-                    </div>
-                </div>
                 <div>
-                    <InputLabel for="nombre" value="Nombre" />
-                    <InputText class="mt-1 block w-full" v-model="form.name" :invalid="!!errors.name" />
-                    <InputError class="mt-2" :message="errors.name ? errors.name.join(', ') : ''" />
-                </div>
-                <div>
-                    <InputLabel for="last_name" value="Apellido" />
-                    <InputText class="mt-1 block w-full" v-model="form.last_name" :invalid="!!errors.last_name" />
-
-                    <InputError class="mt-2" :message="errors.last_name ? errors.last_name.join(', ') : ''" />
+                    <InputLabel for="estudiante_id" value="Estudiante" />
+                    <AutocompleteEstudiante
+                        name="estudiante"
+                        :modelValue="$form.estudiante?.value"
+                        @update:modelValue="$form.estudiante?.setValue($event)"
+                        :suggestions="estudiantes"
+                        :loading="loadingEstudiantes"
+                        @search="onBuscarEstudiante"
+                        placeholder="Buscar estudiante..."
+                        optionLabel="nombre"
+                    />
+                    <Message v-if="$form.estudiante?.invalid">
+                        {{ $form.estudiante?.error?.message }}
+                    </Message>
                 </div>
 
                 <div>
-                    <InputLabel for="sexo" value="Sexo" />
-                    <SelectButton v-model="form.sexo" :options="options" aria-labelledby="basic"
-                        :invalid="!!errors.sexo" />
-
-
-                    <InputError class="mt-2" :message="errors.sexo ? errors.sexo.join(', ') : ''" />
+                    <InputLabel for="partido_politico_id" value="Partido Político" />
+                    <select name="partido_politico_id" class="w-full p-2 border rounded">
+                        <option value="">Seleccione un partido</option>
+                        <option v-for="partido in partidos" :key="partido.id" :value="partido.id">
+                            {{ partido.nombre_partido }}
+                        </option>
+                    </select>
+                    <Message v-if="$form.partido_politico_id?.invalid" severity="error">
+                        {{ $form.partido_politico_id.error.message }}
+                    </Message>
                 </div>
+
                 <div>
-                    <InputLabel for="Fecha_postulacion" value="Fecha de postulacion" />
-                    <DatePicker class="mt-1 block w-full" v-model="form.fecha_postulacion" dateFormat="yy-mm-dd"
-                        :invalid="!!errors.fecha_postulacion" />
-
-                    <InputError class="mt-2"
-                        :message="errors.fecha_postulacion ? errors.fecha_postulacion.join(', ') : ''" />
+                    <InputLabel for="cargo_id" value="Cargo" />
+                    <select name="cargo_id" class="w-full p-2 border rounded">
+                        <option value="">Seleccione un cargo</option>
+                        <option v-for="cargo in cargos" :key="cargo.id" :value="cargo.id">
+                            {{ cargo.nombre_cargo }}
+                        </option>
+                    </select>
+                    <Message v-if="$form.cargo_id?.invalid" severity="error">
+                        {{ $form.cargo_id.error.message }}
+                    </Message>
                 </div>
 
-                <div class="flex justify-center"></div>
-            </div>
-            <template #footer>
-                <Button label="Cancelar" icon="pi pi-times" text @click="candidateCreateDialog = false" />
-                <Button label="Guardar" class="custom-cancel-button" text icon="pi pi-check" @click="handleSave" />
-            </template>
+                <div>
+                    <InputLabel for="eleccion_id" value="Elección" />
+                    <select name="eleccion_id" class="w-full p-2 border rounded">
+                        <option value="">Seleccione una elección</option>
+                        <option v-for="eleccion in elecciones" :key="eleccion.id" :value="eleccion.id">
+                            {{ eleccion.nombre }}
+                        </option>
+                    </select>
+                    <Message v-if="$form.eleccion_id?.invalid" severity="error">
+                        {{ $form.eleccion_id.error.message }}
+                    </Message>
+                </div>
+
+                <div class="flex justify-end gap-2 mt-2">
+                    <Button label="Cancelar" icon="pi pi-times" text type="button" @click="showFormDialog = false" />
+                    <Button label="Guardar" icon="pi pi-check" text type="submit" />
+                </div>
+            </Form>
         </Dialog>
 
-        <Dialog v-model:visible="deleteCandidateDialog" :style="{ width: '450px', textColor: '#ffebee' }"
-            header="Confirmar" :modal="true">
-            <div class="flex items-center gap-4">
-                <i class="pi pi-exclamation-triangle !text-3xl " style="color: red" />
-                <span class="text-red-500" v-if="selectedCandidate">Estas seguro que quieres eliminar a <b>{{
-                    selectedCandidate.nombre
-                        }} {{
-                            selectedCandidate.apellido
-                        }}</b>?</span>
+        <Dialog v-model:visible="showDeleteDialog" :style="{ width: '450px' }" header="Confirmar Eliminación" :modal="true">
+            <div class="flex items-center gap-4 px-2 py-4">
+                <i class="pi pi-exclamation-triangle text-3xl text-red-500" />
+                <span class="text-red-600">
+                    ¿Estás seguro de que deseas eliminar este candidato con ID
+                    <b>{{ selectedCandidate?.id }}</b
+                    >?
+                </span>
             </div>
+
             <template #footer>
-                <Button label="No" icon="pi pi-times" severity="secondary" text
-                    @click="deleteCandidateDialog = false" />
-                <Button label="Si" icon="pi pi-check" @click="deleteCandidate" severity="danger" />
+                <Button label="No" icon="pi pi-times" text @click="showDeleteDialog = false" />
+                <Button label="Sí, eliminar" icon="pi pi-check" severity="danger" @click="deleteCandidate" />
             </template>
         </Dialog>
     </div>

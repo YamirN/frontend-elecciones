@@ -1,15 +1,18 @@
+// Focus estilo accesible global
 @mixin focused() {
-    outline-width: var(--focus-ring-width);
-    outline-style: var(--focus-ring-style);
-    outline-color: var(--focus-ring-color);
-    outline-offset: var(--focus-ring-offset);
-    box-shadow: var(--focus-ring-shadow);
-    transition:
-        box-shadow var(--transition-duration),
-        outline-color var(--transition-duration);
+  outline-width: var(--focus-ring-width, 2px);
+  outline-style: var(--focus-ring-style, solid);
+  outline-color: var(--focus-ring-color, #2563eb); // azul por defecto (AdminLTE similar)
+  outline-offset: var(--focus-ring-offset, 2px);
+  box-shadow: var(--focus-ring-shadow, 0 0 0 3px rgba(37, 99, 235, 0.4));
+  transition:
+    box-shadow var(--transition-duration, 0.2s),
+    outline-color var(--transition-duration, 0.2s);
 }
 
+// Variante inset, para inputs o ítems compactos
 @mixin focused-inset() {
-    outline-offset: -1px;
-    box-shadow: inset var(--focus-ring-shadow);
+  outline-offset: -1px;
+  box-shadow: inset var(--focus-ring-shadow, 0 0 0 2px rgba(37, 99, 235, 0.25));
 }
+

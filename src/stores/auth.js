@@ -1,58 +1,91 @@
-import { loginAdmin, loginVotante } from "@/service/auth";
-import { defineStore } from "pinia";
+import { login, logout, me, refreshToken } from '@/service/auth';
+import { defineStore } from 'pinia';
 
 export const useAuthStore = defineStore('auth', {
     state: () => ({
-        token: sessionStorage.getItem('authToken') || localStorage.getItem('authToken') || null,
-        errors: null,
-        user: JSON.parse(localStorage.getItem('authUser')) || null,
+        accessToken: null,
+        user: null,
+        loading: false,
+        error: null
     }),
-    actions: {
-        async handleLogin(dni) {
-            try {
-                const response = await loginVotante(dni);
-                if (response.data.success && response.data.token) {
-                    this.token = response.data.token;
-                    this.user = response.data.votante;
-                    sessionStorage.setItem('authToken', this.token);
-                    return true;
-                }
-
-            } catch (error) {
-                this.errors = error.response?.data?.message || 'Error en la autenticación.';
-                return false;
-            }
-        },
-
-        logout() {
-            this.token = null;
-            sessionStorage.removeItem('authToken') || localStorage.removeItem('authToken') || localStorage.removeItem('authUser');  // Elimina el token
-
-        },
-
-        // Método para verificar si el votante está autenticado
-        isAuthenticated() {
-            return !!this.token;  // Retorna true si hay un token
-        },
-
-        async handleLoginAdmin(email, password) {
-            try {
-                const response = await loginAdmin(email, password);
-                if (response.data.success && response.data.token) {
-                    this.token = response.data.token;
-                    this.user = response.data.user;
-                    localStorage.setItem('authToken', this.token);
-                    localStorage.setItem('authUser', JSON.stringify(this.user)); // Guardar usuario
-                    return true;
-                }
-
-            } catch (error) {
-
-                this.errors = error.response?.data?.message || 'Error en la autenticación.';
-                return false;
-            }
-        },
+    getters: {
+        rol: (state) => state.user?.rol || null,
+        isAuthenticated: (state) => !!state.user,
+        nombreCompleto: (state) => (state.user ? `${state.user.nombre} ${state.user.apellido}` : '')
     },
+    actions: {
+        async handleLogin(email, password) {
+            this.loading = true;
+            this.error = null;
+
+            try {
+                const response = await login(email, password);
+
+                if (response.data.success) {
+                    await this.fetchUser(); // importante: obtiene el usuario autenticado
+                    return true;
+                }
+
+                this.error = 'Credenciales inválidas';
+                return false;
+            } catch (err) {
+                this.error = err.response?.data?.message || 'Error al iniciar sesión';
+                return false;
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async fetchUser() {
+            this.loading = true;
+
+            try {
+                // 🟡 Si no hay token, intenta refrescar
+                if (!this.accessToken) {
+                    const refreshed = await this.tryRefresh();
+                    if (!refreshed) {
+                        this.user = null;
+                        return;
+                    }
+                }
+
+                // Ya con token asegurado, hace /me
+                const response = await me();
+                this.user = response.data.user;
+            } catch (err) {
+                this.user = null;
+                this.error = err.response?.data?.message || 'Error al obtener el usuario';
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async tryRefresh() {
+            try {
+                const resp = await refreshToken();
+                if (resp.data.token) {
+                    this.accessToken = resp.data.token;
+                    return true;
+                }
+                return false;
+            } catch {
+                await this.handleLogout();
+                return false;
+            }
+        },
+
+        async handleLogout() {
+            this.loading = true;
+            this.error = null;
+            try {
+                await logout();
+            } catch (_) {
+                /* no importa el error para logout */
+            } finally {
+                this.token = null;
+                this.user = null;
+                this.loading = false;
+            }
+        }
+    }
 });
-
-

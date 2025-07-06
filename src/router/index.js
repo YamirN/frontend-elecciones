@@ -1,77 +1,59 @@
 import AppLayout from '@/layout/AppLayout.vue';
-import { isAuthenticatedAdmin, isAuthenticatedVoter } from '@/service/auth';
-import Landing from '@/views/pages/Landing.vue';
+import { useAuthStore } from '@/stores/auth'; // Ajusta según tu estructura
+import { useAppStore } from '@/stores/useAppStore'; // Ajusta según tu estructura
 import { createRouter, createWebHistory } from 'vue-router';
 const routes = [
     {
         path: '/',
-        component: Landing
+        name: 'Inicio',
+        // component: Landing
+        component: () => import('@/views/pages/Landing.vue')
     },
     {
-        path: '/auth/login',
+        path: '/login',
         name: 'login',
-        component: () => import('@/views/pages/auth/Login.vue')
+        component: () => import('@/views/pages/estudiante/Login.vue')
     },
     {
-        path: '/auth/loginelecciones',
-        name: 'loginelecciones',
-        component: () => import('@/views/pages/auth/LoginElecciones.vue')
+        Path: '/servicio',
+        name: 'servicio',
+        component: () => import('@/views/pages/servicio/Servicio.vue')
     },
     {
-        path: '/elections/vote',
-        name: 'vote',
-        meta: { requiresAuthVoter: true },
-        component: () => import('@/views/pages/elections/Vote.vue')
-    },
-    {
-        path: '/app',
+        path: '/admin',
         component: AppLayout,
-        meta: { requiresAuth: true },
+        meta: { requiresAuth: true, roles: ['administrador'] },
         children: [
             {
-                path: '/dashboard',
+                path: 'dashboard',
                 name: 'dashboard',
-                component: () => import('@/views/Dashboard.vue')
+                component: () => import('@/views/pages/admin/Dashboard.vue')
             },
 
             {
-                path: '/uikit/charts',
-                name: 'charts',
-                component: () => import('@/views/uikit/ChartDoc.vue')
-            },
-
-            {
-                path: '/pages/empty',
-                name: 'empty',
-                component: () => import('@/views/pages/Empty.vue')
-            },
-
-            {
-                path: '/user/usercrud',
-                name: 'usercrud',
-                component: () => import('@/views/pages/user/Usercrud.vue')
+                path: 'servicios',
+                name: 'servicios',
+                component: () => import('@/views/pages/servicio/Serviciocrud.vue')
             },
             {
-                path: '/user/candidatecrud',
-                name: 'candidatecrud',
-                component: () => import('@/views/pages/user/Candidatecrud.vue')
-            },
-            {
-                path: '/user/votercrud',
-                name: 'votercrud',
-                component: () => import('@/views/pages/user/Votercrud.vue')
-            },
-            {
-                path: '/pages/mesas',
-                name: 'mesas',
-                component: () => import('@/views/pages/elections/mesacrud.vue')
-            },
+                path: 'packs',
+                name: 'packs',
+                component: () => import('@/views/pages/admin/Packscrud.vue')
+            }
         ]
     },
-
-
-
-
+    {
+        path: '/cliente',
+        component: AppLayout,
+        meta: { requiresAuth: true, roles: ['Cliente'] },
+        children: [
+            {
+                path: 'cliente/home',
+                name: 'home',
+                component: () => import('@/views/pages/cliente/HomeCliente.vue')
+            }
+        ]
+    }
 ];
 
 const router = createRouter({
@@ -79,37 +61,46 @@ const router = createRouter({
     routes
 });
 
-// Navigation Guard for Authentication
-router.beforeEach((to, from, next) => {
-    const isLoggedIn = isAuthenticatedAdmin(); // Suponiendo que tienes una función para verificar la autenticación
-    const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
-    if (to.name === 'login' && isLoggedIn) {
-        // Si el usuario está autenticado y trata de ir al login, redirige al dashboard
-        next({ name: 'dashboard' });
-    } else if (to.matched.some((record) => record.meta.requiresAuth)) {
-        // Si la ruta requiere autenticación y no está autenticado, redirige al login
-        if (requiresAuth & !isLoggedIn) {
-            next({ name: 'login' });
-        } else {
-            next();
+router.beforeEach(async (to, from, next) => {
+    const authStore = useAuthStore();
+    const app = useAppStore();
+    app.startLoading();
+
+    const requiresAuth = to.meta.requiresAuth;
+    const allowedRoles = to.meta.roles || [];
+
+    // Si la ruta no requiere autenticación, continuar
+    if (!requiresAuth) return next();
+
+    // Si no tenemos el usuario aún, intenta cargarlo desde /me
+    if (!authStore.user) {
+        try {
+            await authStore.fetchUser();
+        } catch {
+            return next({ name: 'login' });
         }
-    } else {
-        next(); // Para rutas que no requieren autenticación
     }
-});
 
-router.beforeEach((to, from, next) => {
-    const isLoggedIn = isAuthenticatedVoter();
+    const role = authStore.user?.rol;
 
-    if (to.meta.requiresAuthVoter && !isLoggedIn) {
-        // Redirige al login si se requiere autenticación y el usuario no está autenticado
-        next({ name: 'loginelecciones' });
-    } else if (to.name === 'loginelecciones' && isLoggedIn) {
-        // Redirige al dashboard si el usuario está autenticado y trata de acceder al login
-        next({ name: 'vote' });
-    } else {
-        next(); // Permite el acceso a la ruta
+    // Verificar si el rol del usuario está permitido en la ruta
+    if (allowedRoles.length > 0 && !allowedRoles.includes(role)) {
+        return next({ name: 'login' }); // o podrías redirigir a un "403"
     }
+
+    // Evita acceder a login si ya está autenticado
+    if (to.name === 'login') {
+        switch (role) {
+            case 'administrador':
+                return next({ name: 'adminDashboard' });
+            case 'cliente':
+                return next({ name: 'clienteDashboard' });
+            case 'trabajador':
+                return next({ name: 'trabajadorDashboard' });
+        }
+    }
+
+    return next(); // todo en orden
 });
 
 export default router;

@@ -1,4 +1,4 @@
-import Dashboard from '@/views/Dashboard.vue';
+import Dashboard from '@/views/pages/admin/Dashboard.vue';
 import { mount } from '@vue/test-utils';
 import { describe, expect, test, vi } from 'vitest';
 describe('Dashboard', () => {

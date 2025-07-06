@@ -1,23 +1,31 @@
 html {
-    height: 100%;
-    font-size: 14px;
+  height: 100%;
+  font-size: 14px; // Tamaño base típico de AdminLTE
 }
 
 body {
-    font-family: 'Lato', sans-serif;
-    color: var(--text-color);
-    background-color: var(--surface-ground);
-    margin: 0;
-    padding: 0;
-    min-height: 100%;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  font-family: 'Source Sans Pro', 'Helvetica Neue', Arial, sans-serif; // Fuente por defecto de AdminLTE
+  color: #333; // Color de texto oscuro base AdminLTE
+  background-color: #ecf0f5; // Fondo base gris claro AdminLTE
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 a {
-    text-decoration: none;
+  text-decoration: none;
+  color: #007bff;
+
+  &:hover {
+    color: #0056b3;
+    text-decoration: underline;
+  }
 }
 
 .layout-wrapper {
-    min-height: 100vh;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }

@@ -1,26 +1,67 @@
+import { useAuthStore } from '@/stores/auth';
 import axios from 'axios';
 
-// Configuración base de Axios
 const apiClient = axios.create({
     baseURL: import.meta.env.VITE_APP_API_URL,
+    withCredentials: true,
     headers: {
-        Accept: 'application/json',
         'Content-Type': 'application/json',
-    },
-    withCredentials: true // Esto es necesario si tu API utiliza cookies para autenticación
+        Accept: 'application/json'
+    }
 });
 
-// Interceptores de respuesta para manejar errores globales
+// Evita múltiples refresh simultáneos
+let isRefreshing = false;
+let refreshPromise = null;
+
+// ✅ Interceptor de solicitud: añade el token si existe
 apiClient.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('authToken');
-        if (token) {
-            config.headers['Authorization'] = `Bearer ${token}`;
+        const authStore = useAuthStore();
+        if (authStore.accessToken) {
+            config.headers['Authorization'] = `Bearer ${authStore.accessToken}`;
         }
         return config;
     },
-    (error) => {
-        return Promise.reject(error);
+    (error) => Promise.reject(error)
+);
+
+apiClient.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+        const authStore = useAuthStore();
+        const originalRequest = error.config;
+
+        if (originalRequest.url.includes('/logout')) {
+            return Promise.reject(error);
+        }
+
+        if (error.response?.status !== 401 || originalRequest._retry) {
+            return Promise.reject(error);
+        }
+
+        originalRequest._retry = true;
+
+        try {
+            if (!isRefreshing) {
+                isRefreshing = true;
+                refreshPromise = authStore.tryRefresh().finally(() => {
+                    isRefreshing = false;
+                });
+            }
+
+            const success = await refreshPromise;
+
+            if (success) {
+                return apiClient(originalRequest);
+            } else {
+                await authStore.handleLogout();
+                return Promise.reject(error);
+            }
+        } catch (e) {
+            await authStore.handleLogout();
+            return Promise.reject(e);
+        }
     }
 );
 

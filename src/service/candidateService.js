@@ -1,17 +1,20 @@
-import apiClient from "./axios";
+import apiClient from './axios';
 
 export const fetchCandidate = async () => {
-    return await apiClient.get('/api/candidatos');
+    return apiClient.get('/candidatos');
 };
 
-export const createCandidate = async (data) => {
+export const indexPorEleccion = async (eleccionId) => {
+    return apiClient.get(`/candidatos/eleccion/${eleccionId}`);
+};
 
+// metodos a corregir
+export const createCandidate = async (data) => {
     return await apiClient.post('/api/candidatos', data, {
         headers: {
-            'Content-Type': 'multipart/form-data', // Esto es importante para enviar archivos
-        },
+            'Content-Type': 'multipart/form-data' // Esto es importante para enviar archivos
+        }
     });
-
 };
 
 export const deleteCandidateById = async (candidateId) => {

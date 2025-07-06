@@ -10,7 +10,8 @@ import vueDevTools from 'vite-plugin-vue-devtools';
 export default defineConfig({
     optimizeDeps: {
         noDiscovery: true,
-        include: ['pusher-js'],
+        include: ['pusher-js', 'tiny-case', 'property-expr'],
+        exclude: []
     },
     plugins: [
         vue(),
@@ -34,5 +35,13 @@ export default defineConfig({
                 format: 'es'
             }
         }
+    },
+    server: {
+        host: true,
+        allowedHosts: [
+            'localhost',
+            '127.0.0.1',
+            '16eb-38-255-111-144.ngrok-free.app' // ✅ Sin https://
+        ]
     }
 });
