@@ -41,7 +41,7 @@ export default defineConfig({
         allowedHosts: [
             'localhost',
             '127.0.0.1',
-            '35.208.172.209' // ✅ Sin https://
+            '35-208-172-209.sslip.io' // ✅ Sin https://
         ]
     }
 });
