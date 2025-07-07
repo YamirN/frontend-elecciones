@@ -33,7 +33,7 @@ export const useCitaStore = defineStore('cita', {
             }
         }
     },
-    async ListaServicio() {
+    async ListaCita() {
         try {
             const response = await indexCita();
             this.citas = response.data.data;
