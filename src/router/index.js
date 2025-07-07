@@ -44,6 +44,11 @@ const routes = [
                 path: 'clientes',
                 name: 'clientes',
                 component: () => import('@/views/pages/cliente/ClienteCrud.vue')
+            },
+            {
+                path: 'citas',
+                name: 'citas',
+                component: () => import('@/views/pages/citas/Citascrud.vue')
             }
         ]
     },

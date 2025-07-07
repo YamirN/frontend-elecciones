@@ -40,6 +40,11 @@ const model = ref([
                 label: 'Paquetes',
                 icon: 'pi pi-fw pi-box',
                 to: '/admin/packs'
+            },
+            {
+                label: 'Citas',
+                icon: 'pi pi-calendar-minus',
+                to: '/admin/citas'
             }
         ]
     }

@@ -1,8 +1,9 @@
-import { crearCitaTemporal } from '@/service/citasService';
+import { crearCitaTemporal, indexCita } from '@/service/citasService';
 import { defineStore } from 'pinia';
 
 export const useCitaStore = defineStore('cita', {
     state: () => ({
+        citas: [],
         citaTemporal: null,
         error: null,
         loading: false,
@@ -30,6 +31,15 @@ export const useCitaStore = defineStore('cita', {
             } finally {
                 this.loading = false;
             }
+        }
+    },
+    async ListaServicio() {
+        try {
+            const response = await indexCita();
+            this.citas = response.data.data;
+        } catch (error) {
+            this.errors = 'Error al cargar los citas';
+            console.error('Error loading citas:', error);
         }
     }
 });

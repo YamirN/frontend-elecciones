@@ -10,3 +10,7 @@ export const crearCitaTemporal = async (payload) => {
         throw error;
     }
 };
+
+export const indexCita = async () => {
+    return apiClient.get('/citas');
+};
