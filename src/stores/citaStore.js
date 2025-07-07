@@ -31,15 +31,15 @@ export const useCitaStore = defineStore('cita', {
             } finally {
                 this.loading = false;
             }
-        }
-    },
-    async ListaCita() {
-        try {
-            const response = await indexCita();
-            this.citas = response.data.data;
-        } catch (error) {
-            this.errors = 'Error al cargar los citas';
-            console.error('Error loading citas:', error);
+        },
+        async ListaCita() {
+            try {
+                const response = await indexCita();
+                this.citas = response.data.data;
+            } catch (error) {
+                this.errors = 'Error al cargar los citas';
+                console.error('Error loading citas:', error);
+            }
         }
     }
 });
