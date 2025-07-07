@@ -38,13 +38,13 @@ const bookingForm = ref({
 });
 
 // Available services for booking
-const availableServices = ref([
-    { name: 'Masaje Relajante', price: 80, duration: '60 min' },
-    { name: 'Facial Hidratante', price: 65, duration: '45 min' },
-    { name: 'Aromaterapia', price: 90, duration: '75 min' },
-    { name: 'Masaje Piedras Calientes', price: 95, duration: '90 min' },
-    { name: 'Reflexología', price: 55, duration: '45 min' }
-]);
+// const availableServices = ref([
+//     { name: 'Masaje Relajante', price: 80, duration: '60 min' },
+//     { name: 'Facial Hidratante', price: 65, duration: '45 min' },
+//     { name: 'Aromaterapia', price: 90, duration: '75 min' },
+//     { name: 'Masaje Piedras Calientes', price: 95, duration: '90 min' },
+//     { name: 'Reflexología', price: 55, duration: '45 min' }
+// ]);
 
 const availableHours = ref(['09:00', '10:00', '11:00', '12:00', '14:00', '15:00', '16:00', '17:00', '18:00']);
 
@@ -242,7 +242,7 @@ onMounted(() => {
     <div class="p-6">
         <!-- Welcome Banner -->
         <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg p-8 mb-6 text-center">
-            <h2 class="text-4xl font-bold mb-4 text-white">¡Bienvenido de vuelta, {{ user?.nombre }}!</h2>
+            <h2 v-if="user" class="text-4xl font-bold mb-4 text-white">¡Bienvenido de vuelta, {{ user.nombre }}!</h2>
             <p class="text-xl mb-6 text-white">Tu bienestar es nuestra prioridad</p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button label="Reservar Ahora" icon="pi pi-calendar-plus" size="large" class="bg-white text-blue-900 hover:bg-gray-100" @click="showBookingDialog = true" />
