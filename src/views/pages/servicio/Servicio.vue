@@ -101,7 +101,7 @@ onMounted(async () => {
             <div class="container mx-auto px-4 py-3">
                 <div class="flex justify-between items-center">
                     <div class="flex items-center space-x-2">
-                        <i class="pi pi-heart text-2xl text-blue-600"></i>
+                        <img src="@/assets/img/spa.jpg" alt="Logo" class="h-10 w-auto ring-2 ring-white/20" />
                         <h1 class="text-2xl font-bold text-gray-800">DejavuSpa</h1>
                     </div>
 

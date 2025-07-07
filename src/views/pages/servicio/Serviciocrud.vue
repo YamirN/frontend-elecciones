@@ -188,14 +188,14 @@ onMounted(async () => {
                 <!-- Duración -->
                 <div>
                     <InputLabel for="duracion" value="Duración (minutos)" />
-                    <InputText id="duracion" type="number" v-model="initialValues.duracion" class="w-full" />
+                    <InputText id="duracion" type="number" v-model="initialValues.duracion" class="w-full" min="0" />
                     <InputError class="mt-2" :message="errors.duracion ? errors.duracion.join(', ') : ''" />
                 </div>
 
                 <!-- Precio -->
                 <div>
                     <InputLabel for="precio" value="Precio" />
-                    <InputText id="precio" type="number" v-model="initialValues.precio" class="w-full" />
+                    <InputText id="precio" type="number" v-model="initialValues.precio" class="w-full" min="0" />
                     <InputError class="mt-2" :message="errors.precio ? errors.precio.join(', ') : ''" />
                 </div>
 

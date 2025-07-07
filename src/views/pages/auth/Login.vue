@@ -7,8 +7,8 @@ const authStoreAdmin = useAuthStore();
 const password = ref('');
 const router = useRouter();
 
-const handleLoginAdminstrador = async (nombre_usuario, password) => {
-    const isAuthenticated = await authStoreAdmin.handleLoginAdmin(nombre_usuario, password);
+const handleLoginAdminstrador = async (email, password) => {
+    const isAuthenticated = await authStoreAdmin.handleLogin(email, password);
 
     if (isAuthenticated) {
         router.push({ name: 'dashboard' });

@@ -20,9 +20,9 @@ const model = ref([
                 icon: 'pi pi-fw pi-user-edit',
                 items: [
                     {
-                        label: 'Trabajadores',
-                        icon: 'pi pi-fw pi-link',
-                        to: '/admin/servicios'
+                        label: 'Clientes',
+                        icon: 'pi pi-fw pi-user',
+                        to: '/admin/clientes'
                     }
                 ]
             }

@@ -17,7 +17,7 @@ const toggleMenu = () => {
 
 const logout = async () => {
     await authStore.handleLogout();
-    router.push('/auth/login');
+    router.push('/login');
 };
 </script>
 
@@ -36,7 +36,7 @@ const logout = async () => {
                     <div class="relative">
                         <button @click="toggleMenu" class="flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 rounded-full p-2">
                             <i class="pi pi-user"></i>
-                            <span v-if="user?.nombre">{{ user.nombreo }}</span>
+                            <span v-if="user?.nombre">{{ user.nombre }}</span>
                             <svg :class="{ 'rotate-180': isMenuOpen }" class="h-4 w-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                             </svg>

@@ -71,7 +71,8 @@ const handleLogin = async () => {
                 router.push('/admin/dashboard');
                 break;
             case 'cliente':
-                router.push('/cliente/dashboard');
+                router.push('/cliente/home');
+
                 break;
             case 'trabajador':
                 router.push('/trabajador/dashboard');

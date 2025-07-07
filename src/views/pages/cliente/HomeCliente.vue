@@ -1,23 +1,26 @@
 <script setup>
-import Avatar from 'primevue/avatar';
+import { useAuthStore } from '@/stores/auth';
+import { useCitaStore } from '@/stores/citaStore';
+import { useServicioStore } from '@/stores/servicioStore';
+import { storeToRefs } from 'pinia';
 import Button from 'primevue/button';
 import Calendar from 'primevue/calendar';
-import Card from 'primevue/card';
 import Dialog from 'primevue/dialog';
 import Dropdown from 'primevue/dropdown';
 import Tag from 'primevue/tag';
-import { computed, onMounted, ref } from 'vue';
+import { useToast } from 'primevue/usetoast';
+import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
 
-// User data
-const userEmail = ref('');
-const userName = ref('');
-const userInitials = computed(() => {
-    return userName.value
-        .split(' ')
-        .map((n) => n[0])
-        .join('')
-        .toUpperCase();
-});
+const router = useRouter();
+const toast = useToast();
+const authStore = useAuthStore();
+const citaStore = useCitaStore();
+const servicioStore = useServicioStore();
+
+const { servicios, loading: loadingServicios, errors } = storeToRefs(servicioStore);
+const { user, isAuthenticated } = storeToRefs(authStore);
+const { citaTemporal, loading, error, errors: errorsCitas } = storeToRefs(citaStore);
 
 // Client stats
 const clientStats = ref({
@@ -133,270 +136,244 @@ const bookService = (service) => {
     showBookingDialog.value = true;
 };
 
-const confirmBooking = () => {
-    if (bookingForm.value.servicio && bookingForm.value.fecha && bookingForm.value.hora) {
-        // Simulate booking confirmation
-        alert(`Reserva confirmada para ${bookingForm.value.servicio.name} el ${formatDate(bookingForm.value.fecha)} a las ${bookingForm.value.hora}`);
+const confirmBooking = async () => {
+    const { servicio, fecha, hora } = bookingForm.value;
+
+    // Validación local básica
+    if (!servicio || !fecha || !hora) {
+        toast.add({
+            severity: 'warn',
+            summary: 'Campos requeridos',
+            detail: 'Por favor completa todos los campos de la reserva',
+            life: 3000
+        });
+        return;
+    }
+
+    const payload = {
+        servicio_id: servicio.id,
+        fecha: fecha.toISOString().split('T')[0], // Formato YYYY-MM-DD
+        hora
+    };
+
+    const success = await citaStore.generarCitaTemporal(payload);
+
+    if (success) {
+        // Éxito: Redirigir a MercadoPago
+        toast.add({
+            severity: 'success',
+            summary: 'Redirigiendo al pago',
+            detail: 'Serás llevado a MercadoPago para completar la reserva',
+            life: 4000
+        });
+
+        // Abrir ventana de pago
+        window.open(citaTemporal.value.init_point, '_blank');
+
+        // Cerrar diálogo y resetear formulario
         showBookingDialog.value = false;
-        // Reset form
-        bookingForm.value = { servicio: null, fecha: null, hora: null };
+        bookingForm.value = {
+            servicio: null,
+            fecha: null,
+            hora: null
+        };
+    } else {
+        // Mostrar error devuelto por el store
+        toast.add({
+            severity: 'error',
+            summary: 'Error en la reserva',
+            detail: error.value || 'Ocurrió un problema al generar la cita',
+            life: 4000
+        });
     }
 };
 
 const rescheduleBooking = (booking) => {
-    console.log('Reagendando reserva:', booking);
-    // Implement reschedule logic
+    toast.add({
+        severity: 'info',
+        summary: 'Reagendar',
+        detail: `Reagendando ${booking.servicio}`,
+        life: 3000
+    });
 };
 
 const rateService = (booking) => {
-    console.log('Calificando servicio:', booking);
-    // Implement rating logic
+    toast.add({
+        severity: 'info',
+        summary: 'Calificar Servicio',
+        detail: `Calificando ${booking.servicio}`,
+        life: 3000
+    });
 };
 
 const useOffer = (type) => {
-    console.log('Usando oferta:', type);
-    // Implement offer usage
+    toast.add({
+        severity: 'success',
+        summary: 'Oferta Aplicada',
+        detail: '20% de descuento aplicado a tu próxima reserva',
+        life: 3000
+    });
 };
 
 const viewVipPackage = () => {
-    console.log('Viendo paquete VIP');
-    // Implement VIP package view
+    toast.add({
+        severity: 'info',
+        summary: 'Paquete VIP',
+        detail: 'Redirigiendo a paquetes especiales...',
+        life: 3000
+    });
 };
 
 // Navigation methods
-const goToServices = () => {
-    window.location.href = '/services';
-};
-
 const goToMyBookings = () => {
-    window.location.href = '/cliente/reservas';
-};
-
-const goToProfile = () => {
-    window.location.href = '/cliente/perfil';
-};
-
-const logout = () => {
-    localStorage.removeItem('isAuthenticated');
-    localStorage.removeItem('userRole');
-    localStorage.removeItem('userEmail');
-    window.location.href = '/';
+    router.push({ name: 'cliente-reservas' });
 };
 
 onMounted(() => {
-    // Check authentication
-    const isAuthenticated = localStorage.getItem('isAuthenticated');
-    const userRole = localStorage.getItem('userRole');
-
-    if (!isAuthenticated || userRole !== 'cliente') {
-        window.location.href = '/login';
-        return;
+    servicioStore.ListaServicio();
+    // Check if user is authenticated
+    if (!authStore.isAuthenticated) {
+        router.push({ name: 'login' });
     }
-
-    // Load user data
-    userEmail.value = localStorage.getItem('userEmail') || 'cliente@demo.com';
-    userName.value = 'María García'; // In real app, fetch from API
 });
 </script>
 
 <template>
-    <div class="min-h-screen bg-gradient-to-b from-blue-50 to-white">
-        <!-- Header Navigation for Authenticated Client -->
-        <header class="bg-white shadow-lg sticky top-0 z-50">
-            <div class="container mx-auto px-4 py-3">
-                <div class="flex justify-between items-center">
-                    <div class="flex items-center space-x-2">
-                        <i class="pi pi-heart text-2xl text-blue-600"></i>
-                        <h1 class="text-2xl font-bold text-gray-800">SerenitySpа</h1>
-                    </div>
-
-                    <nav class="hidden md:flex space-x-6">
-                        <Button label="Inicio" text class="text-blue-600 font-semibold" />
-                        <Button label="Servicios" text class="text-gray-700 hover:text-blue-600" @click="goToServices" />
-                        <Button label="Mis Reservas" text class="text-gray-700 hover:text-blue-600" @click="goToMyBookings" />
-                        <Button label="Mi Perfil" text class="text-gray-700 hover:text-blue-600" @click="goToProfile" />
-                    </nav>
-
-                    <div class="flex items-center space-x-3">
-                        <Button icon="pi pi-bell" rounded text />
-                        <div class="flex items-center space-x-2">
-                            <Avatar :label="userInitials" class="bg-blue-500 text-white" shape="circle" />
-                            <div class="hidden md:block">
-                                <p class="text-sm font-medium text-gray-700">{{ userName }}</p>
-                                <p class="text-xs text-gray-500">Cliente</p>
-                            </div>
-                        </div>
-                        <Button label="Cerrar Sesión" icon="pi pi-sign-out" text size="small" @click="logout" />
-                    </div>
-                </div>
-            </div>
-        </header>
-
+    <div class="p-6">
         <!-- Welcome Banner -->
-        <section class="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-12">
-            <div class="container mx-auto px-4 text-center">
-                <h2 class="text-3xl md:text-4xl font-bold mb-4">¡Bienvenido de vuelta, {{ userName }}!</h2>
-                <p class="text-xl mb-6">Tu bienestar es nuestra prioridad</p>
-                <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Button label="Reservar Ahora" icon="pi pi-calendar-plus" size="large" class="bg-white text-blue-600 hover:bg-gray-100" @click="showBookingDialog = true" />
-                    <Button label="Ver Mis Reservas" icon="pi pi-list" outlined size="large" @click="goToMyBookings" />
-                </div>
+        <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg p-8 mb-6 text-center">
+            <h2 class="text-4xl font-bold mb-4 text-white">¡Bienvenido de vuelta, {{ user?.nombre }}!</h2>
+            <p class="text-xl mb-6 text-white">Tu bienestar es nuestra prioridad</p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button label="Reservar Ahora" icon="pi pi-calendar-plus" size="large" class="bg-white text-blue-900 hover:bg-gray-100" @click="showBookingDialog = true" />
+                <Button label="Ver Mis Reservas" icon="pi pi-list" class="bg-white text-blue-100 hover:bg-gray-100" outlined size="large" @click="goToMyBookings" />
             </div>
-        </section>
+        </div>
 
         <!-- Quick Stats for Client -->
-        <section class="py-8 bg-white">
-            <div class="container mx-auto px-4">
-                <div class="grid md:grid-cols-3 gap-6">
-                    <Card class="text-center bg-gradient-to-r from-green-50 to-green-100">
-                        <template #content>
-                            <div class="p-4">
-                                <i class="pi pi-check-circle text-3xl text-green-600 mb-3"></i>
-                                <h3 class="text-xl font-bold text-gray-800">{{ clientStats.totalServicios }}</h3>
-                                <p class="text-gray-600">Servicios Completados</p>
-                            </div>
-                        </template>
-                    </Card>
-
-                    <Card class="text-center bg-gradient-to-r from-blue-50 to-blue-100">
-                        <template #content>
-                            <div class="p-4">
-                                <i class="pi pi-calendar text-3xl text-blue-600 mb-3"></i>
-                                <h3 class="text-xl font-bold text-gray-800">{{ clientStats.proximaReserva }}</h3>
-                                <p class="text-gray-600">Próxima Reserva</p>
-                            </div>
-                        </template>
-                    </Card>
-
-                    <Card class="text-center bg-gradient-to-r from-purple-50 to-purple-100">
-                        <template #content>
-                            <div class="p-4">
-                                <i class="pi pi-star text-3xl text-purple-600 mb-3"></i>
-                                <h3 class="text-xl font-bold text-gray-800">{{ clientStats.puntosLealtad }}</h3>
-                                <p class="text-gray-600">Puntos de Lealtad</p>
-                            </div>
-                        </template>
-                    </Card>
-                </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-green-200 rounded-lg p-6 text-center">
+                <i class="pi pi-check-circle text-4xl text-green-700 mb-3"></i>
+                <h3 class="text-2xl font-bold text-gray-800">{{ clientStats.totalServicios }}</h3>
+                <p class="text-gray-600 mt-2">Servicios Completados</p>
             </div>
-        </section>
+
+            <div class="bg-blue-200 rounded-lg p-6 text-center">
+                <i class="pi pi-calendar text-4xl text-blue-600 mb-3"></i>
+                <h3 class="text-2xl font-bold text-gray-800">{{ clientStats.proximaReserva }}</h3>
+                <p class="text-gray-600 mt-2">Próxima Reserva</p>
+            </div>
+
+            <div class="bg-purple-200 rounded-lg p-6 text-center">
+                <i class="pi pi-star text-4xl text-purple-600 mb-3"></i>
+                <h3 class="text-2xl font-bold text-gray-800">{{ clientStats.puntosLealtad }}</h3>
+                <p class="text-gray-600 mt-2">Puntos de Lealtad</p>
+            </div>
+        </div>
 
         <!-- Recommended Services -->
-        <section class="py-12 px-4">
-            <div class="container mx-auto">
-                <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">Servicios Recomendados para Ti</h2>
-                <div class="grid md:grid-cols-3 gap-6">
-                    <Card v-for="service in recommendedServices" :key="service.id" class="hover:shadow-lg transition-shadow duration-300">
-                        <template #header>
-                            <div class="relative">
-                                <img :src="service.image" :alt="service.name" class="w-full h-48 object-cover" />
-                                <div class="absolute top-4 right-4">
-                                    <Tag value="Recomendado" severity="success" class="text-xs" />
-                                </div>
+        <div class="bg-white rounded-lg shadow p-6 mb-8">
+            <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">Servicios Recomendados para Ti</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div v-for="service in recommendedServices" :key="service.id" class="bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg transition-shadow duration-300">
+                    <div class="relative">
+                        <img :src="service.image" :alt="service.name" class="w-full h-48 object-cover rounded-t-lg" />
+                        <div class="absolute top-4 right-4">
+                            <Tag value="Recomendado" severity="success" class="text-xs" />
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold text-gray-800">{{ service.name }}</h3>
+                            <div class="text-right">
+                                <div class="text-2xl font-bold text-blue-600">${{ service.price }}</div>
+                                <div class="text-sm text-gray-500">{{ service.duration }}</div>
                             </div>
-                        </template>
-                        <template #title>{{ service.name }}</template>
-                        <template #subtitle>${{ service.price }}</template>
-                        <template #content>
-                            <p class="text-gray-600 mb-4">{{ service.description }}</p>
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm text-gray-500">{{ service.duration }}</span>
-                                <Button label="Reservar" size="small" @click="bookService(service)" />
-                            </div>
-                        </template>
-                    </Card>
+                        </div>
+                        <p class="text-gray-600 mb-4 leading-relaxed">{{ service.description }}</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-500">{{ service.duration }}</span>
+                            <Button label="Reservar" size="small" @click="bookService(service)" />
+                        </div>
+                    </div>
                 </div>
             </div>
-        </section>
+        </div>
 
         <!-- Recent Bookings -->
-        <section class="py-12 bg-gray-50">
-            <div class="container mx-auto px-4">
-                <div class="flex justify-between items-center mb-8">
-                    <h2 class="text-3xl font-bold text-gray-800">Mis Reservas Recientes</h2>
-                    <Button label="Ver Todas" outlined @click="goToMyBookings" />
-                </div>
+        <div class="bg-white rounded-lg shadow p-6 mb-8">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-bold text-gray-800">Mis Reservas Recientes</h2>
+                <Button label="Ver Todas" outlined @click="goToMyBookings" />
+            </div>
 
-                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <Card v-for="booking in recentBookings" :key="booking.id" class="hover:shadow-lg transition-shadow duration-300">
-                        <template #content>
-                            <div class="p-4">
-                                <div class="flex justify-between items-start mb-3">
-                                    <h3 class="font-semibold text-gray-800">{{ booking.servicio }}</h3>
-                                    <Tag :value="booking.estado" :severity="getStatusSeverity(booking.estado)" class="text-xs" />
-                                </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div v-for="booking in recentBookings" :key="booking.id" class="bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg transition-shadow duration-300">
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="font-semibold text-gray-800">{{ booking.servicio }}</h3>
+                            <Tag :value="booking.estado" :severity="getStatusSeverity(booking.estado)" class="text-xs" />
+                        </div>
 
-                                <div class="space-y-2 text-sm text-gray-600">
-                                    <div class="flex items-center">
-                                        <i class="pi pi-calendar mr-2"></i>
-                                        <span>{{ formatDate(booking.fecha) }}</span>
-                                    </div>
-                                    <div class="flex items-center">
-                                        <i class="pi pi-clock mr-2"></i>
-                                        <span>{{ booking.hora }}</span>
-                                    </div>
-                                    <div class="flex items-center">
-                                        <i class="pi pi-user mr-2"></i>
-                                        <span>{{ booking.trabajador }}</span>
-                                    </div>
-                                </div>
-
-                                <div class="flex justify-between items-center mt-4 pt-3 border-t">
-                                    <span class="font-semibold text-green-600">${{ booking.precio }}</span>
-                                    <div class="flex space-x-2">
-                                        <Button v-if="booking.estado === 'Confirmado'" label="Reagendar" size="small" outlined @click="rescheduleBooking(booking)" />
-                                        <Button v-if="booking.estado === 'Completado'" label="Calificar" size="small" @click="rateService(booking)" />
-                                    </div>
-                                </div>
+                        <div class="space-y-2 text-sm text-gray-600 mb-4">
+                            <div class="flex items-center">
+                                <i class="pi pi-calendar mr-2"></i>
+                                <span>{{ formatDate(booking.fecha) }}</span>
                             </div>
-                        </template>
-                    </Card>
+                            <div class="flex items-center">
+                                <i class="pi pi-clock mr-2"></i>
+                                <span>{{ booking.hora }}</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="pi pi-user mr-2"></i>
+                                <span>{{ booking.trabajador }}</span>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-center pt-3 border-t border-gray-200">
+                            <span class="font-semibold text-green-600">${{ booking.precio }}</span>
+                            <div class="flex space-x-2">
+                                <Button v-if="booking.estado === 'Confirmado'" label="Reagendar" size="small" outlined @click="rescheduleBooking(booking)" />
+                                <Button v-if="booking.estado === 'Completado'" label="Calificar" size="small" @click="rateService(booking)" />
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </section>
+        </div>
 
         <!-- Special Offers -->
-        <section class="py-12 bg-gradient-to-r from-purple-600 to-pink-600 text-white">
-            <div class="container mx-auto px-4 text-center">
-                <h2 class="text-3xl font-bold mb-4">Ofertas Especiales para Ti</h2>
-                <p class="text-xl mb-8">Aprovecha estos descuentos exclusivos</p>
-                <div class="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-                    <Card class="bg-white text-gray-800">
-                        <template #content>
-                            <div class="p-6 text-center">
-                                <i class="pi pi-gift text-4xl text-purple-600 mb-4"></i>
-                                <h3 class="text-xl font-bold mb-2">20% OFF</h3>
-                                <p class="text-gray-600 mb-4">En tu próximo masaje relajante</p>
-                                <Button label="Usar Oferta" class="bg-purple-600 text-white" @click="useOffer('massage')" />
-                            </div>
-                        </template>
-                    </Card>
+        <div class="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg p-8 text-center">
+            <h2 class="text-3xl font-bold mb-4">Ofertas Especiales para Ti</h2>
+            <p class="text-xl mb-8">Aprovecha estos descuentos exclusivos</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                <div class="bg-white text-gray-800 rounded-lg p-6">
+                    <i class="pi pi-gift text-4xl text-purple-600 mb-4"></i>
+                    <h3 class="text-xl font-bold mb-2">20% OFF</h3>
+                    <p class="text-gray-600 mb-4">En tu próximo masaje relajante</p>
+                    <Button label="Usar Oferta" class="bg-purple-600 text-white" @click="useOffer('massage')" />
+                </div>
 
-                    <Card class="bg-white text-gray-800">
-                        <template #content>
-                            <div class="p-6 text-center">
-                                <i class="pi pi-star text-4xl text-yellow-500 mb-4"></i>
-                                <h3 class="text-xl font-bold mb-2">Paquete VIP</h3>
-                                <p class="text-gray-600 mb-4">3 servicios por el precio de 2</p>
-                                <Button label="Ver Paquete" class="bg-yellow-500 text-white" @click="viewVipPackage" />
-                            </div>
-                        </template>
-                    </Card>
+                <div class="bg-white text-gray-800 rounded-lg p-6">
+                    <i class="pi pi-star text-4xl text-yellow-500 mb-4"></i>
+                    <h3 class="text-xl font-bold mb-2">Paquete VIP</h3>
+                    <p class="text-gray-600 mb-4">3 servicios por el precio de 2</p>
+                    <Button label="Ver Paquete" class="bg-yellow-500 text-white" @click="viewVipPackage" />
                 </div>
             </div>
-        </section>
+        </div>
 
         <!-- Quick Booking Dialog -->
         <Dialog v-model:visible="showBookingDialog" modal header="Reservar Servicio" :style="{ width: '500px' }">
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Servicio</label>
-                    <Dropdown v-model="bookingForm.servicio" :options="availableServices" optionLabel="name" placeholder="Selecciona un servicio" class="w-full" />
+                    <Dropdown v-model="bookingForm.servicio" :options="servicios" optionLabel="nombre" placeholder="Selecciona un servicio" class="w-full" />
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Fecha</label>
-                    <Calendar v-model="bookingForm.fecha" :minDate="new Date()" placeholder="Selecciona una fecha" class="w-full" />
+                    <Calendar v-model="bookingForm.fecha" :minDate="new Date()" placeholder="Selecciona una fecha" class="w-full" dateFormat="dd/mm/yy" />
                 </div>
 
                 <div>
@@ -416,33 +393,65 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.p-card {
-    border-radius: 12px;
-    border: none;
-    box-shadow:
-        0 1px 3px 0 rgba(0, 0, 0, 0.1),
-        0 1px 2px 0 rgba(0, 0, 0, 0.06);
+.bg-gradient-to-r {
+    background: linear-gradient(to right, var(--tw-gradient-stops));
 }
 
-.p-card:hover {
-    box-shadow:
-        0 4px 6px -1px rgba(0, 0, 0, 0.1),
-        0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    transition: box-shadow 0.3s ease;
+.from-blue-600 {
+    --tw-gradient-from: #2563eb;
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(37, 99, 235, 0));
 }
 
-.container {
-    max-width: 1200px;
+.to-purple-600 {
+    --tw-gradient-to: #9333ea;
 }
 
-@media (max-width: 768px) {
-    .container {
-        padding-left: 1rem;
-        padding-right: 1rem;
-    }
+.from-purple-600 {
+    --tw-gradient-from: #9333ea;
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(147, 51, 234, 0));
+}
 
-    .grid {
-        grid-template-columns: 1fr;
-    }
+.to-pink-600 {
+    --tw-gradient-to: #db2777;
+}
+
+.bg-green-50 {
+    background-color: #f0fdf4;
+}
+
+.bg-blue-50 {
+    background-color: #eff6ff;
+}
+
+.bg-purple-50 {
+    background-color: #faf5ff;
+}
+
+.text-green-600 {
+    color: #16a34a;
+}
+
+.text-blue-600 {
+    color: #2563eb;
+}
+
+.text-purple-600 {
+    color: #9333ea;
+}
+
+.text-yellow-500 {
+    color: #eab308;
+}
+
+.bg-purple-600 {
+    background-color: #9333ea !important;
+}
+
+.bg-yellow-500 {
+    background-color: #eab308 !important;
+}
+
+.leading-relaxed {
+    line-height: 1.625;
 }
 </style>

@@ -212,7 +212,7 @@ onMounted(async () => {
                 <!-- Precio total -->
                 <div>
                     <InputLabel for="precio_total" value="Precio Total" />
-                    <InputText id="precio_total" type="number" v-model="initialValues.precio_total" class="w-full" />
+                    <InputText id="precio_total" type="number" v-model="initialValues.precio_total" class="w-full" min="0" />
                     <InputError class="mt-2" :message="errors.precio_total?.join(', ')" />
                 </div>
 

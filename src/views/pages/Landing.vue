@@ -1,4 +1,7 @@
 <script setup>
+import pazImg from '@/assets/img/paz.jpg';
+import renuevateImg from '@/assets/img/renuevate.jpg';
+import tratamientoImg from '@/assets/img/tratamientoexclusivo.jpg';
 import Button from 'primevue/button';
 import Card from 'primevue/card';
 import Carousel from 'primevue/carousel';
@@ -12,17 +15,17 @@ const heroSlides = ref([
     {
         title: 'Relájate y Renuévate',
         subtitle: 'Experimenta la tranquilidad que mereces',
-        image: '/placeholder.svg?height=500&width=800'
+        image: renuevateImg
     },
     {
         title: 'Tratamientos Exclusivos',
         subtitle: 'Cuidado personalizado para tu bienestar',
-        image: '/placeholder.svg?height=500&width=800'
+        image: tratamientoImg
     },
     {
         title: 'Tu Oasis de Paz',
         subtitle: 'Donde el estrés desaparece',
-        image: '/placeholder.svg?height=500&width=800'
+        image: pazImg
     }
 ]);
 
@@ -75,7 +78,7 @@ const goToRegister = () => {
 
 const goToServices = () => {
     // Redirect to services page
-    router.push('/servicio/servicio');
+    router.push('/servicio');
 };
 
 const goToBooking = () => {
@@ -86,9 +89,9 @@ const goToBooking = () => {
 
 const openSocial = (platform) => {
     const urls = {
-        facebook: 'https://facebook.com/serenityspa',
-        instagram: 'https://instagram.com/serenityspa',
-        twitter: 'https://twitter.com/serenityspa'
+        facebook: 'https://facebook.com/dejavuspa',
+        instagram: 'https://instagram.com/dejavuspa',
+        twitter: 'https://twitter.com/dejavuspa'
     };
     window.open(urls[platform], '_blank');
 };
@@ -108,19 +111,20 @@ onMounted(() => {
 <template>
     <div class="min-h-screen bg-gradient-to-b from-blue-50 to-white">
         <!-- Header Navigation -->
+        <!-- Header Navigation -->
         <header class="bg-white shadow-lg sticky top-0 z-50">
             <div class="container mx-auto px-4 py-3">
                 <div class="flex justify-between items-center">
                     <div class="flex items-center space-x-2">
-                        <i class="pi pi-heart text-2xl text-blue-600"></i>
+                        <img src="@/assets/img/spa.jpg" alt="Logo" class="h-10 w-auto ring-2 ring-white/20" />
                         <h1 class="text-2xl font-bold text-gray-800">DejavuSpa</h1>
                     </div>
 
                     <nav class="hidden md:flex space-x-6">
-                        <Button label="Inicio" text class="text-gray-700 hover:text-blue-600" />
-                        <Button label="Servicios" text class="text-gray-700 hover:text-blue-600" @click="scrollToServices" />
+                        <Button label="Inicio" text class="text-gray-700 hover:text-blue-600" @click="goToHome" />
+                        <Button label="Servicios" text class="text-blue-600 font-semibold" />
                         <Button label="Galería" text class="text-gray-700 hover:text-blue-600" />
-                        <Button label="Contacto" text class="text-gray-700 hover:text-blue-600" @click="scrollToContact" />
+                        <Button label="Contacto" text class="text-gray-700 hover:text-blue-600" />
                     </nav>
 
                     <div class="flex space-x-2">
@@ -139,8 +143,8 @@ onMounted(() => {
                         <img :src="slotProps.data.image" :alt="slotProps.data.title" class="w-full h-full object-cover" />
                         <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
                             <div class="text-center text-white px-4">
-                                <h2 class="text-4xl md:text-6xl font-bold mb-4">{{ slotProps.data.title }}</h2>
-                                <p class="text-xl md:text-2xl mb-8">{{ slotProps.data.subtitle }}</p>
+                                <h2 class="text-4xl md:text-6xl font-bold mb-4 text-white">{{ slotProps.data.title }}</h2>
+                                <p class="text-xl md:text-2xl mb-8 text-white">{{ slotProps.data.subtitle }}</p>
                             </div>
                         </div>
                     </div>
@@ -152,9 +156,9 @@ onMounted(() => {
         <section class="py-16 px-4">
             <div class="container mx-auto text-center">
                 <div class="max-w-4xl mx-auto">
-                    <h2 class="text-4xl font-bold text-gray-800 mb-6">Bienvenido a SerenitySpа</h2>
+                    <h2 class="text-4xl font-bold text-gray-800 mb-6">Bienvenido a DejavuSpa</h2>
                     <p class="text-xl text-gray-600 mb-8 leading-relaxed">
-                        Tu oasis de tranquilidad y bienestar. En SerenitySpа, nos dedicamos a brindarte una experiencia única de relajación y renovación. Nuestros tratamientos especializados y ambiente sereno te ayudarán a encontrar el equilibrio
+                        Tu oasis de tranquilidad y bienestar. En DejavuSpa, nos dedicamos a brindarte una experiencia única de relajación y renovación. Nuestros tratamientos especializados y ambiente sereno te ayudarán a encontrar el equilibrio
                         perfecto entre cuerpo y mente.
                     </p>
                     <div class="bg-blue-100 rounded-lg p-6 mb-8">
@@ -247,11 +251,11 @@ onMounted(() => {
                                     </div>
                                     <div class="flex items-center space-x-3">
                                         <i class="pi pi-phone text-blue-600"></i>
-                                        <span>+1 (555) 123-4567</span>
+                                        <span>+51 123456789</span>
                                     </div>
                                     <div class="flex items-center space-x-3">
                                         <i class="pi pi-envelope text-blue-600"></i>
-                                        <span>info@serenityspa.com</span>
+                                        <span>info@dejavuspa.com</span>
                                     </div>
                                     <div class="flex items-center space-x-3">
                                         <i class="pi pi-clock text-blue-600"></i>
@@ -274,7 +278,7 @@ onMounted(() => {
                                 </div>
                                 <div class="mt-6">
                                     <h4 class="font-semibold mb-2">Sitio Web</h4>
-                                    <p class="text-blue-600">www.serenityspa.com</p>
+                                    <p class="text-blue-600">www.dejavuspa.com</p>
                                 </div>
                             </div>
                         </template>
@@ -284,7 +288,6 @@ onMounted(() => {
         </section>
 
         <!-- WhatsApp Floating Button -->
-        <Button icon="pi pi-whatsapp" rounded severity="success" class="fixed bottom-6 right-6 z-40 shadow-lg" size="large" @click="openWhatsApp" aria-label="Contactar por WhatsApp" />
     </div>
 </template>
 

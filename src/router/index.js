@@ -15,7 +15,7 @@ const routes = [
         component: () => import('@/views/pages/estudiante/Login.vue')
     },
     {
-        Path: '/servicio',
+        path: '/servicio',
         name: 'servicio',
         component: () => import('@/views/pages/servicio/Servicio.vue')
     },
@@ -39,17 +39,22 @@ const routes = [
                 path: 'packs',
                 name: 'packs',
                 component: () => import('@/views/pages/admin/Packscrud.vue')
+            },
+            {
+                path: 'clientes',
+                name: 'clientes',
+                component: () => import('@/views/pages/cliente/ClienteCrud.vue')
             }
         ]
     },
     {
         path: '/cliente',
-        component: AppLayout,
-        meta: { requiresAuth: true, roles: ['Cliente'] },
+        component: () => import('@/layout/AppLayoutCliente.vue'),
+        meta: { requiresAuth: true, roles: ['cliente'] },
         children: [
             {
-                path: 'cliente/home',
-                name: 'home',
+                path: 'home',
+                name: 'clienteDashboard',
                 component: () => import('@/views/pages/cliente/HomeCliente.vue')
             }
         ]
