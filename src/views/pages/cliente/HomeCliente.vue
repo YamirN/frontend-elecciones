@@ -28,6 +28,24 @@ const isFormComplete = computed(() => {
 
 const totalServicios = computed(() => citasCliente.value.filter((cita) => cita.estado === 'completado').length);
 
+const filteredHours = computed(() => {
+    const fechaSeleccionada = bookingForm.value.fecha;
+    if (!fechaSeleccionada) return [];
+
+    const hoy = new Date();
+    const fecha = new Date(fechaSeleccionada);
+
+    if (!isToday(fecha)) return citaStore.availableHours;
+
+    const horaActual = hoy.getHours();
+    const minutoActual = hoy.getMinutes();
+
+    return citaStore.availableHours.filter((horaStr) => {
+        const [h, m] = horaStr.split(':').map(Number);
+        return h > horaActual || (h === horaActual && m > minutoActual);
+    });
+});
+
 const parseFecha = (fechaStr, horaStr) => {
     const [dia, mes, anio] = fechaStr.split('-');
     return new Date(`${anio}-${mes}-${dia}T${horaStr}`);
@@ -496,7 +514,7 @@ watch(
                             </label>
                             <Select
                                 v-model="bookingForm.hora"
-                                :options="citaStore.availableHours"
+                                :options="filteredHours"
                                 placeholder="Elige tu horario"
                                 class="w-full"
                                 :pt="{

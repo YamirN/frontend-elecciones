@@ -89,27 +89,21 @@ router.beforeEach(async (to, from, next) => {
     const requiresAuth = to.meta.requiresAuth;
     const allowedRoles = to.meta.roles || [];
 
-    // Si la ruta no requiere autenticación, continuar
-    if (!requiresAuth) return next();
-
-    // Si no tenemos el usuario aún, intenta cargarlo desde /me
+    // 👉 Siempre intenta autenticar al usuario si no está definido aún
     if (!authStore.user) {
         try {
             await authStore.fetchUser();
         } catch {
-            return next({ name: 'login' });
+            if (requiresAuth) {
+                return next({ name: 'login' });
+            }
         }
     }
 
     const role = authStore.user?.rol;
 
-    // Verificar si el rol del usuario está permitido en la ruta
-    if (allowedRoles.length > 0 && !allowedRoles.includes(role)) {
-        return next({ name: 'login' }); // o podrías redirigir a un "403"
-    }
-
-    // Evita acceder a login si ya está autenticado
-    if (to.name === 'login' && authStore.user) {
+    // 👉 Si el usuario ya está autenticado e intenta acceder a login o registrar, redirige al dashboard
+    if (['login', 'registrar'].includes(to.name) && authStore.user) {
         switch (role) {
             case 'administrador':
                 return next({ name: 'dashboard' });
@@ -117,10 +111,23 @@ router.beforeEach(async (to, from, next) => {
                 return next({ name: 'clienteDashboard' });
             case 'trabajador':
                 return next({ name: 'trabajadorDashboard' });
+            default:
+                return next('/');
         }
     }
 
-    return next(); // todo en orden
+    // 👉 Si la ruta requiere auth y el usuario no está autenticado
+    if (requiresAuth && !authStore.user) {
+        return next({ name: 'login' });
+    }
+
+    // 👉 Si hay restricciones de rol y el usuario no pertenece al rol permitido
+    if (requiresAuth && allowedRoles.length > 0 && !allowedRoles.includes(role)) {
+        return next({ name: 'login' }); // o una ruta de "403"
+    }
+
+    // ✅ Todo en orden
+    return next();
 });
 
 export default router;
