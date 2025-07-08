@@ -31,20 +31,22 @@ const isFormComplete = computed(() => {
 const totalServicios = computed(() => citasCliente.value.filter((cita) => cita.estado === 'completado').length);
 
 const filteredHours = computed(() => {
-    const fechaSeleccionada = bookingForm.value.fecha;
-    if (!fechaSeleccionada) return [];
+    const fecha = bookingForm.value.fecha;
+    if (!fecha) return citaStore.availableHours;
 
     const hoy = new Date();
-    const fecha = new Date(fechaSeleccionada);
+    const fechaSeleccionada = new Date(fecha);
 
-    if (!isToday(fecha)) return citaStore.availableHours;
+    if (!isToday(fechaSeleccionada)) {
+        return citaStore.availableHours;
+    }
 
-    const horaActual = hoy.getHours();
-    const minutoActual = hoy.getMinutes();
+    const ahora = hoy.getHours() * 60 + hoy.getMinutes(); // minutos actuales
 
     return citaStore.availableHours.filter((horaStr) => {
         const [h, m] = horaStr.split(':').map(Number);
-        return h > horaActual || (h === horaActual && m > minutoActual);
+        const minutosHora = h * 60 + m;
+        return minutosHora > ahora;
     });
 });
 
