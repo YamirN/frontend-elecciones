@@ -28,18 +28,23 @@ const isFormComplete = computed(() => {
 
 const totalServicios = computed(() => citasCliente.value.filter((cita) => cita.estado === 'completado').length);
 
+const parseFecha = (fechaStr, horaStr) => {
+    const [dia, mes, anio] = fechaStr.split('-');
+    return new Date(`${anio}-${mes}-${dia}T${horaStr}`);
+};
+
 const proximaReserva = computed(() => {
     const hoy = new Date();
 
     const futuras = citasCliente.value
         .filter((cita) => {
-            const fechaCita = new Date(cita.fecha + 'T' + cita.hora);
+            const fechaCita = parseFecha(cita.fecha, cita.hora);
             return fechaCita > hoy && ['pendiente', 'confirmada'].includes(cita.estado);
         })
-        .sort((a, b) => new Date(a.fecha + 'T' + a.hora) - new Date(b.fecha + 'T' + b.hora));
+        .sort((a, b) => parseFecha(a.fecha, a.hora) - parseFecha(b.fecha, b.hora));
 
     return futuras.length
-        ? new Date(futuras[0].fecha + 'T' + futuras[0].hora).toLocaleString('es-PE', {
+        ? parseFecha(futuras[0].fecha, futuras[0].hora).toLocaleString('es-PE', {
               dateStyle: 'short',
               timeStyle: 'short'
           })
