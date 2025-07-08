@@ -17,16 +17,6 @@ const showFormDialog = ref(false);
 const showDeleteDialog = ref(false);
 const filters = ref({ global: { value: '' } });
 const skeletonRows = Array.from({ length: 8 }, () => ({}));
-// const toast = useToast();
-
-// const initialValues = ref({
-//     nombre: '',
-//     descripcion: '',
-//     duracion: '',
-//     precio: '',
-//     estado: 'activo',
-//     imagen: null
-// });
 
 const formatDuration = (min) => {
     const h = Math.floor(min / 60);
@@ -34,87 +24,6 @@ const formatDuration = (min) => {
     return `${h ? `${h}h ` : ''}${m} min`;
 };
 
-// 🧼 Reset del formulario
-// const resetForm = () => {
-//     initialValues.value = {
-//         nombre: '',
-//         descripcion: '',
-//         duracion: '',
-//         precio: '',
-//         estado: 'activo',
-//         imagen: null
-//     };
-//     errors.value = {};
-// };
-
-// 🆕 Crear nuevo servicio
-// const openNew = () => {
-//     isEditMode.value = false;
-//     resetForm();
-//     showFormDialog.value = true;
-// };
-
-// ✏️ Editar servicio
-// const openEdit = (servicio) => {
-//     isEditMode.value = true;
-//     selectedServicio.value = servicio;
-
-//     initialValues.value = {
-//         id: servicio.id,
-//         nombre: servicio.nombre,
-//         descripcion: servicio.descripcion,
-//         duracion: servicio.duracion,
-//         precio: servicio.precio,
-//         estado: servicio.estado,
-//         imagen: null
-//     };
-
-//     showFormDialog.value = true;
-// };
-
-// 📤 Guardar (crear o actualizar)
-// const onFormSubmit = async () => {
-//     const formData = new FormData();
-//     for (const key in initialValues.value) {
-//         if (initialValues.value[key] !== null) {
-//             formData.append(key, initialValues.value[key]);
-//         }
-//     }
-
-//     const exito = isEditMode.value ? await servicioStore.actualizarServicio(formData, selectedServicio.value.id) : await servicioStore.crearServicio(formData);
-
-//     if (exito) {
-//         showFormDialog.value = false;
-//         await servicioStore.ListaServicio();
-//         toast.add({ severity: 'success', summary: 'Guardado', detail: 'Servicio guardado correctamente', life: 3000 });
-//     } else {
-//         toast.add({ severity: 'warn', summary: 'Validación', detail: 'Revisa los campos del formulario.', life: 3000 });
-//     }
-// };
-
-/// ❌ Confirmar eliminación
-// const confirmDelete = (servicio) => {
-//     selectedServicio.value = servicio;
-//     showDeleteDialog.value = true;
-// };
-
-// // 🗑️ Eliminar
-// const deleteServicio = async () => {
-//     const success = await servicioStore.eliminarServicio(selectedServicio.value.id);
-//     if (success) {
-//         toast.add({
-//             severity: 'success',
-//             summary: 'Servicio eliminado',
-//             detail: 'Se eliminó correctamente.',
-//             life: 3000
-//         });
-//         showDeleteDialog.value = false;
-//         selectedServicio.value = null;
-//         await servicioStore.ListaServicio();
-//     }
-// };
-
-// 🔄 Carga inicial
 onMounted(async () => {
     await citaStore.ListaCita();
 });

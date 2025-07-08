@@ -38,10 +38,10 @@ export const useCitaStore = defineStore('cita', {
         async ListaCita() {
             try {
                 const response = await indexCita();
-                this.citasCliente = response.data.data;
+                this.citas = response.data.data;
             } catch (error) {
-                this.errors = 'Error al cargar los citas Cliente';
-                console.error('Error loading citas Cliente:', error);
+                this.errors = 'Error al cargar los citas';
+                console.error('Error loading citas:', error);
             }
         },
         async CitasCliente() {
