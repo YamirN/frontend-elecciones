@@ -25,7 +25,7 @@ const items = [
         label: 'Cerrar Sesión',
         icon: 'pi pi-sign-out',
         command: async () => {
-            await authStore.logout();
+            await authStore.handleLogout();
             authStore.$reset();
             router.replace({ name: 'login' });
         }
