@@ -1,6 +1,7 @@
 <script setup>
 import pazImg from '@/assets/img/paz.jpg';
 import renuevateImg from '@/assets/img/renuevate.jpg';
+import spaImage from '@/assets/img/spa.jpg';
 import tratamientoImg from '@/assets/img/tratamientoexclusivo.jpg';
 import Button from 'primevue/button';
 import Card from 'primevue/card';
@@ -116,7 +117,7 @@ onMounted(() => {
             <div class="container mx-auto px-4 py-3">
                 <div class="flex justify-between items-center">
                     <div class="flex items-center space-x-2">
-                        <img src="@/assets/img/spa.jpg" alt="Logo" class="h-10 w-auto ring-2 ring-white/20" />
+                        <img :src="spaImage" alt="Logo" class="h-10 w-auto ring-2 ring-white/20" />
                         <h1 class="text-2xl font-bold text-gray-800">DejavuSpa</h1>
                     </div>
 
