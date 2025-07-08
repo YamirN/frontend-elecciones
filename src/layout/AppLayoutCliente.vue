@@ -26,7 +26,8 @@ const items = [
         icon: 'pi pi-sign-out',
         command: async () => {
             await authStore.logout();
-            router.push({ name: 'login' });
+            authStore.$reset();
+            router.replace({ name: 'login' });
         }
     }
 ];

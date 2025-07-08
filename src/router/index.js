@@ -104,10 +104,10 @@ router.beforeEach(async (to, from, next) => {
     }
 
     // Evita acceder a login si ya está autenticado
-    if (to.name === 'login') {
+    if (to.name === 'login' && authStore.user) {
         switch (role) {
             case 'administrador':
-                return next({ name: 'adminDashboard' });
+                return next({ name: 'dashboard' });
             case 'cliente':
                 return next({ name: 'clienteDashboard' });
             case 'trabajador':

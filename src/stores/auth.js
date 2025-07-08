@@ -3,7 +3,6 @@ import { defineStore } from 'pinia';
 
 export const useAuthStore = defineStore('auth', {
     state: () => ({
-        accessToken: null,
         user: null,
         loading: false,
         error: null
@@ -19,13 +18,11 @@ export const useAuthStore = defineStore('auth', {
             this.error = null;
 
             try {
-                const response = await login(email, password);
-
+                const response = await login(email, password); // ← Esto debería dejar una cookie en backend
                 if (response.data.success) {
-                    await this.fetchUser(); // importante: obtiene el usuario autenticado
+                    await this.fetchUser();
                     return true;
                 }
-
                 this.error = 'Credenciales inválidas';
                 return false;
             } catch (err) {
@@ -38,18 +35,7 @@ export const useAuthStore = defineStore('auth', {
 
         async fetchUser() {
             this.loading = true;
-
             try {
-                // 🟡 Si no hay token, intenta refrescar
-                if (!this.accessToken) {
-                    const refreshed = await this.tryRefresh();
-                    if (!refreshed) {
-                        this.user = null;
-                        return;
-                    }
-                }
-
-                // Ya con token asegurado, hace /me
                 const response = await me();
                 this.user = response.data.user;
             } catch (err) {
@@ -62,12 +48,8 @@ export const useAuthStore = defineStore('auth', {
 
         async tryRefresh() {
             try {
-                const resp = await refreshToken();
-                if (resp.data.token) {
-                    this.accessToken = resp.data.token;
-                    return true;
-                }
-                return false;
+                await refreshToken(); // Laravel debería renovar el token y/o sesión
+                return true;
             } catch {
                 await this.handleLogout();
                 return false;
@@ -75,17 +57,20 @@ export const useAuthStore = defineStore('auth', {
         },
 
         async handleLogout() {
-            this.loading = true;
-            this.error = null;
             try {
-                await logout();
+                await logout(); // borra cookie en backend
             } catch (_) {
-                /* no importa el error para logout */
+                /* No importa el error de logout */
             } finally {
-                this.token = null;
-                this.user = null;
-                this.loading = false;
+                this.clearSession();
             }
+        },
+
+        clearSession() {
+            this.user = null;
+            this.loading = false;
+            this.error = null;
+            this.$reset();
         }
     }
 });

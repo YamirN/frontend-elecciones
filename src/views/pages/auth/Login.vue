@@ -3,17 +3,33 @@ import { useAuthStore } from '@/stores/auth';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-const authStoreAdmin = useAuthStore();
+const authStore = useAuthStore();
+const email = ref('');
 const password = ref('');
 const router = useRouter();
 
-const handleLoginAdminstrador = async (email, password) => {
-    const isAuthenticated = await authStoreAdmin.handleLogin(email, password);
+const handleLogin = async () => {
+    const success = await authStore.handleLogin(email.value, password.value);
 
-    if (isAuthenticated) {
-        router.push({ name: 'dashboard' });
+    if (success) {
+        const rol = authStore.rol;
+
+        // Redirige según el rol del usuario
+        switch (rol) {
+            case 'administrador':
+                router.push({ name: 'dashboard' });
+                break;
+            case 'cliente':
+                router.push({ name: 'clienteDashboard' });
+                break;
+            case 'trabajador':
+                router.push({ name: 'trabajadorDashboard' });
+                break;
+            default:
+                router.push({ name: 'Inicio' });
+        }
     } else {
-        alert('CREDENCIALES INCORRECTAS'); // Mensaje de error si `isAuthenticated` es falso
+        alert('CREDENCIALES INCORRECTAS');
     }
 };
 </script>
@@ -44,7 +60,7 @@ const handleLoginAdminstrador = async (email, password) => {
 
                 <!-- Form Section -->
                 <div class="px-8 pb-12">
-                    <form @submit.prevent="handleLoginAdminstrador(nombre_usuario, password)" class="space-y-6">
+                    <form @submit.prevent="handleLogin" class="space-y-6">
                         <!-- Email Field -->
                         <div class="space-y-2">
                             <label for="text" class="block text-sm font-semibold text-gray-700 dark:text-gray-300"> Nombre Usuario </label>
