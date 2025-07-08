@@ -75,6 +75,12 @@ const resetBookingForm = () => {
     };
 };
 
+const logout = async () => {
+    await authStore.handleLogout();
+    authStore.$reset();
+    router.replace({ name: 'login' });
+};
+
 // Recent bookings
 const recentBookings = computed(() => {
     return [...citasCliente.value]

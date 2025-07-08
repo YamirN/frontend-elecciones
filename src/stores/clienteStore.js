@@ -1,4 +1,4 @@
-import { deleteCliente, indexCliente, storeCliente, updateCliente } from '@/service/clienteService';
+import { deleteCliente, indexCliente, registerCliente, updateCliente } from '@/service/clienteService';
 import { defineStore } from 'pinia';
 
 export const useClienteStore = defineStore('cliente', {
@@ -19,18 +19,18 @@ export const useClienteStore = defineStore('cliente', {
                 console.error('Error loading clientes:', error);
             }
         },
-        async crearCliente(formData) {
+        async registerCliente(formData) {
             this.errors = {};
             try {
-                await storeCliente(formData);
-                return true;
+                const response = await registerCliente(formData);
+                return response.data;
             } catch (error) {
                 if (error.response?.status === 422) {
                     this.errors = error.response.data.errors;
-                    return false;
+                } else {
+                    console.error('Error inesperado al registrar cliente:', error);
                 }
-                console.error('Error inesperado al crear el clientes:', error);
-                return false; // 👈
+                return null;
             }
         },
 

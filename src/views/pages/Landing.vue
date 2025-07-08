@@ -74,7 +74,7 @@ const goToLogin = () => {
 
 const goToRegister = () => {
     // Redirect to register page
-    window.location.href = '/register';
+    window.location.href = '/registrar';
 };
 
 const goToServices = () => {
@@ -157,7 +157,7 @@ onMounted(() => {
         <section class="py-16 px-4">
             <div class="container mx-auto text-center">
                 <div class="max-w-4xl mx-auto">
-                    <h2 class="text-4xl font-bold text-gray-800 mb-6">Bienvenido a DejavuSpa</h2>
+                    <h2 class="text-4xl font-bold text-gray-800 mb-6">FRAN KBRO</h2>
                     <p class="text-xl text-gray-600 mb-8 leading-relaxed">
                         Tu oasis de tranquilidad y bienestar. En DejavuSpa, nos dedicamos a brindarte una experiencia única de relajación y renovación. Nuestros tratamientos especializados y ambiente sereno te ayudarán a encontrar el equilibrio
                         perfecto entre cuerpo y mente.

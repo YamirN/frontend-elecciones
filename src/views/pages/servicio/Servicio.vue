@@ -51,7 +51,7 @@ const goToLogin = () => {
 };
 
 const goToRegister = () => {
-    window.location.href = '/register';
+    window.location.href = '/registrar';
 };
 
 const goToLoginFromDialog = () => {
@@ -65,7 +65,7 @@ const goToRegisterFromDialog = () => {
     showBookingDialog.value = false;
     // Store selected service in localStorage for after registration
     localStorage.setItem('selectedService', JSON.stringify(selectedService.value));
-    window.location.href = '/register';
+    window.location.href = '/registrar';
 };
 
 const openWhatsApp = () => {

@@ -4,8 +4,8 @@ export const indexCliente = async () => {
     return apiClient.get('/clientes');
 };
 
-export const storeCliente = async (data) => {
-    return await apiClient.post('/clientes', data, {
+export const registerCliente = async (data) => {
+    return await apiClient.post('/clientes/register', data, {
         headers: {
             'Content-Type': 'multipart/form-data'
         }
