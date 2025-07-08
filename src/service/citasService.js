@@ -14,3 +14,7 @@ export const crearCitaTemporal = async (payload) => {
 export const indexCita = async () => {
     return apiClient.get('/citas');
 };
+
+export const listarCitasPorCliente = async () => {
+    return apiClient.get('/citas/clientes');
+};

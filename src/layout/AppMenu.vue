@@ -23,6 +23,11 @@ const model = ref([
                         label: 'Clientes',
                         icon: 'pi pi-fw pi-user',
                         to: '/admin/clientes'
+                    },
+                    {
+                        label: 'trabajadores',
+                        icon: 'pi pi-fw pi-briefcase',
+                        to: '/admin/trabajadores'
                     }
                 ]
             }

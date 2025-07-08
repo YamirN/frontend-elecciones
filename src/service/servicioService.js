@@ -23,3 +23,7 @@ export const updateServicio = async (id, data) => {
 export const deleteServicio = async (id) => {
     return await apiClient.delete(`/servicios/${id}`);
 };
+
+export const obtenerHorasDisponibles = async (data) => {
+    return await apiClient.post('/citas/horas-disponibles', data);
+};

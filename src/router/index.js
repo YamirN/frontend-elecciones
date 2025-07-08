@@ -46,6 +46,11 @@ const routes = [
                 component: () => import('@/views/pages/cliente/ClienteCrud.vue')
             },
             {
+                path: 'trabajadores',
+                name: 'trabajadores',
+                component: () => import('@/views/pages/trabajador/Trabajadorcrud.vue')
+            },
+            {
                 path: 'citas',
                 name: 'citas',
                 component: () => import('@/views/pages/citas/Citascrud.vue')
