@@ -211,23 +211,24 @@ onMounted(async () => {
         </section>
 
         <!-- Services Preview -->
-        <Card v-for="service in featuredServices" :key="service.id">
+        <section v-for="service in featuredServices" :key="service.id" class="bg-white rounded-lg shadow hover:shadow-lg transition-shadow duration-300 overflow-hidden">
             <!-- Imagen -->
-            <template #header>
-                <img :src="service.image" :alt="service.nombre" class="w-full h-48 object-cover" />
-            </template>
+            <img :src="service.image" :alt="service.nombre" class="w-full h-48 object-cover" />
 
-            <template #title>{{ service.nombre }}</template>
-            <template #subtitle>${{ service.precio }}</template>
+            <!-- Contenido -->
+            <div class="p-4 space-y-2">
+                <h3 class="text-lg font-semibold text-gray-800">
+                    {{ service.nombre }}
+                </h3>
+                <p class="text-sm text-gray-600 font-medium">${{ service.precio }}</p>
+                <p class="text-gray-600 text-sm">{{ service.descripcion }}</p>
 
-            <template #content>
-                <p class="text-gray-600 mb-4">{{ service.descripcion }}</p>
-                <div class="flex justify-between items-center">
+                <div class="flex justify-between items-center mt-4">
                     <span class="text-sm text-gray-500">{{ service.duracion }} min</span>
                     <Button label="Reservar" size="small" @click="goToBooking(service.id)" />
                 </div>
-            </template>
-        </Card>
+            </div>
+        </section>
 
         <!-- Contact Section -->
         <section id="contact" class="py-16 bg-gray-50">
