@@ -241,7 +241,7 @@ onMounted(() => {
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-green-500 text-sm font-medium">Ingresos</p>
-                                <p class="text-3xl font-bold">${{ kpis.ingresos.toLocaleString() }}</p>
+                                <p class="text-3xl font-bold">${{ kpisMensuales.value?.value?.totalIngresos ?? 0 }}</p>
                                 <p class="text-green-500 text-xs mt-1">
                                     <i class="pi pi-arrow-up mr-1"></i>
                                     +8% vs mes anterior
@@ -260,7 +260,7 @@ onMounted(() => {
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-purple-500 text-sm font-medium">Clientes</p>
-                                <p class="text-3xl font-bold">{{ kpis.clientes }}</p>
+                                <p class="text-3xl font-bold">{{ kpisMensuales.value?.value?.totalClientes ?? 0 }}</p>
                                 <p class="text-purple-500 text-xs mt-1">
                                     <i class="pi pi-arrow-up mr-1"></i>
                                     +15% vs mes anterior
@@ -279,7 +279,7 @@ onMounted(() => {
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-orange-500 text-sm font-medium">Trabajadores</p>
-                                <p class="text-3xl font-bold">{{ kpis.trabajadores }}</p>
+                                <p class="text-3xl font-bold">{{ kpisMensuales.value?.value?.totalTrabajadores }}</p>
                                 <p class="text-orange-500 text-xs mt-1">
                                     <i class="pi pi-check mr-1"></i>
                                     Activos
