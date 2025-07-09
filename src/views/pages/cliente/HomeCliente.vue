@@ -390,7 +390,7 @@ watch(
         </Tabs>
 
         <!-- Special Offers -->
-        <div class="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg p-8 text-center">
+        <!-- <div class="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg p-8 text-center">
             <h2 class="text-3xl font-bold mb-4">Ofertas Especiales para Ti</h2>
             <p class="text-xl mb-8">Aprovecha estos descuentos exclusivos</p>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
@@ -408,7 +408,7 @@ watch(
                     <Button label="Ver Paquete" class="bg-yellow-500 text-white" @click="viewVipPackage" />
                 </div>
             </div>
-        </div>
+        </div> -->
 
         <!-- Quick Booking Dialog -->
         <Dialog v-model:visible="showBookingDialog" modal @hide="resetBookingForm" header="✨ Reservar tu Experiencia de Bienestar" :style="{ width: '600px' }" class="booking-dialog" :draggable="false">
