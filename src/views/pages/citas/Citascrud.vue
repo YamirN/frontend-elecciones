@@ -52,10 +52,17 @@ const getStatusSeverity = (status) => {
 };
 
 // Metodo para verificar si la cita es del pasado
-const esCitaPasada = (fecha, hora) => {
-    const fechaCita = new Date(`${fecha}T${hora}`);
+const noPuedeAsignarse = (cita) => {
+    const [anio, mes, dia] = cita.fecha.split('-').map(Number);
+    const [horaStr, minutoStr] = cita.hora.split(':').map(Number);
+
+    const fechaCita = new Date(anio, mes - 1, dia, horaStr, minutoStr);
     const ahora = new Date();
-    return fechaCita < ahora;
+
+    const citaPasada = fechaCita < ahora;
+    const estadoNoPermitido = ['atendida', 'cliente_ausente'].includes(cita.estado);
+
+    return citaPasada || estadoNoPermitido;
 };
 
 // Metodo para abrir el diálogo y cargar trabajadores
@@ -202,7 +209,16 @@ onMounted(async () => {
 
                 <Column header="Acciones" style="min-width: 12rem">
                     <template #body="slotProps">
-                        <Button icon="pi pi-user-plus" label="Asignar" outlined rounded class="mr-2" :disabled="esCitaPasada(slotProps.data.fecha, slotProps.data.hora)" @click="abrirDialogoAsignar(slotProps.data)" />
+                        <Button
+                            icon="pi pi-user-plus"
+                            label="Asignar"
+                            outlined
+                            rounded
+                            class="mr-2"
+                            :disabled="noPuedeAsignarse(slotProps.data)"
+                            @click="abrirDialogoAsignar(slotProps.data)"
+                            :title="noPuedeAsignarse(slotProps.data) ? 'No se puede asignar a una cita pasada o ya atendida' : ''"
+                        />
                         <Button v-if="slotProps.data.trabajador" icon="pi pi-refresh" label="Estado" severity="info" outlined rounded @click="abrirDialogoEstado(slotProps.data)" />
                     </template>
                 </Column>
