@@ -1,4 +1,5 @@
 <script setup>
+import { formatFechaBackend } from '@/service/utils/formatFechaBackend';
 import { useCitaStore } from '@/stores/citaStore';
 import { storeToRefs } from 'pinia';
 import { useToast } from 'primevue';
@@ -53,7 +54,8 @@ const getStatusSeverity = (status) => {
 
 // Metodo para verificar si la cita es del pasado
 const noPuedeAsignarse = (cita) => {
-    const [anio, mes, dia] = cita.fecha.split('-').map(Number);
+    const fechaISO = formatFechaBackend(cita.fecha); // Asegura el formato correcto
+    const [anio, mes, dia] = fechaISO.split('-').map(Number);
     const [horaStr, minutoStr] = cita.hora.split(':').map(Number);
 
     const fechaCita = new Date(anio, mes - 1, dia, horaStr, minutoStr);
