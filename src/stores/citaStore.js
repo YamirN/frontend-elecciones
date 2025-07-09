@@ -73,9 +73,16 @@ export const useCitaStore = defineStore('cita', {
             this.loadingTrabajadores = true;
             try {
                 const fechaFormateada = formatFechaBackend(fecha);
+
+                console.log('📤 Enviando a API:', {
+                    fecha: fechaFormateada,
+                    hora,
+                    citaId
+                });
+
                 this.trabajadoresDisponibles = await obtenerTrabajadoresDisponibles(fechaFormateada, hora, citaId);
             } catch (error) {
-                console.error('Error al cargar trabajadores disponibles:', error);
+                console.error('❌ Error al cargar trabajadores disponibles:', error);
                 this.trabajadoresDisponibles = [];
             } finally {
                 this.loadingTrabajadores = false;
