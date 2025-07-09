@@ -1,4 +1,4 @@
-import { asignarTrabajador, crearCitaTemporal, indexCita, listarCitasPorCliente, obtenerTrabajadoresDisponibles } from '@/service/citasService';
+import { asignarTrabajador, cambiarEstadoCita, crearCitaTemporal, indexCita, listarCitasPorCliente, obtenerTrabajadoresDisponibles } from '@/service/citasService';
 import { obtenerHorasDisponibles } from '@/service/servicioService';
 import { defineStore } from 'pinia';
 
@@ -87,6 +87,15 @@ export const useCitaStore = defineStore('cita', {
             } catch (error) {
                 console.error('Error al asignar trabajador:', error);
                 throw error;
+            }
+        },
+        async cambiarEstado({ citaId, estado }) {
+            try {
+                const response = await cambiarEstadoCita(citaId, estado);
+                return response.data; // podrías usarlo para mostrar datos actualizados
+            } catch (error) {
+                console.error('Error al cambiar estado de la cita:', error);
+                throw error; // propagar para que lo manejes en el componente
             }
         }
     }

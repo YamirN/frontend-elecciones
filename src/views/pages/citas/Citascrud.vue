@@ -1,8 +1,7 @@
 <script setup>
 import { useCitaStore } from '@/stores/citaStore';
 import { storeToRefs } from 'pinia';
-import { Toast } from 'primevue';
-// import { useToast } from 'primevue/usetoast';
+import { useToast } from 'primevue';
 import { onMounted, ref } from 'vue';
 
 // States y Stores
@@ -13,10 +12,21 @@ const { citas, loading: loadingCitas, trabajadoresDisponibles, loadingTrabajador
 // const selectedServicio = ref(null);
 const filters = ref({ global: { value: '' } });
 const skeletonRows = Array.from({ length: 8 }, () => ({}));
+const toast = useToast();
 
 const showAsignarDialog = ref(false);
 const citaSeleccionada = ref(null);
 const trabajadorSeleccionado = ref('');
+const showEstadoDialog = ref(false);
+const citaParaCambioEstado = ref(null);
+const nuevoEstado = ref(null);
+
+const estadosDisponibles = [
+    { label: 'Pendiente', value: 'pendiente' },
+    { label: 'Atendida', value: 'atendida' },
+    { label: 'Cancelada', value: 'cancelada' },
+    { label: 'Cliente ausente', value: 'cliente_ausente' }
+];
 
 // Método para abrir el diálogo y cargar trabajadores
 const abrirDialogoAsignar = async (cita) => {
@@ -41,17 +51,49 @@ const asignarTrabajador = async () => {
         showAsignarDialog.value = false;
         citaSeleccionada.value = null;
         await citaStore.ListaCita(); // 🔄 Recarga lista solo si fue exitoso
-        Toast.add({
+        toast.add({
             severity: 'success',
             summary: 'Trabajador asignado',
             detail: 'El trabajador fue asignado exitosamente',
             life: 3000
         });
     } else {
-        Toast.add({
+        toast.add({
             severity: 'error',
             summary: 'Error',
             detail: 'No se pudo asignar el trabajador',
+            life: 4000
+        });
+    }
+};
+
+const abrirDialogoEstado = (cita) => {
+    citaParaCambioEstado.value = cita;
+    nuevoEstado.value = cita.estado;
+    showEstadoDialog.value = true;
+};
+
+const cambiarEstado = async () => {
+    try {
+        await citaStore.cambiarEstado({
+            citaId: citaParaCambioEstado.value.id,
+            estado: nuevoEstado.value
+        });
+
+        showEstadoDialog.value = false;
+        await citaStore.ListaCita(); // refresca tabla
+
+        toast.add({
+            severity: 'success',
+            summary: 'Estado actualizado',
+            detail: 'La cita cambió de estado correctamente',
+            life: 3000
+        });
+    } catch (error) {
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'No se pudo cambiar el estado',
             life: 4000
         });
     }
@@ -116,6 +158,7 @@ onMounted(async () => {
                 <Column header="Acciones" style="min-width: 12rem">
                     <template #body="slotProps">
                         <Button icon="pi pi-user-plus" label="Asignar" outlined rounded class="mr-2" @click="abrirDialogoAsignar(slotProps.data)" />
+                        <Button icon="pi pi-refresh" label="Estado" severity="info" outlined rounded @click="abrirDialogoEstado(slotProps.data)" />
                     </template>
                 </Column>
             </DataTable>
@@ -201,6 +244,20 @@ onMounted(async () => {
                         @click="asignarTrabajador"
                     />
                 </div>
+            </template>
+        </Dialog>
+
+        <Dialog v-model:visible="showEstadoDialog" modal header="Cambiar Estado" :style="{ width: '25rem' }">
+            <div class="p-fluid">
+                <div class="field">
+                    <label for="estado">Nuevo estado</label>
+                    <Dropdown id="estado" v-model="nuevoEstado" :options="estadosDisponibles" optionLabel="label" optionValue="value" placeholder="Seleccione estado" />
+                </div>
+            </div>
+
+            <template #footer>
+                <Button label="Cancelar" icon="pi pi-times" @click="showEstadoDialog = false" class="p-button-text" />
+                <Button label="Guardar" icon="pi pi-check" @click="cambiarEstado" />
             </template>
         </Dialog>
     </div>

@@ -44,3 +44,9 @@ export const obtenerTrabajadoresDisponibles = async (fecha, hora, citaId = null)
     const response = await apiClient.get('/trabajadores-disponibles', { params });
     return response.data.data;
 };
+
+export function cambiarEstadoCita(citaId, estado) {
+    return apiClient.put(`/citas/${citaId}/cambiar-estado`, {
+        estado: estado
+    });
+}
