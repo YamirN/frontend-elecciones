@@ -222,7 +222,7 @@ onMounted(async () => {
                             <div>
                                 <p class="text-blue-100 text-sm font-medium">Servicios Vendidos</p>
                                 <p class="text-3xl font-bold">
-                                    {{ dashboardData.kpis_totales.totalServiciosVendido }}
+                                    {{ dashboardData.kpis_totales.totalServiciosVendido ?? 0 }}
                                 </p>
                                 <p class="text-blue-100 text-xs mt-1">
                                     <i class="pi pi-arrow-up mr-1"></i>
