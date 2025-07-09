@@ -154,7 +154,22 @@ onMounted(async () => {
 
                 <Column field="fecha" header="Fecha" />
                 <Column field="hora" header="Hora" />
-                <Column field="estado" header="Estado" />
+                <Column field="estado" header="Estado">
+                    <template #body="slotProps">
+                        <span
+                            class="px-3 py-1 rounded-full text-sm font-medium text-white"
+                            :class="{
+                                'bg-yellow-500': slotProps.data.estado === 'pendiente',
+                                'bg-green-500': slotProps.data.estado === 'atendida',
+                                'bg-red-500': slotProps.data.estado === 'cancelada',
+                                'bg-orange-500': slotProps.data.estado === 'cliente_ausente',
+                                'bg-gray-500': !slotProps.data.estado
+                            }"
+                        >
+                            {{ slotProps.data.estado || 'Sin estado' }}
+                        </span>
+                    </template>
+                </Column>
                 <Column field="metodo_pago" header="Método de Pago" />
 
                 <Column header="Servicio">
