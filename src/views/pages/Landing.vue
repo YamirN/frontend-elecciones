@@ -3,22 +3,18 @@ import pazImg from '@/assets/img/paz.jpg';
 import renuevateImg from '@/assets/img/renuevate.jpg';
 import spaImage from '@/assets/img/spa.jpg';
 import tratamientoImg from '@/assets/img/tratamientoexclusivo.jpg';
-import { useCitaStore } from '@/stores/citaStore';
-import { useServicioStore } from '@/stores/servicioStore';
+import { useReporteStore } from '@/stores/reportesStore';
 import { storeToRefs } from 'pinia';
 import Button from 'primevue/button';
 import Card from 'primevue/card';
 import Carousel from 'primevue/carousel';
-import { computed, onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 
-const citaStore = useCitaStore();
-const servicioStore = useServicioStore();
-
-const { servicios } = storeToRefs(servicioStore);
-const { citas } = storeToRefs(citaStore);
+const reporteStore = useReporteStore();
+const { topServicios, loading } = storeToRefs(reporteStore);
 
 // Hero slides data
 const heroSlides = ref([
@@ -40,26 +36,6 @@ const heroSlides = ref([
 ]);
 
 // Featured services data
-
-const featuredServices = computed(() => {
-    const serviciosActivos = (servicios.value || []).filter((s) => s.estado === 'activo');
-    const conteo = {};
-
-    (citas.value || []).forEach((cita) => {
-        const servicio = cita.servicio;
-        if (servicio && servicio.estado === 'activo') {
-            conteo[servicio.id] = conteo[servicio.id] || { ...servicio, cantidad: 0 };
-            conteo[servicio.id].cantidad++;
-        }
-    });
-
-    const destacados = Object.values(conteo)
-        .filter((s) => serviciosActivos.some((sa) => sa.id === s.id)) // solo los activos
-        .sort((a, b) => b.cantidad - a.cantidad)
-        .slice(0, 3);
-
-    return destacados;
-});
 
 // Navigation methods
 const scrollToServices = () => {
@@ -108,13 +84,7 @@ const openWhatsApp = () => {
 };
 
 onMounted(async () => {
-    // Asegúrate de tener las citas para poder calcular los servicios más solicitados
-    await citaStore.ListaCita();
-
-    // Asegúrate de tener los servicios disponibles (para validar estado activo y demás)
-    if (!servicios.value || servicios.value.length === 0) {
-        await servicioStore.ListaServicio();
-    }
+    await reporteStore.cargarTopServicios();
 });
 </script>
 
@@ -227,7 +197,7 @@ onMounted(async () => {
 
                 <!-- Grid de servicios -->
                 <div class="grid md:grid-cols-3 gap-6">
-                    <section v-for="service in featuredServices" :key="service.id" class="bg-white rounded-lg hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+                    <section v-for="service in reporteStore.topServicios" :key="service.id" class="bg-white rounded-lg hover:shadow-lg transition-shadow duration-300 overflow-hidden">
                         <!-- Imagen -->
                         <img :src="service.imagen" :alt="service.nombre" class="w-full h-48 object-cover" />
 
@@ -242,7 +212,7 @@ onMounted(async () => {
                             </p>
 
                             <div class="flex justify-between items-center">
-                                <span class="text-sm text-gray-500"> {{ service.duracion }} min </span>
+                                <span class="text-sm text-gray-500">{{ service.duracion }} min</span>
                                 <Button label="Reservar" size="small" @click="goToBooking(service.id)" />
                             </div>
                         </div>
