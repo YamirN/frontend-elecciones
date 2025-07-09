@@ -20,10 +20,9 @@ export const listarCitasPorCliente = async () => {
 };
 
 export const obtenerTrabajadoresDisponibles = async (fecha, hora, citaId = null) => {
-    const params = { fecha, hora };
-    if (citaId) params.cita_id = citaId;
-
-    const response = await apiClient.get('/trabajadores-disponibles', { params });
+    const response = await apiClient.get('/trabajadores-disponibles', {
+        params: { fecha, hora, cita_id: citaId }
+    });
     return response.data.data;
 };
 
