@@ -30,7 +30,7 @@ const isFormComplete = computed(() => {
     return bookingForm.value.servicio && bookingForm.value.fecha && bookingForm.value.hora;
 });
 
-const totalServicios = computed(() => citasCliente.value.filter((cita) => cita.estado === 'completado').length);
+const totalServicios = computed(() => citasCliente.value.filter((cita) => cita.estado === 'atendida').length);
 
 const filteredHours = computed(() => {
     const fecha = bookingForm.value.fecha;
