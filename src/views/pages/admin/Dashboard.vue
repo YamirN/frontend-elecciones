@@ -216,7 +216,7 @@ onMounted(async () => {
             <!-- KPI Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <!-- Servicios Vendidos -->
-                <Card v-if="dashboardData?.kpis_totales" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+                <Card class="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
                     <template #content>
                         <div class="flex items-center justify-between">
                             <div>
