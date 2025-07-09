@@ -3,13 +3,17 @@ import pazImg from '@/assets/img/paz.jpg';
 import renuevateImg from '@/assets/img/renuevate.jpg';
 import spaImage from '@/assets/img/spa.jpg';
 import tratamientoImg from '@/assets/img/tratamientoexclusivo.jpg';
+import { useCitaStore } from '@/stores/citaStore';
 import Button from 'primevue/button';
 import Card from 'primevue/card';
 import Carousel from 'primevue/carousel';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
+
+const citasStore = useCitaStore();
+const citas = computed(() => citasStore.citas);
 
 // Hero slides data
 const heroSlides = ref([
@@ -31,32 +35,30 @@ const heroSlides = ref([
 ]);
 
 // Featured services data
-const featuredServices = ref([
-    {
-        id: 1,
-        name: 'Masaje Relajante',
-        price: 80,
-        duration: '60 min',
-        description: 'Masaje corporal completo para liberar tensiones y estrés',
-        image: '/placeholder.svg?height=200&width=300'
-    },
-    {
-        id: 2,
-        name: 'Facial Hidratante',
-        price: 65,
-        duration: '45 min',
-        description: 'Tratamiento facial profundo para hidratar y rejuvenecer la piel',
-        image: '/placeholder.svg?height=200&width=300'
-    },
-    {
-        id: 3,
-        name: 'Aromaterapia',
-        price: 90,
-        duration: '75 min',
-        description: 'Sesión de relajación con aceites esenciales naturales',
-        image: '/placeholder.svg?height=200&width=300'
-    }
-]);
+
+const featuredServices = computed(() => {
+    const counts = {};
+
+    // Contar cuántas veces aparece cada servicio_id
+    citas.value.forEach((cita) => {
+        if (cita.servicio && cita.estado === 'completado') {
+            // opcional: filtrar solo completadas
+            const id = cita.servicio.id;
+            if (!counts[id]) {
+                counts[id] = { count: 0, servicio: cita.servicio };
+            }
+            counts[id].count++;
+        }
+    });
+
+    // Convertir a array y ordenar por frecuencia descendente
+    const sorted = Object.values(counts)
+        .sort((a, b) => b.count - a.count)
+        .map((item) => item.servicio);
+
+    // Tomar solo los 3 primeros, por ejemplo
+    return sorted.slice(0, 3);
+});
 
 // Navigation methods
 const scrollToServices = () => {
