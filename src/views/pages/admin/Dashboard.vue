@@ -5,8 +5,6 @@ import Avatar from 'primevue/avatar';
 import Button from 'primevue/button';
 import Card from 'primevue/card';
 import Chart from 'primevue/chart';
-import Column from 'primevue/column';
-import DataTable from 'primevue/datatable';
 import Tag from 'primevue/tag';
 import { onMounted, ref } from 'vue';
 
@@ -337,57 +335,70 @@ onMounted(async () => {
             </div>
 
             <!-- Reservas Recientes Table -->
+            <!-- Reservas Recientes Card Layout -->
             <Card>
                 <template #title>
                     <div class="flex items-center justify-between">
                         <h3 class="text-lg font-semibold text-gray-800">Reservas Recientes</h3>
+                        <Button label="Ver Todas" icon="pi pi-external-link" text size="small" class="text-blue-600 hover:text-blue-800" @click="goToReservasList" />
                     </div>
                 </template>
                 <template #content>
-                    <DataTable :value="reservasRecientes" :paginator="true" :rows="10" :loading="loadingReservations" responsiveLayout="scroll" class="p-datatable-sm">
-                        <Column field="id" header="ID" sortable style="width: 80px">
-                            <template #body="slotProps">
-                                <span class="font-mono text-sm">#{{ slotProps.data.id }}</span>
-                            </template>
-                        </Column>
+                    <div v-if="loadingReservations" class="space-y-4">
+                        <!-- Skeleton loading -->
+                        <div v-for="n in 5" :key="n" class="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg animate-pulse">
+                            <div class="w-10 h-10 bg-gray-300 rounded-full"></div>
+                            <div class="flex-1 space-y-2">
+                                <div class="h-4 bg-gray-300 rounded w-3/4"></div>
+                                <div class="h-3 bg-gray-300 rounded w-1/2"></div>
+                            </div>
+                            <div class="w-16 h-6 bg-gray-300 rounded"></div>
+                        </div>
+                    </div>
 
-                        <Column field="cliente" header="Cliente" sortable>
-                            <template #body="slotProps">
-                                <div class="flex items-center space-x-2">
-                                    <Avatar :label="slotProps.data.cliente.charAt(0)" class="bg-blue-500 text-white" size="small" shape="circle" />
-                                    <span>{{ slotProps.data.cliente }}</span>
+                    <div v-else-if="reservasRecientes && reservasRecientes.length > 0" class="space-y-3">
+                        <div v-for="reserva in reservasRecientes.slice(0, 8)" :key="reserva.id" class="flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors border border-gray-200">
+                            <!-- Cliente y Servicio -->
+                            <div class="flex items-center space-x-4 flex-1">
+                                <Avatar :label="reserva.cliente.charAt(0)" class="bg-blue-500 text-white" size="normal" shape="circle" />
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center space-x-2 mb-1">
+                                        <span class="font-medium text-gray-900 truncate">{{ reserva.cliente }}</span>
+                                        <span class="text-xs text-gray-500 font-mono">#{{ reserva.id }}</span>
+                                    </div>
+                                    <div class="text-sm text-gray-600 truncate">{{ reserva.servicio }}</div>
+                                    <div class="text-xs text-gray-500">{{ reserva.trabajador || 'Sin asignar' }}</div>
                                 </div>
-                            </template>
-                        </Column>
+                            </div>
 
-                        <Column field="servicio" header="Servicio" sortable />
+                            <!-- Fecha y Hora -->
+                            <div class="text-center mx-4 min-w-0">
+                                <div class="text-sm font-medium text-gray-900">{{ formatDate(reserva.fecha) }}</div>
+                                <div class="text-xs text-gray-500 font-mono">{{ reserva.hora }}</div>
+                            </div>
 
-                        <Column field="trabajador" header="Trabajador" sortable />
+                            <!-- Estado y Precio -->
+                            <div class="text-right min-w-0">
+                                <div class="mb-1">
+                                    <Tag :value="reserva.estado" :severity="getStatusSeverity(reserva.estado)" class="text-xs" />
+                                </div>
+                                <div class="text-sm font-semibold text-green-600">${{ reserva.precio }}</div>
+                            </div>
+                        </div>
 
-                        <Column field="fecha" header="Fecha" sortable>
-                            <template #body="slotProps">
-                                <span class="text-sm">{{ formatDate(slotProps.data.fecha) }}</span>
-                            </template>
-                        </Column>
+                        <!-- Mostrar más si hay más de 8 reservas -->
+                        <div v-if="reservasRecientes.length > 8" class="text-center pt-4 border-t border-gray-200">
+                            <Button :label="`Ver ${reservasRecientes.length - 8} reservas más`" icon="pi pi-chevron-down" text size="small" class="text-gray-600 hover:text-gray-800" @click="goToReservasList" />
+                        </div>
+                    </div>
 
-                        <Column field="hora" header="Hora" sortable>
-                            <template #body="slotProps">
-                                <span class="text-sm font-mono">{{ slotProps.data.hora }}</span>
-                            </template>
-                        </Column>
-
-                        <Column field="estado" header="Estado" sortable>
-                            <template #body="slotProps">
-                                <Tag :value="slotProps.data.estado" :severity="getStatusSeverity(slotProps.data.estado)" class="text-xs" />
-                            </template>
-                        </Column>
-
-                        <Column field="precio" header="Precio" sortable>
-                            <template #body="slotProps">
-                                <span class="font-semibold text-green-600">${{ slotProps.data.precio }}</span>
-                            </template>
-                        </Column>
-                    </DataTable>
+                    <!-- Estado vacío -->
+                    <div v-else class="text-center py-12">
+                        <i class="pi pi-calendar text-4xl text-gray-400 mb-4"></i>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">No hay reservas recientes</h3>
+                        <p class="text-gray-500 mb-4">Las nuevas reservas aparecerán aquí</p>
+                        <Button label="Ver Todas las Reservas" icon="pi pi-calendar" outlined @click="goToReservasList" />
+                    </div>
                 </template>
             </Card>
         </div>
