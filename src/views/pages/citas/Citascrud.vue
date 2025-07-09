@@ -306,7 +306,7 @@ onMounted(async () => {
 
             <template #footer>
                 <Button label="Cancelar" icon="pi pi-times" text @click="showEstadoDialog = false" />
-                <Button label="Guardar" icon="pi pi-check" @click="guardarEstado" :disabled="!nuevoEstado" />
+                <Button label="Guardar" icon="pi pi-check" @click="guardarEstado" :disabled="!cambiarEstado" />
             </template>
         </Dialog>
     </div>
