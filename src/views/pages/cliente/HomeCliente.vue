@@ -133,6 +133,21 @@ const formatDateForDisplay = (date) => {
     return `${dia}-${mes}-${anio}`;
 };
 
+const getStatusColor = (estado) => {
+    switch (estado) {
+        case 'pendiente':
+            return 'bg-yellow-400';
+        case 'atendida':
+            return 'bg-green-400';
+        case 'cancelada':
+            return 'bg-red-400';
+        case 'cliente_ausente':
+            return 'bg-orange-400';
+        default:
+            return 'bg-gray-400';
+    }
+};
+
 const getStatusSeverity = (estado) => {
     switch (estado.toLowerCase()) {
         case 'pendiente':
@@ -348,7 +363,7 @@ watch(
                                     <!-- Título y estado -->
                                     <div class="flex justify-between items-start mb-3">
                                         <h3 class="font-semibold text-gray-800">{{ booking.servicio.nombre }}</h3>
-                                        <Tag :value="booking.estado" :severity="getStatusSeverity(booking.estado)" class="text-xs" />
+                                        <Tag :value="booking.estado" :severity="getStatusColor(booking.estado)" class="text-xs" />
                                     </div>
                                     <!-- Fecha, hora y trabajador -->
                                     <div class="space-y-2 text-sm text-gray-600 mb-4">
