@@ -26,14 +26,9 @@ export const obtenerTrabajadoresDisponibles = async (fecha, hora) => {
     return response.data.data; // directamente retorna los trabajadores
 };
 
-export const asignarTrabajadorACita = async (citaId, trabajadorId) => {
-    try {
-        const response = await apiClient.put(`/citas/${citaId}/asignar-trabajador`, {
-            trabajador_id: trabajadorId
-        });
-        return response.data;
-    } catch (error) {
-        console.error('Error al asignar trabajador:', error);
-        throw error;
-    }
+export const asignarTrabajador = async (citaId, trabajadorId) => {
+    const response = await apiClient.patch(`/citas/${citaId}/asignar-trabajador`, {
+        trabajador_id: trabajadorId
+    });
+    return response.data;
 };

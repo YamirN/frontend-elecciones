@@ -124,64 +124,83 @@ watch(trabajadoresDisponibles, (nuevo) => {
             </DataTable>
         </div>
 
-        <Dialog v-model:visible="showAsignarDialog" modal header="👨‍💼 Asignar Trabajador" :style="{ width: '450px' }" class="assign-worker-dialog">
-            <div class="space-y-6 p-2">
+        <Dialog v-model:visible="showAsignarDialog" modal header="Asignar Especialista" :style="{ width: '500px' }" class="spa-dialog">
+            <div class="space-y-6">
                 <!-- Lista de trabajadores disponibles -->
-                <div v-if="trabajadoresDisponibles && trabajadoresDisponibles.length > 0" class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4 border border-blue-200">
-                    <label for="trabajador" class="flex items-center text-lg font-semibold text-gray-800 mb-4">
-                        <i class="pi pi-users mr-2 text-blue-600"></i>
-                        Selecciona un trabajador:
-                    </label>
-                    <select id="trabajador" v-model="trabajadorSeleccionado" class="w-full p-3 border-2 border-blue-200 rounded-lg focus:border-blue-500 focus:outline-none transition-colors bg-white text-gray-700 font-medium">
-                        <option disabled value="" class="text-gray-500">🔍 Elige un profesional disponible</option>
-                        <option v-for="trabajador in trabajadoresDisponibles" :key="trabajador.id" :value="trabajador.id" class="py-2">👤 {{ trabajador.nombre_completo }}</option>
+                <div v-if="trabajadoresDisponibles && trabajadoresDisponibles.length > 0" class="bg-gradient-to-br from-slate-50 to-blue-50 rounded-xl p-6 border border-slate-200">
+                    <div class="flex items-center mb-5">
+                        <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center mr-3">
+                            <i class="pi pi-user text-white text-sm"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-slate-800">Seleccionar Especialista</h3>
+                            <p class="text-sm text-slate-600">Elige el profesional para este servicio</p>
+                        </div>
+                    </div>
+
+                    <select
+                        id="trabajador"
+                        v-model="trabajadorSeleccionado"
+                        class="w-full p-4 border border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all bg-white text-slate-700 font-medium shadow-sm"
+                    >
+                        <option disabled value="" class="text-slate-500">Seleccione un especialista disponible</option>
+                        <option v-for="trabajador in trabajadoresDisponibles" :key="trabajador.id" :value="trabajador.id" class="py-2">
+                            {{ trabajador.nombre_completo }}
+                        </option>
                     </select>
 
-                    <!-- Información del trabajador seleccionado -->
-                    <div v-if="trabajadorSeleccionado" class="mt-3 p-3 bg-white rounded-lg border border-blue-200">
+                    <!-- Confirmación del especialista seleccionado -->
+                    <div v-if="trabajadorSeleccionado" class="mt-4 p-4 bg-white rounded-lg border border-emerald-200 shadow-sm">
                         <div class="flex items-center">
-                            <i class="pi pi-check-circle text-green-500 mr-2"></i>
-                            <span class="text-sm font-medium text-gray-700">Profesional seleccionado:</span>
-                            <span class="text-sm font-semibold text-gray-800 ml-1">
-                                {{ trabajadoresDisponibles.find((t) => t.id === trabajadorSeleccionado)?.nombre_completo }}
-                            </span>
+                            <div class="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="pi pi-check text-emerald-600 text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-slate-700">Especialista seleccionado</p>
+                                <p class="text-emerald-700 font-semibold">
+                                    {{ trabajadoresDisponibles.find((t) => t.id === trabajadorSeleccionado)?.nombre_completo }}
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Si terminó de cargar pero no hay trabajadores -->
-                <div v-else-if="!loadingTrabajadores" class="text-center py-8">
-                    <div class="mb-4">
-                        <i class="pi pi-exclamation-triangle text-4xl text-orange-500"></i>
+                <!-- Sin trabajadores disponibles -->
+                <div v-else-if="!loadingTrabajadores" class="text-center py-12">
+                    <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="pi pi-calendar-times text-amber-600 text-2xl"></i>
                     </div>
-                    <h3 class="text-lg font-semibold text-gray-800 mb-2">No hay trabajadores disponibles</h3>
-                    <p class="text-gray-600 mb-4">No hay trabajadores disponibles para esta fecha y hora.</p>
-                    <div class="bg-orange-50 border border-orange-200 rounded-lg p-3">
-                        <p class="text-sm text-orange-700">
-                            <i class="pi pi-lightbulb mr-1"></i>
-                            Intenta cambiar la fecha o hora de la reserva
-                        </p>
+                    <h3 class="text-xl font-semibold text-slate-800 mb-2">No hay especialistas disponibles</h3>
+                    <p class="text-slate-600 mb-6 max-w-sm mx-auto">No encontramos especialistas disponibles para esta fecha y horario específico.</p>
+                    <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 max-w-md mx-auto">
+                        <div class="flex items-start">
+                            <i class="pi pi-info-circle text-amber-600 mt-0.5 mr-2"></i>
+                            <div class="text-left">
+                                <p class="text-sm font-medium text-amber-800 mb-1">Sugerencia</p>
+                                <p class="text-sm text-amber-700">Considere seleccionar una fecha u horario diferente para encontrar especialistas disponibles.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Si está cargando -->
-                <div v-if="loadingTrabajadores" class="flex items-center justify-center py-8">
-                    <div class="text-center">
-                        <i class="pi pi-spin pi-spinner text-2xl text-blue-500 mb-3"></i>
-                        <p class="text-gray-600 font-medium">Cargando trabajadores disponibles...</p>
-                        <p class="text-sm text-gray-500 mt-1">Esto puede tomar unos segundos</p>
+                <!-- Estado de carga -->
+                <div v-if="loadingTrabajadores" class="text-center py-12">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="pi pi-spin pi-spinner text-blue-600 text-2xl"></i>
                     </div>
+                    <h3 class="text-lg font-semibold text-slate-800 mb-2">Buscando especialistas</h3>
+                    <p class="text-slate-600">Verificando disponibilidad de nuestros profesionales...</p>
                 </div>
             </div>
 
             <template #footer>
-                <div class="flex justify-between items-center">
-                    <Button label="Cancelar" icon="pi pi-times" text class="text-gray-500 hover:text-gray-700" @click="showAsignarDialog = false" />
+                <div class="flex items-center justify-between pt-4 border-t border-slate-200">
+                    <Button label="Cancelar" icon="pi pi-times" text class="text-slate-600 hover:text-slate-800 font-medium px-4 py-2" @click="showAsignarDialog = false" />
                     <Button
-                        :label="trabajadorSeleccionado ? '✅ Asignar Trabajador' : 'Selecciona un trabajador'"
+                        :label="trabajadorSeleccionado ? 'Confirmar Asignación' : 'Seleccione un especialista'"
                         icon="pi pi-check"
                         :disabled="!trabajadorSeleccionado"
-                        class="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-semibold px-4 py-2 rounded-lg transition-all duration-200 disabled:opacity-50"
+                        class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold px-6 py-2.5 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
                         @click="asignarTrabajador"
                     />
                 </div>

@@ -1,4 +1,4 @@
-import { asignarTrabajadorACita, crearCitaTemporal, indexCita, listarCitasPorCliente, obtenerTrabajadoresDisponibles } from '@/service/citasService';
+import { asignarTrabajador, crearCitaTemporal, indexCita, listarCitasPorCliente, obtenerTrabajadoresDisponibles } from '@/service/citasService';
 import { obtenerHorasDisponibles } from '@/service/servicioService';
 import { formatFechaBackend } from '@/service/utils/formatFechaBackend';
 import { defineStore } from 'pinia';
@@ -81,16 +81,11 @@ export const useCitaStore = defineStore('cita', {
                 this.loadingTrabajadores = false;
             }
         },
-        async asignarTrabajador(citaId, trabajadorId) {
+        async asignarTrabajador({ citaId, trabajadorId }) {
             try {
-                const updatedCita = await asignarTrabajadorACita(citaId, trabajadorId);
-                const index = this.citas.findIndex((c) => c.id === updatedCita.data.id);
-                if (index !== -1) {
-                    this.citas[index] = updatedCita.data;
-                }
-                return updatedCita;
+                await asignarTrabajador(citaId, trabajadorId);
             } catch (error) {
-                console.error('Error al asignar trabajador desde el store:', error);
+                console.error('Error al asignar trabajador:', error);
                 throw error;
             }
         }
