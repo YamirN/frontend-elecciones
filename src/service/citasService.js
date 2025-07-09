@@ -19,16 +19,16 @@ export const listarCitasPorCliente = async () => {
     return apiClient.get('/citas/clientes');
 };
 
-export const obtenerTrabajadoresDisponibles = async (fecha, hora, citaId = null) => {
-    const response = await apiClient.get('/trabajadores-disponibles', {
-        params: { fecha, hora, cita_id: citaId }
-    });
-    return response.data.data;
-};
-
 export const asignarTrabajador = async (citaId, trabajadorId) => {
     const response = await apiClient.patch(`/citas/${citaId}/asignar-trabajador`, {
         trabajador_id: trabajadorId
     });
     return response.data;
+};
+
+export const obtenerTrabajadoresDisponibles = async (fecha, hora, citaId = null) => {
+    const response = await apiClient.get('/trabajadores-disponibles', {
+        params: { fecha, hora, cita_id: citaId }
+    });
+    return response.data.data;
 };
