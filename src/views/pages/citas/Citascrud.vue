@@ -189,10 +189,11 @@ onMounted(async () => {
 
         <Dialog v-model:visible="showAsignarDialog" modal header="Asignar Trabajador" :style="{ width: '25rem' }">
             <div class="flex flex-col gap-4">
-                <div v-if="trabajadoresDisponibles.length > 0">
+                <div v-if="Array.isArray(trabajadoresDisponibles) && trabajadoresDisponibles.length > 0">
                     <label for="trabajador" class="font-medium text-gray-700">Selecciona un trabajador:</label>
                     <Dropdown id="trabajador" v-model="trabajadorSeleccionado" :options="trabajadoresDisponibles" optionLabel="nombre_completo" placeholder="Elige uno disponible" class="w-full" />
                 </div>
+
                 <div v-else class="text-red-500">No hay trabajadores disponibles para esta fecha y hora.</div>
 
                 <div class="flex justify-end gap-2">
