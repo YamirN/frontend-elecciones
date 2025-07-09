@@ -226,10 +226,12 @@ onMounted(() => {
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-blue-100 text-sm font-medium">Servicios Vendidos</p>
-                                <p class="text-3xl font-bold">{{ kpisTotales.value.totalServiciosVendidos }}</p>
+                                <p class="text-3xl font-bold">
+                                    {{ kpisTotales.value?.totalServiciosVendidos ?? 0 }}
+                                </p>
                                 <p class="text-blue-100 text-xs mt-1">
                                     <i class="pi pi-arrow-up mr-1"></i>
-                                    {{ kpisMensuales.value.servicios.variacion }}% vs mes anterior
+                                    {{ kpisMensuales.value?.servicios?.variacion ?? 0 }}% vs mes anterior
                                 </p>
                             </div>
                             <div class="bg-blue-400 bg-opacity-30 p-3 rounded-full">

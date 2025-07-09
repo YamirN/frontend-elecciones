@@ -38,6 +38,7 @@ export const useDashboardStore = defineStore('dashboard', {
                 this.serviciosPopulares = response.servicios_populares;
                 this.reservasRecientes = response.reservas_recientes;
                 this.estadisticasRapidas = response.estadisticas_rapidas;
+                console.log(this.kpisTotales);
             } catch (err) {
                 this.error = 'No se pudo cargar el dashboard';
                 console.error(err);
