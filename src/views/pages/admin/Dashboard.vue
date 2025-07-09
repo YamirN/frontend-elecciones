@@ -1,4 +1,6 @@
 <script setup>
+import { useDashboardStore } from '@/stores/dashboardStore';
+import { storeToRefs } from 'pinia';
 import Avatar from 'primevue/avatar';
 import Button from 'primevue/button';
 import Card from 'primevue/card';
@@ -6,8 +8,10 @@ import Chart from 'primevue/chart';
 import Column from 'primevue/column';
 import DataTable from 'primevue/datatable';
 import Tag from 'primevue/tag';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 
+const dashboardStore = useDashboardStore();
+const { kpisTotales, kpisMensuales } = storeToRefs(dashboardStore);
 // Reactive data
 const kpis = ref({
     serviciosVendidos: 1247,
@@ -204,6 +208,10 @@ const deleteReservation = (reservation) => {
 //         window.location.href = '/login';
 //     }
 // });
+
+onMounted(() => {
+    dashboardStore.cargarDashboard();
+});
 </script>
 
 <template>
@@ -217,11 +225,11 @@ const deleteReservation = (reservation) => {
                     <template #content>
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-blue-500 text-sm font-medium">Servicios Vendidos</p>
-                                <p class="text-3xl font-bold">{{ kpis.serviciosVendidos }}</p>
-                                <p class="text-blue-500 text-xs mt-1">
+                                <p class="text-blue-100 text-sm font-medium">Servicios Vendidos</p>
+                                <p class="text-3xl font-bold">{{ kpisTotales.value.totalServiciosVendidos }}</p>
+                                <p class="text-blue-100 text-xs mt-1">
                                     <i class="pi pi-arrow-up mr-1"></i>
-                                    +12% vs mes anterior
+                                    {{ kpisMensuales.value.servicios.variacion }}% vs mes anterior
                                 </p>
                             </div>
                             <div class="bg-blue-400 bg-opacity-30 p-3 rounded-full">
