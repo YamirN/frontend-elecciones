@@ -17,7 +17,7 @@ const router = useRouter();
 const citaStore = useCitaStore();
 const servicioStore = useServicioStore();
 
-const { listaServicios, servicios } = storeToRefs(servicioStore);
+const { servicios } = storeToRefs(servicioStore);
 const { citas } = storeToRefs(citaStore);
 
 // Hero slides data
@@ -42,22 +42,31 @@ const heroSlides = ref([
 // Featured services data
 
 const featuredServices = computed(() => {
-    const citas = Array.isArray(citaStore.citas) ? citaStore.citas : [];
+    const todasCitas = Array.isArray(citas.value) ? citas.value : [];
+    const serviciosActivos = (servicios.value || []).filter((s) => s.activo); // solo activos
 
     const conteo = {};
 
-    citas.forEach((cita) => {
+    // Contar cuántas veces se reservó cada servicio activo
+    todasCitas.forEach((cita) => {
         const servicio = cita.servicio;
-        if (servicio) {
-            conteo[servicio.id] = conteo[servicio.id] || { ...servicio, cantidad: 0 };
-            conteo[servicio.id].cantidad++;
+        if (servicio && servicio.id) {
+            const servicioActivo = serviciosActivos.find((s) => s.id === servicio.id);
+            if (servicioActivo) {
+                if (!conteo[servicio.id]) {
+                    conteo[servicio.id] = { ...servicioActivo, cantidad: 0 };
+                }
+                conteo[servicio.id].cantidad++;
+            }
         }
     });
 
+    // Ordenar por mayor cantidad
     const ordenados = Object.values(conteo).sort((a, b) => b.cantidad - a.cantidad);
-    return ordenados.slice(0, 3); // top 3
-});
 
+    // Retornar top 3
+    return ordenados.slice(0, 3);
+});
 // Navigation methods
 const scrollToServices = () => {
     document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' });
