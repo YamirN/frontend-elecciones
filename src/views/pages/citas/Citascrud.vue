@@ -1,6 +1,4 @@
 <script setup>
-import InputError from '@/components/InputError.vue';
-import InputLabel from '@/components/InputLabel.vue';
 import { useCitaStore } from '@/stores/citaStore';
 import { storeToRefs } from 'pinia';
 import { Toast } from 'primevue';
@@ -13,8 +11,6 @@ const citaStore = useCitaStore();
 const { citas, loading: loadingCitas, errors, trabajadoresDisponibles, loadingTrabajadores } = storeToRefs(citaStore);
 
 // const selectedServicio = ref(null);
-const isEditMode = ref(false);
-const showFormDialog = ref(false);
 const filters = ref({ global: { value: '' } });
 const skeletonRows = Array.from({ length: 8 }, () => ({}));
 
@@ -129,70 +125,10 @@ watch(trabajadoresDisponibles, (nuevo) => {
             </DataTable>
         </div>
 
-        <!-- Dialog Formulario -->
-        <Dialog v-model:visible="showFormDialog" modal header="Formulario de Servicio" :style="{ width: '30rem' }">
-            <form @submit.prevent="onFormSubmit" class="flex flex-col gap-5 px-4">
-                <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">
-                    {{ isEditMode ? 'Editar Servicio' : 'Nuevo Servicio' }}
-                </h2>
-
-                <!-- Nombre -->
-                <div>
-                    <InputLabel for="nombre" value="Nombre" />
-                    <InputText id="nombre" v-model="initialValues.nombre" class="w-full" />
-                    <InputError class="mt-2" :message="errors.nombre ? errors.nombre.join(', ') : ''" />
-                </div>
-
-                <!-- Descripción -->
-                <div>
-                    <InputLabel for="descripcion" value="Descripción" />
-                    <InputText id="descripcion" v-model="initialValues.descripcion" class="w-full" />
-                    <InputError class="mt-2" :message="errors.descripcion ? errors.descripcion.join(', ') : ''" />
-                </div>
-
-                <!-- Duración -->
-                <div>
-                    <InputLabel for="duracion" value="Duración (minutos)" />
-                    <InputText id="duracion" type="number" v-model="initialValues.duracion" class="w-full" min="0" />
-                    <InputError class="mt-2" :message="errors.duracion ? errors.duracion.join(', ') : ''" />
-                </div>
-
-                <!-- Precio -->
-                <div>
-                    <InputLabel for="precio" value="Precio" />
-                    <InputText id="precio" type="number" v-model="initialValues.precio" class="w-full" min="0" />
-                    <InputError class="mt-2" :message="errors.precio ? errors.precio.join(', ') : ''" />
-                </div>
-
-                <!-- Estado -->
-                <div>
-                    <InputLabel for="estado" value="Estado" />
-                    <select id="estado" v-model="initialValues.estado" class="w-full p-2 border rounded">
-                        <option value="activo">Activo</option>
-                        <option value="inactivo">Inactivo</option>
-                    </select>
-                    <InputError class="mt-2" :message="errors.estado ? errors.estado.join(', ') : ''" />
-                </div>
-
-                <!-- Imagen -->
-                <div>
-                    <InputLabel for="imagen" value="Imagen" />
-                    <input type="file" id="imagen" accept="image/*" class="w-full" @change="(e) => (initialValues.imagen = e.target.files[0])" />
-                    <InputError class="mt-2" :message="errors.imagen ? errors.imagen.join(', ') : ''" />
-                </div>
-
-                <!-- Botones -->
-                <div class="flex justify-end gap-2 mt-2">
-                    <Button label="Cancelar" icon="pi pi-times" text type="button" @click="showFormDialog = false" />
-                    <Button label="Guardar" icon="pi pi-check" text type="submit" />
-                </div>
-            </form>
-        </Dialog>
-
         <Dialog v-model:visible="showAsignarDialog" modal header="Asignar Trabajador" :style="{ width: '25rem' }">
             <div class="flex flex-col gap-4">
                 <!-- Si trabajadores es un array y tiene elementos -->
-                <div v-if="Array.isArray(trabajadoresDisponibles) && trabajadoresDisponibles.length > 0">
+                <div v-if="Array.isArray(trabajadoresDisponibles?.value) && trabajadoresDisponibles.value.length > 0">
                     <label for="trabajador" class="font-medium text-gray-700">Selecciona un trabajador:</label>
                     <Dropdown id="trabajador" v-model="trabajadorSeleccionado" :options="trabajadoresDisponibles" optionLabel="nombre_completo" optionValue="id" placeholder="Elige uno disponible" class="w-full" />
                 </div>
