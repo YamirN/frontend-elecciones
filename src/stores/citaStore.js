@@ -69,11 +69,11 @@ export const useCitaStore = defineStore('cita', {
                 this.availableHours = [];
             }
         },
-        async cargarTrabajadoresDisponibles(fecha, hora) {
+        async cargarTrabajadoresDisponibles(fecha, hora, citaId = null) {
             this.loadingTrabajadores = true;
             try {
                 const fechaFormateada = formatFechaBackend(fecha);
-                this.trabajadoresDisponibles = await obtenerTrabajadoresDisponibles(fechaFormateada, hora);
+                this.trabajadoresDisponibles = await obtenerTrabajadoresDisponibles(fechaFormateada, hora, citaId);
             } catch (error) {
                 console.error('Error al cargar trabajadores disponibles:', error);
                 this.trabajadoresDisponibles = [];
