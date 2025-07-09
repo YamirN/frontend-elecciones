@@ -121,8 +121,7 @@ onMounted(async () => {
 
                 <Column header="Acciones" style="min-width: 12rem">
                     <template #body="slotProps">
-                        <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="openEdit(slotProps.data)" />
-                        <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDelete(slotProps.data)" />
+                        <Button icon="pi pi-user-plus" label="Asignar" outlined rounded class="mr-2" @click="abrirDialogoAsignar(slotProps.data)" />
                     </template>
                 </Column>
             </DataTable>
@@ -184,11 +183,6 @@ onMounted(async () => {
                 <div class="flex justify-end gap-2 mt-2">
                     <Button label="Cancelar" icon="pi pi-times" text type="button" @click="showFormDialog = false" />
                     <Button label="Guardar" icon="pi pi-check" text type="submit" />
-                    <Column header="Acciones" style="min-width: 12rem">
-                        <template #body="slotProps">
-                            <Button icon="pi pi-user-plus" label="Asignar" outlined rounded class="mr-2" @click="abrirDialogoAsignar(slotProps.data)" />
-                        </template>
-                    </Column>
                 </div>
             </form>
         </Dialog>
