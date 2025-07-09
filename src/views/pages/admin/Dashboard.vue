@@ -186,13 +186,6 @@ const deleteReservation = (reservation) => {
     // Implement delete logic with confirmation
 };
 
-// const logout = () => {
-//     localStorage.removeItem('isAuthenticated');
-//     localStorage.removeItem('userRole');
-//     localStorage.removeItem('userEmail');
-//     window.location.href = '/login';
-// };
-
 // onMounted(() => {
 //     // Check authentication
 //     const isAuthenticated = localStorage.getItem('isAuthenticated');
@@ -205,7 +198,6 @@ const deleteReservation = (reservation) => {
 
 onMounted(async () => {
     await dashboardStore.cargarDashboard();
-    console.log('DASHBOARD DATA:', dashboardData.value);
 });
 </script>
 
@@ -216,15 +208,15 @@ onMounted(async () => {
             <!-- KPI Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <!-- Servicios Vendidos -->
-                <Card class="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+                <Card v-if="dashboardData?.kpis_totales" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
                     <template #content>
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-blue-100 text-sm font-medium">Servicios Vendidos</p>
+                                <p class="text-blue-500 text-sm font-medium">Servicios Vendidos</p>
                                 <p class="text-3xl font-bold">
                                     {{ dashboardData.kpis_totales.totalServiciosVendidos ?? 0 }}
                                 </p>
-                                <p class="text-blue-100 text-xs mt-1">
+                                <p class="text-blue-500 text-xs mt-1">
                                     <i class="pi pi-arrow-up mr-1"></i>
                                     {{ dashboardData.kpis_mensuales.servicios.variacion ?? 0 }}% vs mes anterior
                                 </p>
@@ -237,7 +229,7 @@ onMounted(async () => {
                 </Card>
 
                 <!-- Ingresos -->
-                <Card class="bg-gradient-to-r from-green-500 to-green-600 text-white">
+                <Card v-if="dashboardData?.kpis_totales" class="bg-gradient-to-r from-green-500 to-green-600 text-white">
                     <template #content>
                         <div class="flex items-center justify-between">
                             <div>
@@ -256,7 +248,7 @@ onMounted(async () => {
                 </Card>
 
                 <!-- Clientes -->
-                <Card class="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
+                <Card v-if="dashboardData?.kpis_totales" class="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
                     <template #content>
                         <div class="flex items-center justify-between">
                             <div>
@@ -275,7 +267,7 @@ onMounted(async () => {
                 </Card>
 
                 <!-- Trabajadores -->
-                <Card class="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
+                <Card v-if="dashboardData?.kpis_totales" class="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
                     <template #content>
                         <div class="flex items-center justify-between">
                             <div>

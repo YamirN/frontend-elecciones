@@ -17,7 +17,6 @@ export const useDashboardStore = defineStore('dashboard', {
             try {
                 const response = await obtenerDashboard();
                 this.dashboardData = response;
-                console.log('dashboardData', response);
             } catch (err) {
                 this.error = 'No se pudo cargar el dashboard';
                 console.error(err);
