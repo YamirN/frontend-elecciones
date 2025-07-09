@@ -1,4 +1,4 @@
-import { getTopServiciosMasReservados } from '@/services/reporteService';
+import { getTopServiciosMasReservados } from '@/service/reportesService';
 import { defineStore } from 'pinia';
 
 export const useReporteStore = defineStore('reporte', {
