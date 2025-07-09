@@ -99,24 +99,18 @@ const resetBookingForm = () => {
     };
 };
 
-const logout = async () => {
-    await authStore.handleLogout();
-    authStore.$reset();
-    router.replace({ name: 'login' });
-};
-
 // Recent bookings
-const recentBookings = computed(() => {
-    return [...citasCliente.value]
-        .sort((a, b) => {
-            const [da, ma, ya] = a.fecha.split('-').map(Number);
-            const [db, mb, yb] = b.fecha.split('-').map(Number);
-            const dateA = new Date(ya, ma - 1, da);
-            const dateB = new Date(yb, mb - 1, db);
-            return dateB - dateA; // más recientes primero
-        })
-        .slice(0, 3);
-});
+// const recentBookings = computed(() => {
+//     return [...citasCliente.value]
+//         .sort((a, b) => {
+//             const [da, ma, ya] = a.fecha.split('-').map(Number);
+//             const [db, mb, yb] = b.fecha.split('-').map(Number);
+//             const dateA = new Date(ya, ma - 1, da);
+//             const dateB = new Date(yb, mb - 1, db);
+//             return dateB - dateA; // más recientes primero
+//         })
+//         .slice(0, 3);
+// });
 
 // Methods
 const formatDate = (fechaStr) => {
@@ -211,41 +205,41 @@ const confirmBooking = async () => {
     }
 };
 
-const rescheduleBooking = (booking) => {
-    toast.add({
-        severity: 'info',
-        summary: 'Reagendar',
-        detail: `Reagendando ${booking.servicio}`,
-        life: 3000
-    });
-};
+// const rescheduleBooking = (booking) => {
+//     toast.add({
+//         severity: 'info',
+//         summary: 'Reagendar',
+//         detail: `Reagendando ${booking.servicio}`,
+//         life: 3000
+//     });
+// };
 
-const rateService = (booking) => {
-    toast.add({
-        severity: 'info',
-        summary: 'Calificar Servicio',
-        detail: `Calificando ${booking.servicio}`,
-        life: 3000
-    });
-};
+// const rateService = (booking) => {
+//     toast.add({
+//         severity: 'info',
+//         summary: 'Calificar Servicio',
+//         detail: `Calificando ${booking.servicio}`,
+//         life: 3000
+//     });
+// };
 
-const useOffer = (type) => {
-    toast.add({
-        severity: 'success',
-        summary: 'Oferta Aplicada',
-        detail: '20% de descuento aplicado a tu próxima reserva',
-        life: 3000
-    });
-};
+// const useOffer = (type) => {
+//     toast.add({
+//         severity: 'success',
+//         summary: 'Oferta Aplicada',
+//         detail: '20% de descuento aplicado a tu próxima reserva',
+//         life: 3000
+//     });
+// };
 
-const viewVipPackage = () => {
-    toast.add({
-        severity: 'info',
-        summary: 'Paquete VIP',
-        detail: 'Redirigiendo a paquetes especiales...',
-        life: 3000
-    });
-};
+// const viewVipPackage = () => {
+//     toast.add({
+//         severity: 'info',
+//         summary: 'Paquete VIP',
+//         detail: 'Redirigiendo a paquetes especiales...',
+//         life: 3000
+//     });
+// };
 
 // Navigation methods
 const goToMyBookings = () => {
@@ -345,11 +339,11 @@ watch(
                 <TabPanel value="1">
                     <div class="bg-white rounded-lg shadow p-6 mb-8">
                         <div class="flex justify-between items-center mb-8">
-                            <h2 class="text-3xl font-bold text-gray-800">Mis Reservas Recientes</h2>
+                            <h2 class="text-3xl font-bold text-gray-800">Mis Reservas</h2>
                             <Button label="Ver Todas" outlined @click="goToMyBookings" />
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            <div v-for="booking in recentBookings" :key="booking.id" class="bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg transition-shadow duration-300">
+                            <div v-for="booking in citasCliente" :key="booking.id" class="bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg transition-shadow duration-300">
                                 <div class="p-4">
                                     <!-- Título y estado -->
                                     <div class="flex justify-between items-start mb-3">
@@ -376,10 +370,10 @@ watch(
                                     <!-- Precio y acciones -->
                                     <div class="flex justify-between items-center pt-3 border-t border-gray-200">
                                         <span class="font-semibold text-green-600">S/. {{ booking.servicio.precio }}</span>
-                                        <div class="flex space-x-2">
+                                        <!-- <div class="flex space-x-2">
                                             <Button v-if="booking.estado === 'Confirmado'" label="Reagendar" size="small" outlined @click="rescheduleBooking(booking)" />
                                             <Button v-if="booking.estado === 'Completado'" label="Calificar" size="small" @click="rateService(booking)" />
-                                        </div>
+                                        </div> -->
                                     </div>
                                 </div>
                             </div>
