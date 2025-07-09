@@ -202,7 +202,7 @@ onMounted(async () => {
 
                 <Column header="Acciones" style="min-width: 12rem">
                     <template #body="slotProps">
-                        <Button icon="pi pi-user-plus" label="Asignar" outlined rounded class="mr-2" :disabled="esCitaPasada(slotProps.data.fecha, slotProps.data.hora) || slotProps.data.trabajador" @click="abrirDialogoAsignar(slotProps.data)" />
+                        <Button icon="pi pi-user-plus" label="Asignar" outlined rounded class="mr-2" :disabled="esCitaPasada(slotProps.data.fecha, slotProps.data.hora)" @click="abrirDialogoAsignar(slotProps.data)" />
                         <Button v-if="slotProps.data.trabajador" icon="pi pi-refresh" label="Estado" severity="info" outlined rounded @click="abrirDialogoEstado(slotProps.data)" />
                     </template>
                 </Column>
