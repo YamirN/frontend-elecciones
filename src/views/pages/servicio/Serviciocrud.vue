@@ -156,7 +156,7 @@ onMounted(async () => {
 
                 <Column field="estado" header="Estado">
                     <template #body="{ data }">
-                        <Tag :value="data.servicio.estado" :severity="data.servicio.estado === 'activo' ? 'success' : 'danger'" />
+                        <Tag :value="data.estado" :severity="data.estado === 'activo' ? 'success' : 'danger'" />
                     </template>
                 </Column>
 
