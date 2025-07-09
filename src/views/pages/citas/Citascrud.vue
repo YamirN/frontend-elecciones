@@ -23,14 +23,14 @@ const nuevoEstado = ref(null);
 
 const getStatusColor = (status) => {
     switch (status) {
-        case 'Pendiente':
+        case 'pendiente':
             return 'bg-yellow-400';
-        case 'Confirmado':
-            return 'bg-blue-400';
-        case 'Completado':
+        case 'atendida':
             return 'bg-green-400';
-        case 'Cancelado':
+        case 'cancelada':
             return 'bg-red-400';
+        case 'cliente_ausente':
+            return 'bg-orange-400';
         default:
             return 'bg-gray-400';
     }
@@ -38,14 +38,14 @@ const getStatusColor = (status) => {
 
 const getStatusSeverity = (status) => {
     switch (status) {
-        case 'Completado':
+        case 'atendida':
             return 'success';
-        case 'Confirmado':
-            return 'info';
-        case 'Pendiente':
+        case 'pendiente':
             return 'warning';
-        case 'Cancelado':
+        case 'cancelada':
             return 'danger';
+        case 'cliente_ausente':
+            return 'warn';
         default:
             return 'info';
     }
@@ -285,10 +285,10 @@ onMounted(async () => {
                     <label class="block text-sm font-medium text-gray-700 mb-2">Nuevo estado</label>
                     <select v-model="nuevoEstado" class="w-full p-3 border border-gray-300 rounded focus:border-blue-500 focus:outline-none">
                         <option value="" disabled>Seleccione estado</option>
-                        <option value="Pendiente">Pendiente</option>
-                        <option value="Confirmado">Confirmado</option>
-                        <option value="Completado">Completado</option>
-                        <option value="Cancelado">Cancelado</option>
+                        <option value="pendiente">Pendiente</option>
+                        <option value="atendida">Atendida</option>
+                        <option value="cancelada">Cancelada</option>
+                        <option value="cliente_ausente">Cliente Ausente</option>
                     </select>
                 </div>
 
@@ -306,7 +306,7 @@ onMounted(async () => {
 
             <template #footer>
                 <Button label="Cancelar" icon="pi pi-times" text @click="showEstadoDialog = false" />
-                <Button label="Guardar" icon="pi pi-check" @click="guardarEstado" :disabled="!cambiarEstado" />
+                <Button label="Guardar" icon="pi pi-check" @click="guardarEstado" :disabled="!nuevoEstado" />
             </template>
         </Dialog>
     </div>
