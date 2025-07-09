@@ -203,8 +203,9 @@ const deleteReservation = (reservation) => {
 //     }
 // });
 
-onMounted(() => {
-    dashboardStore.cargarDashboard();
+onMounted(async () => {
+    await dashboardStore.cargarDashboard();
+    console.log('DASHBOARD DATA:', dashboardData.value);
 });
 </script>
 

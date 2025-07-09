@@ -1,9 +1,10 @@
 import { obtenerDashboard } from '@/service/dashboardService';
 import { defineStore } from 'pinia';
+import { ref } from 'vue';
 
 export const useDashboardStore = defineStore('dashboard', {
     state: () => ({
-        dashboardData: {},
+        dashboardData: ref(null),
         loading: false,
         errors: {}
     }),
@@ -15,8 +16,8 @@ export const useDashboardStore = defineStore('dashboard', {
 
             try {
                 const response = await obtenerDashboard();
-
                 this.dashboardData = response.data;
+                console.log('dashboardData', this.dashboardData);
             } catch (err) {
                 this.error = 'No se pudo cargar el dashboard';
                 console.error(err);
