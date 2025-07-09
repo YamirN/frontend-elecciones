@@ -365,7 +365,7 @@ watch(
                                     <!-- Título y estado -->
                                     <div class="flex justify-between items-start mb-3">
                                         <h3 class="font-semibold text-gray-800">{{ booking.servicio.nombre }}</h3>
-                                        <Tag :value="booking.estado" :severity="getStatusColor(booking.estado)" class="text-xs" />
+                                        <Tag :value="booking.estado" :class="getStatusColor(booking.estado)" class="text-xs" />
                                     </div>
                                     <!-- Fecha, hora y trabajador -->
                                     <div class="space-y-2 text-sm text-gray-600 mb-4">
