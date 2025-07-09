@@ -1,5 +1,6 @@
 import { asignarTrabajadorACita, crearCitaTemporal, indexCita, listarCitasPorCliente, obtenerTrabajadoresDisponibles } from '@/service/citasService';
 import { obtenerHorasDisponibles } from '@/service/servicioService';
+import { formatFechaBackend } from '@/service/utils/formatFechaBackend';
 import { defineStore } from 'pinia';
 
 export const useCitaStore = defineStore('cita', {
@@ -71,7 +72,8 @@ export const useCitaStore = defineStore('cita', {
         async cargarTrabajadoresDisponibles(fecha, hora) {
             this.loadingTrabajadores = true;
             try {
-                this.trabajadoresDisponibles = await obtenerTrabajadoresDisponibles(fecha, hora);
+                const fechaFormateada = formatFechaBackend(fecha);
+                this.trabajadoresDisponibles = await obtenerTrabajadoresDisponibles(fechaFormateada, hora);
             } catch (error) {
                 console.error('Error al cargar trabajadores disponibles:', error);
                 this.trabajadoresDisponibles = [];

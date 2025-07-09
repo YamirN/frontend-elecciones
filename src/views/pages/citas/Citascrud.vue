@@ -105,7 +105,7 @@ onMounted(async () => {
                 </Column>
 
                 <Column header="Duración">
-                    <template #body="slotProps"> {{ slotProps.data.servicio?.duracion }} min </template>
+                    <template #body="slotProps"> {{ formatDuration(slotProps.data.servicio?.duracion) }} min </template>
                 </Column>
 
                 <Column header="Cliente">
