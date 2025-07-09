@@ -153,7 +153,12 @@ onMounted(async () => {
                 <Column field="precio" header="Precio">
                     <template #body="slotProps"> S/. {{ slotProps.data.precio }} </template>
                 </Column>
-                <Column field="estado" header="Estado" />
+
+                <Column field="estado" header="Estado">
+                    <template #body="{ data }">
+                        <Tag :value="data.servicio.estado" :severity="data.servicio.estado === 'activo' ? 'success' : 'danger'" />
+                    </template>
+                </Column>
 
                 <Column header="Acciones" style="min-width: 12rem">
                     <template #body="slotProps">

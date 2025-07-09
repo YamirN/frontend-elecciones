@@ -42,28 +42,20 @@ const heroSlides = ref([
 // Featured services data
 
 const featuredServices = computed(() => {
-    const conteo = new Map();
+    const citas = Array.isArray(citaStore.citas) ? citaStore.citas : [];
 
-    // Contar repeticiones
+    const conteo = {};
+
     citas.forEach((cita) => {
         const servicio = cita.servicio;
-        if (!servicio || servicio.estado !== 'activo') return;
-
-        const id = servicio.id;
-        if (conteo.has(id)) {
-            conteo.get(id).total += 1;
-        } else {
-            conteo.set(id, {
-                ...servicio,
-                total: 1
-            });
+        if (servicio) {
+            conteo[servicio.id] = conteo[servicio.id] || { ...servicio, cantidad: 0 };
+            conteo[servicio.id].cantidad++;
         }
     });
 
-    // Convertir a array y ordenar por popularidad
-    const ordenados = Array.from(conteo.values()).sort((a, b) => b.total - a.total);
-
-    return ordenados.slice(0, 6); // Top 6
+    const ordenados = Object.values(conteo).sort((a, b) => b.cantidad - a.cantidad);
+    return ordenados.slice(0, 3); // top 3
 });
 
 // Navigation methods
