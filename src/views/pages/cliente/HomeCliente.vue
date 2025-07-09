@@ -136,7 +136,7 @@ const formatDateForDisplay = (date) => {
 };
 
 const getStatusColor = (status) => {
-    switch (status.toLowerCase()) {
+    switch (status) {
         case 'pendiente':
             return 'bg-yellow-400';
         case 'atendida':
