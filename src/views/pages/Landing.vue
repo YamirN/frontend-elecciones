@@ -3,7 +3,8 @@ import pazImg from '@/assets/img/paz.jpg';
 import renuevateImg from '@/assets/img/renuevate.jpg';
 import spaImage from '@/assets/img/spa.jpg';
 import tratamientoImg from '@/assets/img/tratamientoexclusivo.jpg';
-import { useCitaStore } from '@/stores/citaStore';
+import { useServicioStore } from '@/stores/servicioStore';
+import { storeToRefs } from 'pinia';
 import Button from 'primevue/button';
 import Card from 'primevue/card';
 import Carousel from 'primevue/carousel';
@@ -12,8 +13,8 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter();
 
-const citasStore = useCitaStore();
-const citas = computed(() => citasStore.citas);
+const servicioStore = useServicioStore();
+const { listaServicios, servicios } = storeToRefs(servicioStore);
 
 // Hero slides data
 const heroSlides = ref([
@@ -106,8 +107,8 @@ const openWhatsApp = () => {
     window.open(url, '_blank');
 };
 
-onMounted(() => {
-    // Any initialization code can go here
+onMounted(async () => {
+    await servicioStore.listaServicios();
 });
 </script>
 
