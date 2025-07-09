@@ -3,6 +3,7 @@ import pazImg from '@/assets/img/paz.jpg';
 import renuevateImg from '@/assets/img/renuevate.jpg';
 import spaImage from '@/assets/img/spa.jpg';
 import tratamientoImg from '@/assets/img/tratamientoexclusivo.jpg';
+import { useCitaStore } from '@/stores/citaStore';
 import { useServicioStore } from '@/stores/servicioStore';
 import { storeToRefs } from 'pinia';
 import Button from 'primevue/button';
@@ -13,8 +14,11 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter();
 
+const citaStore = useCitaStore();
 const servicioStore = useServicioStore();
+
 const { listaServicios, servicios } = storeToRefs(servicioStore);
+const { citas } = storeToRefs(citaStore);
 
 // Hero slides data
 const heroSlides = ref([
@@ -38,27 +42,28 @@ const heroSlides = ref([
 // Featured services data
 
 const featuredServices = computed(() => {
-    const counts = {};
+    const conteo = new Map();
 
-    // Contar cuántas veces aparece cada servicio_id
-    citas.value.forEach((cita) => {
-        if (cita.servicio && cita.estado === 'completado') {
-            // opcional: filtrar solo completadas
-            const id = cita.servicio.id;
-            if (!counts[id]) {
-                counts[id] = { count: 0, servicio: cita.servicio };
-            }
-            counts[id].count++;
+    // Contar repeticiones
+    citas.forEach((cita) => {
+        const servicio = cita.servicio;
+        if (!servicio || servicio.estado !== 'activo') return;
+
+        const id = servicio.id;
+        if (conteo.has(id)) {
+            conteo.get(id).total += 1;
+        } else {
+            conteo.set(id, {
+                ...servicio,
+                total: 1
+            });
         }
     });
 
-    // Convertir a array y ordenar por frecuencia descendente
-    const sorted = Object.values(counts)
-        .sort((a, b) => b.count - a.count)
-        .map((item) => item.servicio);
+    // Convertir a array y ordenar por popularidad
+    const ordenados = Array.from(conteo.values()).sort((a, b) => b.total - a.total);
 
-    // Tomar solo los 3 primeros, por ejemplo
-    return sorted.slice(0, 3);
+    return ordenados.slice(0, 6); // Top 6
 });
 
 // Navigation methods
@@ -214,30 +219,23 @@ onMounted(async () => {
         </section>
 
         <!-- Services Preview -->
-        <section id="services" class="py-16 px-4">
-            <div class="container mx-auto">
-                <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">Nuestros Servicios Destacados</h2>
-                <div class="grid md:grid-cols-3 gap-6">
-                    <Card v-for="service in featuredServices" :key="service.id" class="hover:shadow-lg transition-shadow duration-300">
-                        <template #header>
-                            <img :src="service.image" :alt="service.name" class="w-full h-48 object-cover" />
-                        </template>
-                        <template #title>{{ service.name }}</template>
-                        <template #subtitle>${{ service.price }}</template>
-                        <template #content>
-                            <p class="text-gray-600 mb-4">{{ service.description }}</p>
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm text-gray-500">{{ service.duration }}</span>
-                                <Button label="Reservar" size="small" @click="goToBooking" />
-                            </div>
-                        </template>
-                    </Card>
+        <Card v-for="service in featuredServices" :key="service.id">
+            <!-- Imagen -->
+            <template #header>
+                <img :src="service.image" :alt="service.nombre" class="w-full h-48 object-cover" />
+            </template>
+
+            <template #title>{{ service.nombre }}</template>
+            <template #subtitle>${{ service.precio }}</template>
+
+            <template #content>
+                <p class="text-gray-600 mb-4">{{ service.descripcion }}</p>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-500">{{ service.duracion }} min</span>
+                    <Button label="Reservar" size="small" @click="goToBooking(service.id)" />
                 </div>
-                <div class="text-center mt-8">
-                    <Button label="Ver Todos los Servicios" outlined @click="goToServices" />
-                </div>
-            </div>
-        </section>
+            </template>
+        </Card>
 
         <!-- Contact Section -->
         <section id="contact" class="py-16 bg-gray-50">
