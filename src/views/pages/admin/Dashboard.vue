@@ -387,16 +387,6 @@ onMounted(async () => {
                                 <span class="font-semibold text-green-600">${{ slotProps.data.precio }}</span>
                             </template>
                         </Column>
-
-                        <Column header="Acciones" style="width: 120px">
-                            <template #body="slotProps">
-                                <div class="flex space-x-1">
-                                    <Button icon="pi pi-eye" size="small" text @click="viewReservation(slotProps.data)" />
-                                    <Button icon="pi pi-pencil" size="small" text @click="editReservation(slotProps.data)" />
-                                    <Button icon="pi pi-trash" size="small" text severity="danger" @click="deleteReservation(slotProps.data)" />
-                                </div>
-                            </template>
-                        </Column>
                     </DataTable>
                 </template>
             </Card>
