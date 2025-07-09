@@ -3,26 +3,9 @@ import { defineStore } from 'pinia';
 
 export const useDashboardStore = defineStore('dashboard', {
     state: () => ({
-        kpisTotales: {
-            totalServiciosVendidos: 0,
-            totalIngresos: 0,
-            totalClientes: 0,
-            totalTrabajadores: 0
-        },
-        kpisMensuales: {
-            servicios: { valor: 0, variacion: 0 },
-            ingresos: { valor: 0, variacion: 0 },
-            clientes: { valor: 0, variacion: 0 }
-        },
-        serviciosPopulares: [],
-        reservasRecientes: [],
-        estadisticasRapidas: {
-            reservasHoy: 0,
-            enCurso: 0,
-            pendientes: 0
-        },
+        dashboardData: {},
         loading: false,
-        error: null
+        errors: {}
     }),
 
     actions: {
@@ -33,12 +16,7 @@ export const useDashboardStore = defineStore('dashboard', {
             try {
                 const response = await obtenerDashboard();
 
-                this.kpisTotales = response.kpis_totales;
-                this.kpisMensuales = response.kpis_mensuales;
-                this.serviciosPopulares = response.servicios_populares;
-                this.reservasRecientes = response.reservas_recientes;
-                this.estadisticasRapidas = response.estadisticas_rapidas;
-                console.log(this.kpisTotales);
+                this.dashboardData = response.data;
             } catch (err) {
                 this.error = 'No se pudo cargar el dashboard';
                 console.error(err);

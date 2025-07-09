@@ -11,7 +11,7 @@ import Tag from 'primevue/tag';
 import { onMounted, ref } from 'vue';
 
 const dashboardStore = useDashboardStore();
-const { kpisTotales, kpisMensuales } = storeToRefs(dashboardStore);
+const { dashboardData } = storeToRefs(dashboardStore);
 // Reactive data
 
 const quickStats = ref({
@@ -221,11 +221,11 @@ onMounted(() => {
                             <div>
                                 <p class="text-blue-100 text-sm font-medium">Servicios Vendidos</p>
                                 <p class="text-3xl font-bold">
-                                    {{ kpisTotales.value?.totalServiciosVendidos ?? 0 }}
+                                    {{ dashboardData.value?.kpis_totales?.totalServiciosVendidos ?? 0 }}
                                 </p>
                                 <p class="text-blue-100 text-xs mt-1">
                                     <i class="pi pi-arrow-up mr-1"></i>
-                                    {{ kpisMensuales.value?.servicios?.variacion ?? 0 }}% vs mes anterior
+                                    {{ dashboardData.value?.kpis_mensuales?.servicios?.variacion ?? 0 }}% vs mes anterior
                                 </p>
                             </div>
                             <div class="bg-blue-400 bg-opacity-30 p-3 rounded-full">
@@ -241,10 +241,10 @@ onMounted(() => {
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-green-500 text-sm font-medium">Ingresos</p>
-                                <p class="text-3xl font-bold">${{ kpisMensuales.value?.totalIngresos ?? 0 }}</p>
+                                <p class="text-3xl font-bold">S/. {{ dashboardData.value?.kpis_totales?.totalIngresos ?? 0 }}</p>
                                 <p class="text-green-500 text-xs mt-1">
                                     <i class="pi pi-arrow-up mr-1"></i>
-                                    + {{ kpisMensuales.value?.ingresos?.variacion ?? 0 }}% vs mes anterior
+                                    + {{ dashboardData.value?.kpis_mensuales?.ingresos?.variacion ?? 0 }}% vs mes anterior
                                 </p>
                             </div>
                             <div class="bg-green-400 bg-opacity-30 p-3 rounded-full">
@@ -260,10 +260,10 @@ onMounted(() => {
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-purple-500 text-sm font-medium">Clientes</p>
-                                <p class="text-3xl font-bold">{{ kpisMensuales.value?.totalClientes ?? 0 }}</p>
+                                <p class="text-3xl font-bold">{{ dashboardData.value?.kpis_totales?.totalClientes ?? 0 }}</p>
                                 <p class="text-purple-500 text-xs mt-1">
                                     <i class="pi pi-arrow-up mr-1"></i>
-                                    + {{ kpisMensuales.value?.clientes?.variacion ?? 0 }}% vs mes anterior
+                                    + {{ dashboardData.value?.kpis_mensuales?.clientes?.variacion ?? 0 }}% vs mes anterior
                                 </p>
                             </div>
                             <div class="bg-purple-400 bg-opacity-30 p-3 rounded-full">
@@ -279,7 +279,7 @@ onMounted(() => {
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-orange-500 text-sm font-medium">Trabajadores</p>
-                                <p class="text-3xl font-bold">{{ kpisTotales.value?.totalTrabajadores ?? 0 }}</p>
+                                <p class="text-3xl font-bold">{{ dashboardData.value?.kpis_totales?.totalTrabajadores ?? 0 }}</p>
                                 <p class="text-orange-500 text-xs mt-1">
                                     <i class="pi pi-check mr-1"></i>
                                     Activos
