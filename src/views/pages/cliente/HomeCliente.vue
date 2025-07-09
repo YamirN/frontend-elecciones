@@ -203,7 +203,7 @@ const confirmBooking = async () => {
         toast.add({
             severity: 'error',
             summary: 'Error en la reserva',
-            detail: error.value || 'Ocurrió un problema al generar la cita',
+            detail: error.value || 'Ya cuenta con un servicio reservado para esta fecha y hora',
             life: 4000
         });
     }

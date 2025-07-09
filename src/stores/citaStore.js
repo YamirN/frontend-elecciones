@@ -83,6 +83,7 @@ export const useCitaStore = defineStore('cita', {
         async asignarTrabajador({ citaId, trabajadorId }) {
             try {
                 await asignarTrabajador(citaId, trabajadorId);
+                return true;
             } catch (error) {
                 console.error('Error al asignar trabajador:', error);
                 throw error;
