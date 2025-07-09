@@ -21,12 +21,12 @@ const showEstadoDialog = ref(false);
 const citaParaCambioEstado = ref(null);
 const nuevoEstado = ref(null);
 
-const estadosDisponibles = [
+const estadosDisponibles = ref([
     { label: 'Pendiente', value: 'pendiente' },
     { label: 'Atendida', value: 'atendida' },
     { label: 'Cancelada', value: 'cancelada' },
     { label: 'Cliente ausente', value: 'cliente_ausente' }
-];
+]);
 
 // Método para abrir el diálogo y cargar trabajadores
 const abrirDialogoAsignar = async (cita) => {
@@ -68,7 +68,6 @@ const asignarTrabajador = async () => {
 };
 
 const abrirDialogoEstado = (cita) => {
-    console.log('Cita seleccionada para cambiar estado:', cita);
     citaParaCambioEstado.value = cita;
     nuevoEstado.value = cita.estado;
     showEstadoDialog.value = true;
@@ -248,17 +247,15 @@ onMounted(async () => {
             </template>
         </Dialog>
 
-        <Dialog v-model:visible="showEstadoDialog" modal header="Cambiar Estado" :style="{ width: '25rem' }">
-            <div class="p-fluid">
-                <div class="field">
-                    <label for="estado">Nuevo estado</label>
-                    <Dropdown id="estado" v-model="nuevoEstado" :options="estadosDisponibles" optionLabel="label" optionValue="value" placeholder="Seleccione estado" />
-                </div>
+        <Dialog v-model:visible="showEstadoDialog" modal header="Cambiar Estado" style="width: 30vw">
+            <div class="mb-3">
+                <label class="block mb-2">Nuevo estado</label>
+                <Dropdown v-model="nuevoEstado" :options="estadosDisponibles" optionLabel="label" optionValue="value" placeholder="Seleccione estado" class="w-full" />
             </div>
 
             <template #footer>
-                <Button label="Cancelar" icon="pi pi-times" @click="showEstadoDialog = false" class="p-button-text" />
-                <Button label="Guardar" icon="pi pi-check" @click="cambiarEstado" />
+                <Button label="Cancelar" icon="pi pi-times" text @click="showEstadoDialog = false" />
+                <Button label="Guardar" icon="pi pi-check" @click="guardarEstado" :disabled="!nuevoEstado" />
             </template>
         </Dialog>
     </div>
