@@ -13,12 +13,6 @@ import { onMounted, ref } from 'vue';
 const dashboardStore = useDashboardStore();
 const { kpisTotales, kpisMensuales } = storeToRefs(dashboardStore);
 // Reactive data
-const kpis = ref({
-    serviciosVendidos: 1247,
-    ingresos: 45680,
-    clientes: 892,
-    trabajadores: 12
-});
 
 const quickStats = ref({
     reservasHoy: 24,
