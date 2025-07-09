@@ -126,8 +126,8 @@ watch(trabajadoresDisponibles, (nuevo) => {
 
         <Dialog v-model:visible="showAsignarDialog" modal header="Asignar Trabajador" :style="{ width: '25rem' }">
             <div class="flex flex-col gap-4">
-                <!-- Si trabajadores es un array y tiene elementos -->
-                <div v-if="Array.isArray(trabajadoresDisponibles?.value) && trabajadoresDisponibles.value.length > 0">
+                <!-- Lista de trabajadores disponibles -->
+                <div v-if="trabajadoresDisponibles && trabajadoresDisponibles.length > 0">
                     <label for="trabajador" class="font-medium text-gray-700">Selecciona un trabajador:</label>
                     <Dropdown id="trabajador" v-model="trabajadorSeleccionado" :options="trabajadoresDisponibles" optionLabel="nombre_completo" optionValue="id" placeholder="Elige uno disponible" class="w-full" />
                 </div>
