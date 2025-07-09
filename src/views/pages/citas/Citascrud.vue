@@ -68,6 +68,7 @@ const asignarTrabajador = async () => {
 };
 
 const abrirDialogoEstado = (cita) => {
+    console.log('Cita seleccionada para cambiar estado:', cita);
     citaParaCambioEstado.value = cita;
     nuevoEstado.value = cita.estado;
     showEstadoDialog.value = true;
@@ -158,7 +159,7 @@ onMounted(async () => {
                 <Column header="Acciones" style="min-width: 12rem">
                     <template #body="slotProps">
                         <Button icon="pi pi-user-plus" label="Asignar" outlined rounded class="mr-2" @click="abrirDialogoAsignar(slotProps.data)" />
-                        <Button icon="pi pi-refresh" label="Estado" severity="info" outlined rounded @click="abrirDialogoEstado(slotProps.data)" />
+                        <Button v-if="slotProps.data.trabajador" icon="pi pi-refresh" label="Estado" severity="info" outlined rounded @click="abrirDialogoEstado(slotProps.data)" />
                     </template>
                 </Column>
             </DataTable>
