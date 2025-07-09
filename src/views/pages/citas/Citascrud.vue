@@ -69,7 +69,7 @@ const noPuedeAsignarse = (cita) => {
 const abrirDialogoAsignar = async (cita) => {
     citaSeleccionada.value = cita;
     showAsignarDialog.value = true;
-    trabajadorSeleccionado.value = null;
+    trabajadorSeleccionado.value = cita.trabajador?.id || null;
 
     try {
         await citaStore.cargarTrabajadoresDisponibles(cita.fecha, cita.hora, cita.id);
@@ -219,6 +219,7 @@ onMounted(async () => {
                             @click="abrirDialogoAsignar(slotProps.data)"
                             :title="noPuedeAsignarse(slotProps.data) ? 'No se puede asignar a una cita pasada o ya atendida' : ''"
                         />
+
                         <Button v-if="slotProps.data.trabajador" icon="pi pi-refresh" label="Estado" severity="info" outlined rounded @click="abrirDialogoEstado(slotProps.data)" />
                     </template>
                 </Column>
