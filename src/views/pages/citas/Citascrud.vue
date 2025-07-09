@@ -5,7 +5,7 @@ import { useCitaStore } from '@/stores/citaStore';
 import { storeToRefs } from 'pinia';
 import { Toast } from 'primevue';
 // import { useToast } from 'primevue/usetoast';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 
 // States y Stores
 
@@ -70,6 +70,9 @@ const formatDuration = (min) => {
 
 onMounted(async () => {
     await citaStore.ListaCita();
+});
+watch(trabajadoresDisponibles, (nuevo) => {
+    console.log('Cambio trabajadoresDisponibles:', nuevo);
 });
 </script>
 
