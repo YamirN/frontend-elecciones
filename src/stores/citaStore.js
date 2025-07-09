@@ -1,4 +1,4 @@
-import { crearCitaTemporal, indexCita, listarCitasPorCliente } from '@/service/citasService';
+import { asignarTrabajadorACita, crearCitaTemporal, indexCita, listarCitasPorCliente, obtenerTrabajadoresDisponibles } from '@/service/citasService';
 import { obtenerHorasDisponibles } from '@/service/servicioService';
 import { defineStore } from 'pinia';
 
@@ -7,6 +7,9 @@ export const useCitaStore = defineStore('cita', {
         citas: [],
         citasCliente: [],
         availableHours: [],
+        trabajadoresDisponibles: [],
+        availableTrabajadores: [],
+        loadingTrabajadores: false,
         citaTemporal: null,
         error: null,
         loading: false,
@@ -63,6 +66,30 @@ export const useCitaStore = defineStore('cita', {
             } catch (error) {
                 console.error('Error al obtener horas disponibles:', error);
                 this.availableHours = [];
+            }
+        },
+        async cargarTrabajadoresDisponibles(fecha, hora) {
+            this.loadingTrabajadores = true;
+            try {
+                this.trabajadoresDisponibles = await obtenerTrabajadoresDisponibles(fecha, hora);
+            } catch (error) {
+                console.error('Error al cargar trabajadores disponibles:', error);
+                this.trabajadoresDisponibles = [];
+            } finally {
+                this.loadingTrabajadores = false;
+            }
+        },
+        async asignarTrabajador(citaId, trabajadorId) {
+            try {
+                const updatedCita = await asignarTrabajadorACita(citaId, trabajadorId);
+                const index = this.citas.findIndex((c) => c.id === updatedCita.data.id);
+                if (index !== -1) {
+                    this.citas[index] = updatedCita.data;
+                }
+                return updatedCita;
+            } catch (error) {
+                console.error('Error al asignar trabajador desde el store:', error);
+                throw error;
             }
         }
     }

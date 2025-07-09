@@ -18,3 +18,22 @@ export const indexCita = async () => {
 export const listarCitasPorCliente = async () => {
     return apiClient.get('/citas/clientes');
 };
+
+export const obtenerTrabajadoresDisponibles = async (fecha, hora) => {
+    const response = await apiClient.get('/trabajadores-disponibles', {
+        params: { fecha, hora }
+    });
+    return response.data.trabajadores;
+};
+
+export const asignarTrabajadorACita = async (citaId, trabajadorId) => {
+    try {
+        const response = await apiClient.put(`/citas/${citaId}/asignar-trabajador`, {
+            trabajador_id: trabajadorId
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error al asignar trabajador:', error);
+        throw error;
+    }
+};

@@ -3,6 +3,7 @@ import InputError from '@/components/InputError.vue';
 import InputLabel from '@/components/InputLabel.vue';
 import { useCitaStore } from '@/stores/citaStore';
 import { storeToRefs } from 'pinia';
+import { Toast } from 'primevue';
 // import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
 
@@ -14,9 +15,53 @@ const { citas, loading: loadingCitas, errors } = storeToRefs(citaStore);
 // const selectedServicio = ref(null);
 const isEditMode = ref(false);
 const showFormDialog = ref(false);
-const showDeleteDialog = ref(false);
 const filters = ref({ global: { value: '' } });
 const skeletonRows = Array.from({ length: 8 }, () => ({}));
+
+const showAsignarDialog = ref(false);
+const citaSeleccionada = ref(null);
+const trabajadoresDisponibles = ref([]);
+const trabajadorSeleccionado = ref(null);
+
+// Método para abrir el diálogo y cargar trabajadores
+const abrirDialogoAsignar = async (cita) => {
+    citaSeleccionada.value = cita;
+    showAsignarDialog.value = true;
+    trabajadorSeleccionado.value = null;
+
+    try {
+        trabajadoresDisponibles.value = await citaStore.cargarTrabajadoresDisponibles(cita.fecha, cita.hora);
+    } catch (error) {
+        console.error('Error al cargar trabajadores:', error);
+        trabajadoresDisponibles.value = [];
+    }
+};
+
+const asignarTrabajador = async () => {
+    try {
+        await citaStore.asignarTrabajador({
+            citaId: citaSeleccionada.value.id,
+            trabajadorId: trabajadorSeleccionado.value.id
+        });
+
+        showAsignarDialog.value = false;
+        Toast.add({
+            severity: 'success',
+            summary: 'Trabajador asignado',
+            detail: 'El trabajador fue asignado exitosamente',
+            life: 3000
+        });
+
+        await citaStore.ListaCita(); // refresca la lista
+    } catch (error) {
+        Toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'No se pudo asignar el trabajador',
+            life: 4000
+        });
+    }
+};
 
 const formatDuration = (min) => {
     const h = Math.floor(min / 60);
@@ -139,20 +184,28 @@ onMounted(async () => {
                 <div class="flex justify-end gap-2 mt-2">
                     <Button label="Cancelar" icon="pi pi-times" text type="button" @click="showFormDialog = false" />
                     <Button label="Guardar" icon="pi pi-check" text type="submit" />
+                    <Column header="Acciones" style="min-width: 12rem">
+                        <template #body="slotProps">
+                            <Button icon="pi pi-user-plus" label="Asignar" outlined rounded class="mr-2" @click="abrirDialogoAsignar(slotProps.data)" />
+                        </template>
+                    </Column>
                 </div>
             </form>
         </Dialog>
 
-        <!-- Confirmar eliminación -->
-        <!-- <Dialog v-model:visible="showDeleteDialog" header="Confirmar eliminación" :modal="true" :style="{ width: '400px' }">
-            <p>
-                ¿Estás seguro de que deseas eliminar el servicio <strong>{{ selectedServicio?.nombre }}</strong
-                >?
-            </p>
-            <template #footer>
-                <Button label="Cancelar" icon="pi pi-times" text @click="showDeleteDialog = false" />
-                <Button label="Sí, eliminar" icon="pi pi-check" severity="danger" @click="deleteServicio" />
-            </template>
-        </Dialog> -->
+        <Dialog v-model:visible="showAsignarDialog" modal header="Asignar Trabajador" :style="{ width: '25rem' }">
+            <div class="flex flex-col gap-4">
+                <div v-if="trabajadoresDisponibles.length > 0">
+                    <label for="trabajador" class="font-medium text-gray-700">Selecciona un trabajador:</label>
+                    <Dropdown id="trabajador" v-model="trabajadorSeleccionado" :options="trabajadoresDisponibles" optionLabel="nombre_completo" placeholder="Elige uno disponible" class="w-full" />
+                </div>
+                <div v-else class="text-red-500">No hay trabajadores disponibles para esta fecha y hora.</div>
+
+                <div class="flex justify-end gap-2">
+                    <Button label="Cancelar" icon="pi pi-times" text @click="showAsignarDialog = false" />
+                    <Button label="Asignar" icon="pi pi-check" :disabled="!trabajadorSeleccionado" @click="asignarTrabajador" />
+                </div>
+            </div>
+        </Dialog>
     </div>
 </template>
