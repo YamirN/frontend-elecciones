@@ -113,7 +113,7 @@ onMounted(async () => {
 
     // Asegúrate de tener los servicios disponibles (para validar estado activo y demás)
     if (!servicios.value || servicios.value.length === 0) {
-        await servicioStore.listaServicios();
+        await servicioStore.ListaServicio();
     }
 });
 </script>
