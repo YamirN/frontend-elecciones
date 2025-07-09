@@ -270,95 +270,40 @@ onMounted(async () => {
             </template>
         </Dialog>
 
-        <Dialog v-model:visible="showEstadoDialog" modal header="Actualizar Estado de Reserva" :style="{ width: '450px' }" class="spa-estado-dialog">
-            <div class="space-y-6 p-2">
-                <!-- Información actual -->
-                <div class="bg-gradient-to-br from-slate-50 to-blue-50 rounded-xl p-5 border border-slate-200">
-                    <div class="flex items-center mb-4">
-                        <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center mr-3">
-                            <i class="pi pi-refresh text-white text-sm"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-lg font-semibold text-slate-800">Cambio de Estado</h3>
-                            <p class="text-sm text-slate-600">Actualice el estado de la reserva</p>
-                        </div>
+        <Dialog v-model:visible="showEstadoDialog" modal header="Cambiar Estado" :style="{ width: '400px' }">
+            <div class="space-y-4 p-2">
+                <!-- Estado actual -->
+                <div v-if="reservaSeleccionada?.estado" class="p-3 bg-gray-50 rounded border">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-gray-700">Estado actual:</span>
+                        <Tag :value="reservaSeleccionada.estado" :severity="getStatusSeverity(reservaSeleccionada.estado)" />
                     </div>
+                </div>
 
-                    <!-- Estado actual (si existe) -->
-                    <div v-if="reservaSeleccionada?.estado" class="mb-4 p-3 bg-white rounded-lg border border-slate-200">
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm font-medium text-slate-700">Estado actual:</span>
-                            <Tag :value="reservaSeleccionada.estado" :severity="getStatusSeverity(reservaSeleccionada.estado)" class="font-medium" />
-                        </div>
-                    </div>
-
-                    <!-- Selector de nuevo estado -->
-                    <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-3">
-                            <i class="pi pi-flag mr-2 text-blue-600"></i>
-                            Seleccionar nuevo estado
-                        </label>
-                        <Dropdown
-                            v-model="nuevoEstado"
-                            :options="estadosDisponibles"
-                            optionLabel="label"
-                            optionValue="value"
-                            placeholder="Elija el estado apropiado"
-                            class="w-full"
-                            :pt="{
-                                root: { class: 'border-2 border-slate-300 hover:border-blue-400 focus:border-blue-500 transition-colors rounded-lg shadow-sm' },
-                                input: { class: 'text-slate-700 font-medium p-3' }
-                            }"
-                        >
-                            <template #option="slotProps">
-                                <div class="flex items-center justify-between p-3 hover:bg-blue-50 rounded transition-colors">
-                                    <div class="flex items-center">
-                                        <div class="w-3 h-3 rounded-full mr-3" :class="getStatusColor(slotProps.option.value)"></div>
-                                        <span class="font-medium text-slate-800">{{ slotProps.option.label }}</span>
-                                    </div>
-                                    <i v-if="slotProps.option.value === nuevoEstado" class="pi pi-check text-blue-600"></i>
-                                </div>
-                            </template>
-                            <template #value="slotProps">
-                                <div v-if="slotProps.value" class="flex items-center">
-                                    <div class="w-3 h-3 rounded-full mr-2" :class="getStatusColor(slotProps.value)"></div>
-                                    <span class="font-medium">{{ estadosDisponibles.find((e) => e.value === slotProps.value)?.label }}</span>
-                                </div>
-                                <span v-else class="text-slate-500">Elija el estado apropiado</span>
-                            </template>
-                        </Dropdown>
-                    </div>
-
-                    <!-- Confirmación del cambio -->
-                    <div v-if="nuevoEstado && nuevoEstado !== reservaSeleccionada?.estado" class="mt-4 p-4 bg-emerald-50 rounded-lg border border-emerald-200">
-                        <div class="flex items-start">
-                            <div class="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center mr-3 mt-0.5">
-                                <i class="pi pi-arrow-right text-emerald-600 text-xs"></i>
+                <!-- Selector de nuevo estado -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Nuevo estado</label>
+                    <Dropdown v-model="nuevoEstado" :options="estadosDisponibles" optionLabel="label" optionValue="value" placeholder="Seleccione estado" class="w-full">
+                        <template #option="slotProps">
+                            <div class="flex items-center p-2">
+                                <div class="w-3 h-3 rounded-full mr-2" :class="getStatusColor(slotProps.option.value)"></div>
+                                <span>{{ slotProps.option.label }}</span>
                             </div>
-                            <div class="flex-1">
-                                <p class="text-sm font-medium text-emerald-800 mb-1">Cambio confirmado</p>
-                                <div class="flex items-center text-sm text-emerald-700">
-                                    <span>{{ reservaSeleccionada?.estado || 'Estado actual' }}</span>
-                                    <i class="pi pi-arrow-right mx-2"></i>
-                                    <span class="font-semibold">{{ estadosDisponibles.find((e) => e.value === nuevoEstado)?.label }}</span>
-                                </div>
+                        </template>
+                        <template #value="slotProps">
+                            <div v-if="slotProps.value" class="flex items-center">
+                                <div class="w-3 h-3 rounded-full mr-2" :class="getStatusColor(slotProps.value)"></div>
+                                <span>{{ estadosDisponibles.find((e) => e.value === slotProps.value)?.label }}</span>
                             </div>
-                        </div>
-                    </div>
+                            <span v-else>Seleccione estado</span>
+                        </template>
+                    </Dropdown>
                 </div>
             </div>
 
             <template #footer>
-                <div class="flex items-center justify-between pt-4 border-t border-slate-200">
-                    <Button label="Cancelar" icon="pi pi-times" text class="text-slate-600 hover:text-slate-800 font-medium px-4 py-2" @click="showEstadoDialog = false" />
-                    <Button
-                        :label="nuevoEstado ? 'Confirmar Cambio' : 'Seleccione un estado'"
-                        icon="pi pi-check"
-                        :disabled="!nuevoEstado || nuevoEstado === reservaSeleccionada?.estado"
-                        class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold px-6 py-2.5 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
-                        @click="cambiarEstado"
-                    />
-                </div>
+                <Button label="Cancelar" icon="pi pi-times" text @click="showEstadoDialog = false" />
+                <Button label="Guardar" icon="pi pi-check" @click="guardarEstado" :disabled="!cambiarEstado" />
             </template>
         </Dialog>
     </div>
