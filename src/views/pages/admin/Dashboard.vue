@@ -216,17 +216,17 @@ onMounted(async () => {
             <!-- KPI Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <!-- Servicios Vendidos -->
-                <Card class="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+                <Card v-if="dashboardData?.kpis_totales" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
                     <template #content>
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-blue-100 text-sm font-medium">Servicios Vendidos</p>
                                 <p class="text-3xl font-bold">
-                                    {{ dashboardData.value?.kpis_totales?.totalServiciosVendidos ?? 0 }}
+                                    {{ dashboardData.kpis_totales.totalServiciosVendido }}
                                 </p>
                                 <p class="text-blue-100 text-xs mt-1">
                                     <i class="pi pi-arrow-up mr-1"></i>
-                                    {{ dashboardData.value?.kpis_mensuales?.servicios?.variacion ?? 0 }}% vs mes anterior
+                                    {{ dashboardData.kpis_mensuales.servicios.variacion ?? 0 }}% vs mes anterior
                                 </p>
                             </div>
                             <div class="bg-blue-400 bg-opacity-30 p-3 rounded-full">
@@ -242,10 +242,10 @@ onMounted(async () => {
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-green-500 text-sm font-medium">Ingresos</p>
-                                <p class="text-3xl font-bold">S/. {{ dashboardData.value?.kpis_totales?.totalIngresos ?? 0 }}</p>
+                                <p class="text-3xl font-bold">S/. {{ dashboardData.kpis_totales.totalIngresos ?? 0 }}</p>
                                 <p class="text-green-500 text-xs mt-1">
                                     <i class="pi pi-arrow-up mr-1"></i>
-                                    + {{ dashboardData.value?.kpis_mensuales?.ingresos?.variacion ?? 0 }}% vs mes anterior
+                                    + {{ dashboardData.kpis_mensuales.ingresos.variacion ?? 0 }}% vs mes anterior
                                 </p>
                             </div>
                             <div class="bg-green-400 bg-opacity-30 p-3 rounded-full">
@@ -261,10 +261,10 @@ onMounted(async () => {
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-purple-500 text-sm font-medium">Clientes</p>
-                                <p class="text-3xl font-bold">{{ dashboardData.value?.kpis_totales?.totalClientes ?? 0 }}</p>
+                                <p class="text-3xl font-bold">{{ dashboardData.kpis_totales.totalClientes ?? 0 }}</p>
                                 <p class="text-purple-500 text-xs mt-1">
                                     <i class="pi pi-arrow-up mr-1"></i>
-                                    + {{ dashboardData.value?.kpis_mensuales?.clientes?.variacion ?? 0 }}% vs mes anterior
+                                    + {{ dashboardData.kpis_mensuales.clientes.variacion ?? 0 }}% vs mes anterior
                                 </p>
                             </div>
                             <div class="bg-purple-400 bg-opacity-30 p-3 rounded-full">
@@ -280,7 +280,7 @@ onMounted(async () => {
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-orange-500 text-sm font-medium">Trabajadores</p>
-                                <p class="text-3xl font-bold">{{ dashboardData.value?.kpis_totales?.totalTrabajadores ?? 0 }}</p>
+                                <p class="text-3xl font-bold">{{ dashboardData.kpis_totales.totalTrabajadores ?? 0 }}</p>
                                 <p class="text-orange-500 text-xs mt-1">
                                     <i class="pi pi-check mr-1"></i>
                                     Activos
