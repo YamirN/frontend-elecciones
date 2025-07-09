@@ -10,7 +10,7 @@ import { onMounted, ref } from 'vue';
 // States y Stores
 
 const citaStore = useCitaStore();
-const { citas, loading: loadingCitas, errors } = storeToRefs(citaStore);
+const { citas, loading: loadingCitas, errors, trabajadoresDisponibles, loadingTrabajadores } = storeToRefs(citaStore);
 
 // const selectedServicio = ref(null);
 const isEditMode = ref(false);
@@ -20,7 +20,6 @@ const skeletonRows = Array.from({ length: 8 }, () => ({}));
 
 const showAsignarDialog = ref(false);
 const citaSeleccionada = ref(null);
-const trabajadoresDisponibles = ref([]);
 const trabajadorSeleccionado = ref(null);
 
 // Método para abrir el diálogo y cargar trabajadores
@@ -189,12 +188,14 @@ onMounted(async () => {
 
         <Dialog v-model:visible="showAsignarDialog" modal header="Asignar Trabajador" :style="{ width: '25rem' }">
             <div class="flex flex-col gap-4">
-                <div v-if="Array.isArray(trabajadoresDisponibles) && trabajadoresDisponibles.length > 0">
+                <div v-if="trabajadoresDisponibles.length > 0">
                     <label for="trabajador" class="font-medium text-gray-700">Selecciona un trabajador:</label>
                     <Dropdown id="trabajador" v-model="trabajadorSeleccionado" :options="trabajadoresDisponibles" optionLabel="nombre_completo" placeholder="Elige uno disponible" class="w-full" />
                 </div>
 
-                <div v-else class="text-red-500">No hay trabajadores disponibles para esta fecha y hora.</div>
+                <div v-else-if="!loadingTrabajadores" class="text-red-500">No hay trabajadores disponibles para esta fecha y hora.</div>
+
+                <div v-if="loadingTrabajadores" class="text-gray-500 text-sm italic">Cargando trabajadores disponibles...</div>
 
                 <div class="flex justify-end gap-2">
                     <Button label="Cancelar" icon="pi pi-times" text @click="showAsignarDialog = false" />
