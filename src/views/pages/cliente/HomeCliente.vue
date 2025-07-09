@@ -24,6 +24,8 @@ const { citaTemporal, citasCliente, loading: loadingCitasCliente, error, errors:
 const activeIndex = ref('0');
 // Client stats
 
+const serviciosActivos = computed(() => servicios.value.filter((servicio) => servicio.estado === 'activo'));
+
 const isFormComplete = computed(() => {
     return bookingForm.value.servicio && bookingForm.value.fecha && bookingForm.value.hora;
 });
@@ -318,7 +320,7 @@ watch(
                     <div class="bg-white rounded-lg shadow p-6 mb-8">
                         <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">Servicios Disponibles</h2>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            <div v-for="service in servicios" :key="service.id" class="bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg transition-shadow duration-300">
+                            <div v-for="service in serviciosActivos" :key="service.id" class="bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg transition-shadow duration-300">
                                 <div class="relative">
                                     <img :src="service.imagen" :alt="service.nombre" class="w-full h-48 object-cover rounded-t-lg" />
                                 </div>
