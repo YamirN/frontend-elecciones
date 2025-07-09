@@ -1,6 +1,14 @@
-export function formatFechaBackend(dateObj) {
-    const day = `${dateObj.getDate()}`.padStart(2, '0');
-    const month = `${dateObj.getMonth() + 1}`.padStart(2, '0');
-    const year = dateObj.getFullYear();
-    return `${year}-${month}-${day}`; // Ej: 2025-07-10
+export function formatFechaBackend(fecha) {
+    if (typeof fecha === 'string' && fecha.includes('/')) {
+        // Si viene como "dd/mm/yyyy"
+        const [day, month, year] = fecha.split('/');
+        return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    }
+
+    if (typeof fecha === 'string' && fecha.includes('-')) {
+        // Ya está bien formateada como "yyyy-mm-dd"
+        return fecha;
+    }
+
+    return '';
 }
