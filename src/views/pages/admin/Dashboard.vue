@@ -216,7 +216,7 @@ onMounted(async () => {
             <!-- KPI Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <!-- Servicios Vendidos -->
-                <Card class="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+                <Card v-if="dashboardData?.kpis_totales" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
                     <template #content>
                         <div class="flex items-center justify-between">
                             <div>
@@ -237,7 +237,7 @@ onMounted(async () => {
                 </Card>
 
                 <!-- Ingresos -->
-                <Card class="bg-gradient-to-r from-green-500 to-green-600 text-white">
+                <Card v-if="dashboardData?.kpis_totales" class="bg-gradient-to-r from-green-500 to-green-600 text-white">
                     <template #content>
                         <div class="flex items-center justify-between">
                             <div>
@@ -256,7 +256,7 @@ onMounted(async () => {
                 </Card>
 
                 <!-- Clientes -->
-                <Card class="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
+                <Card v-if="dashboardData?.kpis_totales" class="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
                     <template #content>
                         <div class="flex items-center justify-between">
                             <div>
@@ -275,7 +275,7 @@ onMounted(async () => {
                 </Card>
 
                 <!-- Trabajadores -->
-                <Card class="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
+                <Card v-if="dashboardData?.kpis_totales" class="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
                     <template #content>
                         <div class="flex items-center justify-between">
                             <div>
