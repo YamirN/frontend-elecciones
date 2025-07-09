@@ -126,15 +126,17 @@ watch(trabajadoresDisponibles, (nuevo) => {
 
         <Dialog v-model:visible="showAsignarDialog" modal header="Asignar Trabajador" :style="{ width: '25rem' }">
             <div class="flex flex-col gap-4">
-                <!-- Versión corregida del condicional -->
+                <!-- Si trabajadores es un array y tiene elementos -->
+                <div v-if="Array.isArray(trabajadoresDisponibles?.value) && trabajadoresDisponibles.value.length > 0">
+                    <label for="trabajador" class="font-medium text-gray-700">Selecciona un trabajador:</label>
+                    <Dropdown id="trabajador" v-model="trabajadorSeleccionado" :options="trabajadoresDisponibles" optionLabel="nombre_completo" optionValue="id" placeholder="Elige uno disponible" class="w-full" />
+                </div>
+
+                <!-- Si terminó de cargar pero no hay trabajadores -->
+                <div v-else-if="!loadingTrabajadores" class="text-red-500">No hay trabajadores disponibles para esta fecha y hora.</div>
+
+                <!-- Si está cargando -->
                 <div v-if="loadingTrabajadores" class="text-gray-500 text-sm italic">Cargando trabajadores disponibles...</div>
-                <template v-else>
-                    <div v-if="trabajadoresDisponibles && trabajadoresDisponibles.length > 0">
-                        <label for="trabajador" class="font-medium text-gray-700"> Selecciona un trabajador: </label>
-                        <Dropdown id="trabajador" v-model="trabajadorSeleccionado" :options="trabajadoresDisponibles" optionLabel="nombre_completo" placeholder="Elige uno disponible" class="w-full" />
-                    </div>
-                    <div v-else class="text-red-500">No hay trabajadores disponibles para esta fecha y hora.</div>
-                </template>
 
                 <div class="flex justify-end gap-2">
                     <Button label="Cancelar" icon="pi pi-times" text @click="showAsignarDialog = false" />
