@@ -1,5 +1,6 @@
 // src/services/citasService.js
 import apiClient from './axios';
+import { formatFechaBackend } from './utils/formatFechaBackend';
 
 export const crearCitaTemporal = async (payload) => {
     try {
@@ -27,8 +28,19 @@ export const asignarTrabajador = async (citaId, trabajadorId) => {
 };
 
 export const obtenerTrabajadoresDisponibles = async (fecha, hora, citaId = null) => {
-    const response = await apiClient.get('/trabajadores-disponibles', {
-        params: { fecha, hora, cita_id: citaId }
-    });
+    const fechaFormateada = formatFechaBackend(fecha); // <-- formato "2025-07-10"
+
+    const params = {
+        fecha: fechaFormateada,
+        hora
+    };
+
+    if (citaId) {
+        params.cita_id = citaId;
+    }
+
+    console.log('Enviando a API:', params); // Para verificar
+
+    const response = await apiClient.get('/trabajadores-disponibles', { params });
     return response.data.data;
 };
