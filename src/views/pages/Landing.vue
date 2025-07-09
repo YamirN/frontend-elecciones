@@ -113,7 +113,7 @@ const openWhatsApp = () => {
 };
 
 onMounted(async () => {
-    await servicioStore.listaServicios();
+    await citaStore.ListaCita();
 });
 </script>
 
