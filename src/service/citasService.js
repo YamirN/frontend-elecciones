@@ -23,7 +23,7 @@ export const obtenerTrabajadoresDisponibles = async (fecha, hora) => {
     const response = await apiClient.get('/trabajadores-disponibles', {
         params: { fecha, hora }
     });
-    return response.data.trabajadores;
+    return response.data.data; // directamente retorna los trabajadores
 };
 
 export const asignarTrabajadorACita = async (citaId, trabajadorId) => {
