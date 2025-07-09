@@ -283,21 +283,23 @@ onMounted(async () => {
                 <!-- Selector de nuevo estado -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Nuevo estado</label>
-                    <Dropdown v-model="nuevoEstado" :options="estadosDisponibles" optionLabel="label" optionValue="value" placeholder="Seleccione estado" class="w-full">
-                        <template #option="slotProps">
-                            <div class="flex items-center p-2">
-                                <div class="w-3 h-3 rounded-full mr-2" :class="getStatusColor(slotProps.option.value)"></div>
-                                <span>{{ slotProps.option.label }}</span>
-                            </div>
-                        </template>
-                        <template #value="slotProps">
-                            <div v-if="slotProps.value" class="flex items-center">
-                                <div class="w-3 h-3 rounded-full mr-2" :class="getStatusColor(slotProps.value)"></div>
-                                <span>{{ estadosDisponibles.find((e) => e.value === slotProps.value)?.label }}</span>
-                            </div>
-                            <span v-else>Seleccione estado</span>
-                        </template>
-                    </Dropdown>
+                    <select v-model="nuevoEstado" class="w-full p-3 border border-gray-300 rounded focus:border-blue-500 focus:outline-none">
+                        <option value="" disabled>Seleccione estado</option>
+                        <option v-for="estado in estadosDisponibles" :key="estado.value" :value="estado.value">
+                            {{ estado.label }}
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Vista previa del nuevo estado -->
+                <div v-if="nuevoEstado" class="p-3 bg-blue-50 rounded border border-blue-200">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-gray-700">Nuevo estado:</span>
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 rounded-full mr-2" :class="getStatusColor(nuevoEstado)"></div>
+                            <Tag :value="nuevoEstado" :severity="getStatusSeverity(nuevoEstado)" />
+                        </div>
+                    </div>
                 </div>
             </div>
 
