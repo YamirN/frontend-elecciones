@@ -21,6 +21,10 @@ const { servicios } = storeToRefs(servicioStore);
 const filteredServices = computed(() => {
     let filtered = servicios.value || [];
 
+    // Filtrar solo servicios activos
+    filtered = filtered.filter((service) => service.estado === 'activo');
+
+    // Si hay búsqueda, aplicar filtro adicional por nombre o descripción
     if (searchQuery.value.trim()) {
         const query = searchQuery.value.toLowerCase();
         filtered = filtered.filter((service) => service.nombre.toLowerCase().includes(query) || service.descripcion.toLowerCase().includes(query));
@@ -28,7 +32,6 @@ const filteredServices = computed(() => {
 
     return filtered;
 });
-
 const formatDuration = (min) => {
     const h = Math.floor(min / 60);
     const m = min % 60;

@@ -285,9 +285,10 @@ onMounted(async () => {
                     <label class="block text-sm font-medium text-gray-700 mb-2">Nuevo estado</label>
                     <select v-model="nuevoEstado" class="w-full p-3 border border-gray-300 rounded focus:border-blue-500 focus:outline-none">
                         <option value="" disabled>Seleccione estado</option>
-                        <option v-for="estado in estadosDisponibles" :key="estado.value" :value="estado.value">
-                            {{ estado.label }}
-                        </option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Confirmado">Confirmado</option>
+                        <option value="Completado">Completado</option>
+                        <option value="Cancelado">Cancelado</option>
                     </select>
                 </div>
 
