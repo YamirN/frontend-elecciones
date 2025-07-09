@@ -229,7 +229,7 @@ onMounted(async () => {
                 <div class="grid md:grid-cols-3 gap-6">
                     <section v-for="service in featuredServices" :key="service.id" class="bg-white rounded-lg hover:shadow-lg transition-shadow duration-300 overflow-hidden">
                         <!-- Imagen -->
-                        <img :src="service.image" :alt="service.nombre" class="w-full h-48 object-cover" />
+                        <img :src="service.imagen" :alt="service.nombre" class="w-full h-48 object-cover" />
 
                         <!-- Contenido -->
                         <div class="p-4 space-y-2">
@@ -242,7 +242,7 @@ onMounted(async () => {
                             </p>
 
                             <div class="flex justify-between items-center">
-                                <span class="text-sm text-gray-500">{{ service.duracion }} min</span>
+                                <span class="text-sm text-gray-500"> {{ service.duracion }} min </span>
                                 <Button label="Reservar" size="small" @click="goToBooking(service.id)" />
                             </div>
                         </div>
