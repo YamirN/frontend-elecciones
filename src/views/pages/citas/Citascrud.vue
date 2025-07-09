@@ -32,26 +32,29 @@ const abrirDialogoAsignar = async (cita) => {
 };
 
 const asignarTrabajador = async () => {
-    const exito = await citaStore.asignarTrabajador({
-        citaId: citaSeleccionada.value.id,
-        trabajadorId: trabajadorSeleccionado.value
-    });
+    try {
+        await citaStore.asignarTrabajador({
+            citaId: citaSeleccionada.value.id,
+            trabajadorId: trabajadorSeleccionado.value
+        });
 
-    if (exito) {
         showAsignarDialog.value = false;
-        citaSeleccionada.value = null;
-        await citaStore.ListaCita(); // 🔄 Recarga lista solo si fue exitoso
+        await citaStore.ListaCita();
         Toast.add({
             severity: 'success',
             summary: 'Trabajador asignado',
             detail: 'El trabajador fue asignado exitosamente',
             life: 3000
         });
-    } else {
+
+        // refresca la lista
+    } catch (error) {
+        const mensaje = error?.response?.data?.errors?.trabajador_id?.[0] || 'No se pudo asignar el trabajador';
+
         Toast.add({
             severity: 'error',
             summary: 'Error',
-            detail: 'No se pudo asignar el trabajador',
+            detail: mensaje,
             life: 4000
         });
     }
