@@ -211,21 +211,38 @@ onMounted(async () => {
         </section>
 
         <!-- Services Preview -->
-        <section v-for="service in featuredServices" :key="service.id" class="bg-white rounded-lg shadow hover:shadow-lg transition-shadow duration-300 overflow-hidden">
-            <!-- Imagen -->
-            <img :src="service.image" :alt="service.nombre" class="w-full h-48 object-cover" />
+        <!-- Services Preview -->
+        <section id="services" class="py-16 px-4">
+            <div class="container mx-auto">
+                <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">Nuestros Servicios Destacados</h2>
 
-            <!-- Contenido -->
-            <div class="p-4 space-y-2">
-                <h3 class="text-lg font-semibold text-gray-800">
-                    {{ service.nombre }}
-                </h3>
-                <p class="text-sm text-gray-600 font-medium">${{ service.precio }}</p>
-                <p class="text-gray-600 text-sm">{{ service.descripcion }}</p>
+                <!-- Grid de servicios -->
+                <div class="grid md:grid-cols-3 gap-6">
+                    <section v-for="service in featuredServices" :key="service.id" class="bg-white rounded-lg hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+                        <!-- Imagen -->
+                        <img :src="service.image" :alt="service.nombre" class="w-full h-48 object-cover" />
 
-                <div class="flex justify-between items-center mt-4">
-                    <span class="text-sm text-gray-500">{{ service.duracion }} min</span>
-                    <Button label="Reservar" size="small" @click="goToBooking(service.id)" />
+                        <!-- Contenido -->
+                        <div class="p-4 space-y-2">
+                            <h3 class="text-lg font-semibold text-gray-800">
+                                {{ service.nombre }}
+                            </h3>
+                            <p class="text-sm text-gray-600 font-medium">${{ service.precio }}</p>
+                            <p class="text-gray-600 text-sm mb-4">
+                                {{ service.descripcion }}
+                            </p>
+
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-500">{{ service.duracion }} min</span>
+                                <Button label="Reservar" size="small" @click="goToBooking(service.id)" />
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Botón inferior -->
+                <div class="text-center mt-8">
+                    <Button label="Ver Todos los Servicios" outlined @click="goToServices" />
                 </div>
             </div>
         </section>
