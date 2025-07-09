@@ -62,7 +62,7 @@ const proximaReserva = computed(() => {
 
     const futuras = citasCliente.value
         .filter((cita) => {
-            const fechaCita = formatDate(cita.fecha, cita.hora);
+            const fechaCita = parseFecha(cita.fecha, cita.hora);
             return fechaCita > hoy && ['pendiente', 'confirmada'].includes(cita.estado);
         })
         .sort((a, b) => parseFecha(a.fecha, a.hora) - parseFecha(b.fecha, b.hora));
