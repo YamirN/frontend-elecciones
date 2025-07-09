@@ -35,6 +35,12 @@ const heroSlides = ref([
     }
 ]);
 
+const formatDuration = (min) => {
+    const h = Math.floor(min / 60);
+    const m = min % 60;
+    return `${h ? `${h}h ` : ''}${m}min`;
+};
+
 // Featured services data
 
 // Navigation methods
@@ -206,13 +212,13 @@ onMounted(async () => {
                             <h3 class="text-lg font-semibold text-gray-800">
                                 {{ service.nombre }}
                             </h3>
-                            <p class="text-sm text-gray-600 font-medium">${{ service.precio }}</p>
+                            <p class="text-sm text-gray-600 font-medium">S/. {{ service.precio }}</p>
                             <p class="text-gray-600 text-sm mb-4">
                                 {{ service.descripcion }}
                             </p>
 
                             <div class="flex justify-between items-center">
-                                <span class="text-sm text-gray-500">{{ service.duracion }} min</span>
+                                <span class="text-sm text-gray-500">{{ formatDuration(service.duracion) }}</span>
                                 <Button label="Reservar" size="small" @click="goToBooking(service.id)" />
                             </div>
                         </div>
