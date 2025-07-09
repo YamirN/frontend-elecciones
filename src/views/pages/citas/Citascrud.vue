@@ -191,7 +191,7 @@ onMounted(async () => {
                 <!-- Si trabajadores es un array y tiene elementos -->
                 <div v-if="Array.isArray(trabajadoresDisponibles) && trabajadoresDisponibles.length > 0">
                     <label for="trabajador" class="font-medium text-gray-700">Selecciona un trabajador:</label>
-                    <Dropdown id="trabajador" v-model="trabajadorSeleccionado" :options="trabajadoresDisponibles" optionLabel="nombre_completo" placeholder="Elige uno disponible" class="w-full" />
+                    <Dropdown id="trabajador" v-model="trabajadorSeleccionado" :options="trabajadoresDisponibles" optionLabel="nombre_completo" optionValue="id" placeholder="Elige uno disponible" class="w-full" />
                 </div>
 
                 <!-- Si terminó de cargar pero no hay trabajadores -->
