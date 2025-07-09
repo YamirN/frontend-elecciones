@@ -77,12 +77,14 @@ const proximaReserva = computed(() => {
 
 const reservasEsteMes = computed(() => {
     const now = new Date();
-    return citasCliente.value.filter((c) => {
-        const fecha = new Date(c.fecha);
-        return fecha.getMonth() === now.getMonth() && fecha.getFullYear() === now.getFullYear();
+    return citasCliente.value.filter((cita) => {
+        // Asegúrate que la fecha sea válida
+        const [dia, mes, anio] = cita.fecha.split('-');
+        const fechaCita = new Date(`${anio}-${mes}-${dia}`);
+
+        return fechaCita.getMonth() === now.getMonth() && fechaCita.getFullYear() === now.getFullYear();
     }).length;
 });
-
 // Booking dialog
 const showBookingDialog = ref(false);
 const bookingForm = ref({
@@ -133,8 +135,8 @@ const formatDateForDisplay = (date) => {
     return `${dia}-${mes}-${anio}`;
 };
 
-const getStatusColor = (estado) => {
-    switch (estado.toLowerCase()) {
+const getStatusColor = (status) => {
+    switch (status.toLowerCase()) {
         case 'pendiente':
             return 'bg-yellow-400';
         case 'atendida':
