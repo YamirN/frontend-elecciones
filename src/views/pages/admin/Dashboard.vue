@@ -165,6 +165,8 @@ const refreshChart = async () => {
     await dashboardStore.cargarDashboard(); // volverá a disparar el `computed`
 };
 
+const estadisticas_rapidas = computed(() => dashboardData.value?.estadisticas_rapidas ?? {});
+
 const refreshReservations = async () => {
     loadingReservations.value = true;
     // Simulate API call
@@ -216,7 +218,7 @@ onMounted(async () => {
                 </Card>
 
                 <!-- Ingresos -->
-                <Card v-if="dashboardData?.kpis_totales" class="bg-gradient-to-r from-green-500 to-green-600 text-white">
+                <Card v-if="estadisticas_rapidas" class="bg-gradient-to-r from-green-500 to-green-600 text-white">
                     <template #content>
                         <div class="flex items-center justify-between">
                             <div>
