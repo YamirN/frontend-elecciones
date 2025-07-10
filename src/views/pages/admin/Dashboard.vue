@@ -6,7 +6,7 @@ import Button from 'primevue/button';
 import Card from 'primevue/card';
 import Chart from 'primevue/chart';
 import Tag from 'primevue/tag';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
 const dashboardStore = useDashboardStore();
 const { dashboardData } = storeToRefs(dashboardStore);
@@ -21,15 +21,20 @@ const quickStats = ref({
 const loadingReservations = ref(false);
 
 // Chart data
-const chartData = ref({
-    labels: ['Masaje Relajante', 'Facial Hidratante', 'Aromaterapia', 'Piedras Calientes', 'Reflexología'],
-    datasets: [
-        {
-            data: [35, 25, 20, 12, 8],
-            backgroundColor: ['#3B82F6', '#10B981', '#8B5CF6', '#F59E0B', '#EF4444'],
-            borderWidth: 0
-        }
-    ]
+const chartData = computed(() => {
+    const servicios = dashboardData.value?.servicios_populares || [];
+
+    return {
+        labels: servicios.map((s) => s.nombre),
+        datasets: [
+            {
+                data: servicios.map((s) => s.total),
+                backgroundColor: ['#60A5FA', '#FBBF24', '#34D399', '#F87171', '#A78BFA'],
+                borderColor: '#fff',
+                borderWidth: 2
+            }
+        ]
+    };
 });
 
 const chartOptions = ref({
@@ -156,9 +161,8 @@ const getStatusSeverity = (status) => {
     }
 };
 
-const refreshChart = () => {
-    // Simulate data refresh
-    console.log('Refreshing chart data...');
+const refreshChart = async () => {
+    await dashboardStore.cargarDashboard(); // volverá a disparar el `computed`
 };
 
 const refreshReservations = async () => {
@@ -287,7 +291,7 @@ onMounted(async () => {
                 </Card>
 
                 <!-- Estadísticas Rápidas -->
-                <Card class="shadow-sm rounded-2xl">
+                <Card v-if="dashboardData?.estadisticas_rapidas" class="shadow-sm rounded-2xl">
                     <template #title>
                         <h3 class="text-lg font-semibold text-gray-800 px-4 pt-4">Estadísticas Rápidas</h3>
                     </template>
