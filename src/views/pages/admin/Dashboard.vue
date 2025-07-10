@@ -320,6 +320,7 @@ onMounted(async () => {
             </div>
 
             <!-- Reservas Recientes - Diseño Refinado -->
+            <!-- Reservas Recientes - Diseño Separado -->
             <Card class="shadow-sm rounded-2xl border border-gray-100">
                 <template #title>
                     <div class="flex items-center justify-between px-4 pt-4">
@@ -342,27 +343,34 @@ onMounted(async () => {
 
                     <!-- Listado de Reservas -->
                     <div v-else-if="reservasRecientes && reservasRecientes.length > 0" class="px-4 divide-y divide-gray-100">
-                        <div v-for="reserva in reservasRecientes.slice(0, 8)" :key="reserva.id" class="group py-4 transition-colors hover:bg-gray-50">
-                            <div class="flex justify-between items-start gap-4">
-                                <!-- Cliente + Servicio -->
-                                <div class="flex items-center gap-3">
-                                    <Avatar :label="reserva.cliente.charAt(0)" class="bg-blue-500 text-white font-bold shadow" size="large" shape="circle" />
+                        <div v-for="reserva in reservasRecientes.slice(0, 8)" :key="reserva.id" class="py-4 hover:bg-gray-50 transition-colors group">
+                            <div class="flex items-center gap-4">
+                                <!-- Avatar + Nombre -->
+                                <Avatar :label="reserva.cliente.charAt(0)" class="bg-blue-500 text-white font-bold shadow" size="large" shape="circle" />
+                                <div class="flex-1">
+                                    <!-- Cliente y Servicio -->
                                     <div>
                                         <h4 class="font-medium text-gray-900 leading-snug">
                                             {{ reserva.cliente }}
                                         </h4>
-                                        <p class="text-sm text-gray-600">
-                                            {{ reserva.servicio }}
-                                        </p>
+                                        <p class="text-sm text-gray-600">{{ reserva.servicio }}</p>
                                     </div>
-                                </div>
 
-                                <!-- Fecha + Estado + Precio -->
-                                <div class="text-right">
-                                    <p class="text-sm text-gray-700 font-medium">{{ formatDate(reserva.fecha) }} - {{ reserva.hora }}</p>
-                                    <div class="flex justify-end items-center gap-2 mt-1">
+                                    <!-- Info de la Cita -->
+                                    <div class="flex flex-wrap gap-3 mt-2 text-sm text-gray-700 items-center">
+                                        <div class="flex items-center gap-1">
+                                            <i class="pi pi-calendar text-gray-400" />
+                                            <span>{{ formatDate(reserva.fecha) }}</span>
+                                        </div>
+                                        <div class="flex items-center gap-1">
+                                            <i class="pi pi-clock text-gray-400" />
+                                            <span>{{ reserva.hora }}</span>
+                                        </div>
+                                        <div class="flex items-center gap-1">
+                                            <i class="pi pi-dollar text-gray-400" />
+                                            <span class="font-semibold text-green-600">${{ reserva.precio }}</span>
+                                        </div>
                                         <Tag :value="reserva.estado" :severity="getStatusSeverity(reserva.estado)" class="text-xs px-2 py-1 rounded-full" />
-                                        <span class="text-sm font-semibold text-green-600"> ${{ reserva.precio }} </span>
                                     </div>
                                 </div>
                             </div>
