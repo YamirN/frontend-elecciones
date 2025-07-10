@@ -1,10 +1,14 @@
 import { obtenerDashboard } from '@/service/dashboardService';
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
 
 export const useDashboardStore = defineStore('dashboard', {
     state: () => ({
-        dashboardData: ref(null),
+        dashboardData: {
+            kpis_totales: {},
+            kpis_mensuales: {},
+            servicios_populares: [],
+            estadisticas_rapidas: {}
+        },
         loading: false,
         errors: {}
     }),

@@ -12,12 +12,6 @@ const dashboardStore = useDashboardStore();
 const { dashboardData } = storeToRefs(dashboardStore);
 // Reactive data
 
-const quickStats = ref({
-    reservasHoy: 24,
-    serviciosEnCurso: 8,
-    pendientes: 3
-});
-
 const loadingReservations = ref(false);
 
 // Chart data
@@ -51,90 +45,6 @@ const chartOptions = ref({
     }
 });
 
-// Reservations data
-const reservasRecientes = ref([
-    {
-        id: 1001,
-        cliente: 'María García',
-        servicio: 'Masaje Relajante',
-        trabajador: 'Ana López',
-        fecha: new Date('2024-01-15'),
-        hora: '10:00',
-        estado: 'Completado',
-        precio: 80
-    },
-    {
-        id: 1002,
-        cliente: 'Carlos Rodríguez',
-        servicio: 'Facial Hidratante',
-        trabajador: 'Sofia Martín',
-        fecha: new Date('2024-01-15'),
-        hora: '11:30',
-        estado: 'En Curso',
-        precio: 65
-    },
-    {
-        id: 1003,
-        cliente: 'Laura Fernández',
-        servicio: 'Aromaterapia',
-        trabajador: 'Carmen Ruiz',
-        fecha: new Date('2024-01-15'),
-        hora: '14:00',
-        estado: 'Confirmado',
-        precio: 90
-    },
-    {
-        id: 1004,
-        cliente: 'Pedro Sánchez',
-        servicio: 'Masaje Piedras Calientes',
-        trabajador: 'Ana López',
-        fecha: new Date('2024-01-15'),
-        hora: '15:30',
-        estado: 'Pendiente',
-        precio: 95
-    },
-    {
-        id: 1005,
-        cliente: 'Isabel Torres',
-        servicio: 'Reflexología',
-        trabajador: 'Sofia Martín',
-        fecha: new Date('2024-01-14'),
-        hora: '16:00',
-        estado: 'Completado',
-        precio: 55
-    },
-    {
-        id: 1006,
-        cliente: 'Miguel Herrera',
-        servicio: 'Facial Anti-Edad',
-        trabajador: 'Carmen Ruiz',
-        fecha: new Date('2024-01-14'),
-        hora: '17:30',
-        estado: 'Completado',
-        precio: 120
-    },
-    {
-        id: 1007,
-        cliente: 'Ana Jiménez',
-        servicio: 'Exfoliación Corporal',
-        trabajador: 'Ana López',
-        fecha: new Date('2024-01-14'),
-        hora: '09:00',
-        estado: 'Cancelado',
-        precio: 70
-    },
-    {
-        id: 1008,
-        cliente: 'Roberto Díaz',
-        servicio: 'Masaje Relajante',
-        trabajador: 'Sofia Martín',
-        fecha: new Date('2024-01-13'),
-        hora: '12:00',
-        estado: 'Completado',
-        precio: 80
-    }
-]);
-
 // Methods
 const formatDate = (date) => {
     return new Intl.DateTimeFormat('es-ES', {
@@ -163,26 +73,6 @@ const getStatusSeverity = (status) => {
 
 const refreshChart = async () => {
     await dashboardStore.cargarDashboard(); // volverá a disparar el `computed`
-};
-
-const estadisticas_rapidas = computed(() => dashboardData.value?.estadisticas_rapidas ?? {});
-
-const refreshReservations = async () => {
-    loadingReservations.value = true;
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    loadingReservations.value = false;
-    console.log('Reservations refreshed');
-};
-
-const viewReservation = (reservation) => {
-    console.log('Viewing reservation:', reservation);
-    // Implement view logic
-};
-
-const editReservation = (reservation) => {
-    console.log('Editing reservation:', reservation);
-    // Implement edit logic
 };
 
 onMounted(async () => {
@@ -293,7 +183,7 @@ onMounted(async () => {
                 </Card>
 
                 <!-- Estadísticas Rápidas -->
-                <Card v-if="estadisticas_rapidas" class="shadow-sm rounded-2xl">
+                <Card v-if="dashboardData?.estadisticas_rapidas" class="shadow-sm rounded-2xl">
                     <template #title>
                         <h3 class="text-lg font-semibold text-gray-800 px-4 pt-4">Estadísticas Rápidas</h3>
                     </template>
