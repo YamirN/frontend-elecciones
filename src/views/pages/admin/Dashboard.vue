@@ -51,7 +51,7 @@ const refreshChart = async () => {
 watchEffect(() => {
     const servicios = dashboardData.value?.servicios_populares;
 
-    if (servicios && servicios.length) {
+    if (Array.isArray(servicios) && servicios.length > 0) {
         chartData.value = {
             labels: servicios.map((s) => s.nombre),
             datasets: [
@@ -77,9 +77,10 @@ watchEffect(() => {
                 }
             }
         };
+    } else {
+        chartData.value = null; // o mantener undefined
     }
 });
-
 onMounted(async () => {
     await dashboardStore.cargarDashboard();
 });
@@ -182,7 +183,7 @@ onMounted(async () => {
                     </template>
                     <template #content>
                         <div class="p-4">
-                            <Chart v-if="chartData && chartOptions" type="doughnut" :data="chartData" :options="chartOptions" class="w-full max-h-80" />
+                            <Chart v-if="chartData" type="doughnut" :data="chartData" :options="chartOptions" class="w-full max-h-80" />
                             <div v-else class="text-center text-sm text-gray-400">Cargando gráfico...</div>
                         </div>
                     </template>
