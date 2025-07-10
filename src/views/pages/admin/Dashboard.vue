@@ -331,19 +331,19 @@ onMounted(async () => {
                 <template #content>
                     <!-- Loading -->
                     <div v-if="loadingReservations" class="px-4 pb-4 space-y-3">
-                        <div v-for="n in 5" :key="n" class="grid grid-cols-3 items-center gap-4 p-4 bg-gray-50 rounded-lg animate-pulse">
-                            <div class="flex items-center gap-3">
+                        <div v-for="n in 5" :key="n" class="flex flex-col md:flex-row items-center md:items-start justify-between gap-4 p-4 bg-gray-50 rounded-lg animate-pulse">
+                            <div class="flex items-center gap-3 w-full md:w-1/3">
                                 <div class="w-10 h-10 bg-gray-300 rounded-full"></div>
                                 <div class="space-y-2 w-full">
                                     <div class="h-4 bg-gray-300 rounded w-3/4"></div>
                                     <div class="h-3 bg-gray-300 rounded w-1/2"></div>
                                 </div>
                             </div>
-                            <div class="space-y-2">
+                            <div class="w-full md:w-1/3 space-y-2">
                                 <div class="h-4 bg-gray-300 rounded w-2/3"></div>
                                 <div class="h-3 bg-gray-300 rounded w-1/3"></div>
                             </div>
-                            <div class="flex justify-end items-center gap-3">
+                            <div class="w-full md:w-1/3 flex justify-start md:justify-end items-center gap-3">
                                 <div class="h-6 w-16 bg-gray-300 rounded-full"></div>
                                 <div class="h-4 w-12 bg-gray-300 rounded"></div>
                             </div>
@@ -352,9 +352,9 @@ onMounted(async () => {
 
                     <!-- Lista de Reservas -->
                     <div v-else-if="reservasRecientes && reservasRecientes.length > 0" class="px-4 divide-y divide-gray-100">
-                        <div v-for="reserva in reservasRecientes.slice(0, 8)" :key="reserva.id" class="grid grid-cols-3 items-center gap-4 py-4 hover:bg-gray-50 transition-colors">
+                        <div v-for="reserva in reservasRecientes.slice(0, 8)" :key="reserva.id" class="flex flex-col md:flex-row items-center md:items-start justify-between gap-4 py-4 hover:bg-gray-50 transition-colors">
                             <!-- Cliente + Servicio -->
-                            <div class="flex items-center gap-3">
+                            <div class="flex items-center gap-3 w-full md:w-1/3">
                                 <Avatar :label="reserva.cliente.charAt(0)" class="bg-blue-500 text-white font-bold shadow" size="large" shape="circle" />
                                 <div>
                                     <h4 class="font-medium text-gray-900 leading-snug">
@@ -365,7 +365,7 @@ onMounted(async () => {
                             </div>
 
                             <!-- Fecha + Hora -->
-                            <div class="text-sm text-gray-700">
+                            <div class="w-full md:w-1/3 text-sm text-gray-700">
                                 <div class="flex items-center gap-1">
                                     <i class="pi pi-calendar text-gray-400" />
                                     <span>{{ formatDate(reserva.fecha) }}</span>
@@ -377,7 +377,7 @@ onMounted(async () => {
                             </div>
 
                             <!-- Estado + Precio -->
-                            <div class="flex justify-end items-center gap-3 text-sm">
+                            <div class="w-full md:w-1/3 flex justify-start md:justify-end items-center gap-3 text-sm">
                                 <Tag :value="reserva.estado" :severity="getStatusSeverity(reserva.estado)" class="text-xs px-2 py-1 rounded-full" />
                                 <span class="font-semibold text-green-600"> ${{ reserva.precio }} </span>
                             </div>
