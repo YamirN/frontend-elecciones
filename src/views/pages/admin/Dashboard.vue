@@ -306,7 +306,7 @@ onMounted(async () => {
                                     <span class="font-medium text-gray-700">Reservas Hoy</span>
                                 </div>
                                 <span class="text-2xl font-bold text-blue-600">
-                                    {{ estadisticas_rapidas.reservasHoy }}
+                                    {{ dashboardData.estadisticas_rapidas?.reservasHoy ?? 0 }}
                                 </span>
                             </div>
 
@@ -317,7 +317,7 @@ onMounted(async () => {
                                     <span class="font-medium text-gray-700">Citas con trabajador sin asignar</span>
                                 </div>
                                 <span class="text-2xl font-bold text-purple-600">
-                                    {{ estadisticas_rapidas.citasSinTrabajador }}
+                                    {{ dashboardData.estadisticas_rapidas?.citasSinTrabajador ?? 0 }}
                                 </span>
                             </div>
 
@@ -328,7 +328,7 @@ onMounted(async () => {
                                     <span class="font-medium text-gray-700">Pendientes</span>
                                 </div>
                                 <span class="text-2xl font-bold text-yellow-600">
-                                    {{ estadisticas_rapidas.pendientes }}
+                                    {{ dashboardData.estadisticas_rapidas?.pendientes ?? 0 }}
                                 </span>
                             </div>
                         </div>
