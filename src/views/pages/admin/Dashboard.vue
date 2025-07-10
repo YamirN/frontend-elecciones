@@ -1,6 +1,5 @@
 <script setup>
 import { useDashboardStore } from '@/stores/dashboardStore';
-import { storeToRefs } from 'pinia';
 import Avatar from 'primevue/avatar';
 import Button from 'primevue/button';
 import Card from 'primevue/card';
@@ -9,7 +8,7 @@ import Tag from 'primevue/tag';
 import { computed, onMounted, ref, watch } from 'vue';
 
 const dashboardStore = useDashboardStore();
-const { dashboardData } = storeToRefs(dashboardStore);
+const dashboardData = computed(() => dashboardStore.dashboardData);
 // Reactive data
 
 const loadingReservations = ref(false);
@@ -54,7 +53,7 @@ watch(
     () => dashboardData.value.servicios_populares,
     (servicios) => {
         if (!servicios || !servicios.length) return;
-
+        // Actualiza tus datos del gráfico:
         chartData.value = {
             labels: servicios.map((s) => s.nombre),
             datasets: [
@@ -66,7 +65,6 @@ watch(
                 }
             ]
         };
-
         chartOptions.value = {
             responsive: true,
             maintainAspectRatio: false,
@@ -96,17 +94,17 @@ onMounted(async () => {
             <!-- KPI Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <!-- Servicios Vendidos -->
-                <Card v-if="dashboardData?.kpis_totales" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+                <Card v-if="dashboardData.value?.kpis_totales" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
                     <template #content>
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-blue-500 text-sm font-medium">Servicios Vendidos</p>
                                 <p class="text-3xl font-bold">
-                                    {{ dashboardData.kpis_totales.totalServiciosVendidos ?? 0 }}
+                                    {{ dashboardData.value.kpis_totales.totalServiciosVendidos ?? 0 }}
                                 </p>
                                 <p class="text-blue-500 text-xs mt-1">
                                     <i class="pi pi-arrow-up mr-1"></i>
-                                    {{ dashboardData.kpis_mensuales.servicios.variacion ?? 0 }}% vs mes anterior
+                                    {{ dashboardData.value.kpis_mensuales.servicios.variacion ?? 0 }}% vs mes anterior
                                 </p>
                             </div>
                             <div class="bg-blue-400 bg-opacity-30 p-3 rounded-full">
@@ -117,15 +115,15 @@ onMounted(async () => {
                 </Card>
 
                 <!-- Ingresos -->
-                <Card v-if="dashboardData?.kpis_totales" class="bg-gradient-to-r from-green-500 to-green-600 text-white">
+                <Card v-if="dashboardData.value?.kpis_totales" class="bg-gradient-to-r from-green-500 to-green-600 text-white">
                     <template #content>
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-green-500 text-sm font-medium">Ingresos</p>
-                                <p class="text-3xl font-bold">S/. {{ dashboardData.kpis_totales.totalIngresos ?? 0 }}</p>
+                                <p class="text-3xl font-bold">S/. {{ dashboardData.value.kpis_totales.totalIngresos ?? 0 }}</p>
                                 <p class="text-green-500 text-xs mt-1">
                                     <i class="pi pi-arrow-up mr-1"></i>
-                                    + {{ dashboardData.kpis_mensuales.ingresos.variacion ?? 0 }}% vs mes anterior
+                                    + {{ dashboardData.value.kpis_mensuales.ingresos.variacion ?? 0 }}% vs mes anterior
                                 </p>
                             </div>
                             <div class="bg-green-400 bg-opacity-30 p-3 rounded-full">
@@ -136,15 +134,15 @@ onMounted(async () => {
                 </Card>
 
                 <!-- Clientes -->
-                <Card v-if="dashboardData?.kpis_totales" class="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
+                <Card v-if="dashboardData.value?.kpis_totales" class="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
                     <template #content>
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-purple-500 text-sm font-medium">Clientes</p>
-                                <p class="text-3xl font-bold">{{ dashboardData.kpis_totales.totalClientes ?? 0 }}</p>
+                                <p class="text-3xl font-bold">{{ dashboardData.value.kpis_totales.totalClientes ?? 0 }}</p>
                                 <p class="text-purple-500 text-xs mt-1">
                                     <i class="pi pi-arrow-up mr-1"></i>
-                                    + {{ dashboardData.kpis_mensuales.clientes.variacion ?? 0 }}% vs mes anterior
+                                    + {{ dashboardData.value.kpis_mensuales.clientes.variacion ?? 0 }}% vs mes anterior
                                 </p>
                             </div>
                             <div class="bg-purple-400 bg-opacity-30 p-3 rounded-full">
@@ -155,12 +153,12 @@ onMounted(async () => {
                 </Card>
 
                 <!-- Trabajadores -->
-                <Card v-if="dashboardData?.kpis_totales" class="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
+                <Card v-if="dashboardData.value?.kpis_totales" class="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
                     <template #content>
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-orange-500 text-sm font-medium">Trabajadores</p>
-                                <p class="text-3xl font-bold">{{ dashboardData.kpis_totales.totalTrabajadores ?? 0 }}</p>
+                                <p class="text-3xl font-bold">{{ dashboardData.value.kpis_totales.totalTrabajadores ?? 0 }}</p>
                                 <p class="text-orange-500 text-xs mt-1">
                                     <i class="pi pi-check mr-1"></i>
                                     Activos
@@ -193,7 +191,7 @@ onMounted(async () => {
                 </Card>
 
                 <!-- Estadísticas Rápidas -->
-                <Card v-if="dashboardData?.estadisticas_rapidas" class="shadow-sm rounded-2xl">
+                <Card v-if="dashboardData.value?.estadisticas_rapidas" class="shadow-sm rounded-2xl">
                     <template #title>
                         <h3 class="text-lg font-semibold text-gray-800 px-4 pt-4">Estadísticas Rápidas</h3>
                     </template>
@@ -206,7 +204,7 @@ onMounted(async () => {
                                     <span class="font-medium text-gray-700">Reservas Hoy</span>
                                 </div>
                                 <span class="text-2xl font-bold text-blue-600">
-                                    {{ dashboardData.estadisticas_rapidas?.reservasHoy ?? 0 }}
+                                    {{ dashboardData.value.estadisticas_rapidas?.reservasHoy ?? 0 }}
                                 </span>
                             </div>
 
@@ -217,7 +215,7 @@ onMounted(async () => {
                                     <span class="font-medium text-gray-700">Citas con trabajador sin asignar</span>
                                 </div>
                                 <span class="text-2xl font-bold text-purple-600">
-                                    {{ dashboardData.estadisticas_rapidas?.citasSinTrabajador ?? 0 }}
+                                    {{ dashboardData.value.estadisticas_rapidas?.citasSinTrabajador ?? 0 }}
                                 </span>
                             </div>
 
@@ -228,7 +226,7 @@ onMounted(async () => {
                                     <span class="font-medium text-gray-700">Pendientes</span>
                                 </div>
                                 <span class="text-2xl font-bold text-yellow-600">
-                                    {{ dashboardData.estadisticas_rapidas?.pendientes ?? 0 }}
+                                    {{ dashboardData.value.estadisticas_rapidas?.pendientes ?? 0 }}
                                 </span>
                             </div>
                         </div>
