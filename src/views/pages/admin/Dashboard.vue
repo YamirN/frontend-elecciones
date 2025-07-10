@@ -319,8 +319,7 @@ onMounted(async () => {
                 </Card>
             </div>
 
-            <!-- Reservas Recientes - Diseño Refinado -->
-            <!-- Reservas Recientes - Diseño Separado -->
+            <!-- Reservas Recientes - Diseño en Columnas -->
             <Card class="shadow-sm rounded-2xl border border-gray-100">
                 <template #title>
                     <div class="flex items-center justify-between px-4 pt-4">
@@ -332,47 +331,55 @@ onMounted(async () => {
                 <template #content>
                     <!-- Loading -->
                     <div v-if="loadingReservations" class="px-4 pb-4 space-y-3">
-                        <div v-for="n in 5" :key="n" class="flex items-center gap-4 p-4 bg-gray-50 rounded-lg animate-pulse">
-                            <div class="w-10 h-10 bg-gray-300 rounded-full"></div>
-                            <div class="flex-1 space-y-2">
-                                <div class="h-4 bg-gray-300 rounded w-1/2"></div>
+                        <div v-for="n in 5" :key="n" class="grid grid-cols-3 items-center gap-4 p-4 bg-gray-50 rounded-lg animate-pulse">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-gray-300 rounded-full"></div>
+                                <div class="space-y-2 w-full">
+                                    <div class="h-4 bg-gray-300 rounded w-3/4"></div>
+                                    <div class="h-3 bg-gray-300 rounded w-1/2"></div>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="h-4 bg-gray-300 rounded w-2/3"></div>
                                 <div class="h-3 bg-gray-300 rounded w-1/3"></div>
+                            </div>
+                            <div class="flex justify-end items-center gap-3">
+                                <div class="h-6 w-16 bg-gray-300 rounded-full"></div>
+                                <div class="h-4 w-12 bg-gray-300 rounded"></div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Listado de Reservas -->
+                    <!-- Lista de Reservas -->
                     <div v-else-if="reservasRecientes && reservasRecientes.length > 0" class="px-4 divide-y divide-gray-100">
-                        <div v-for="reserva in reservasRecientes.slice(0, 8)" :key="reserva.id" class="py-4 hover:bg-gray-50 transition-colors group">
-                            <div class="flex items-center gap-4">
-                                <!-- Avatar + Nombre -->
+                        <div v-for="reserva in reservasRecientes.slice(0, 8)" :key="reserva.id" class="grid grid-cols-3 items-center gap-4 py-4 hover:bg-gray-50 transition-colors">
+                            <!-- Cliente + Servicio -->
+                            <div class="flex items-center gap-3">
                                 <Avatar :label="reserva.cliente.charAt(0)" class="bg-blue-500 text-white font-bold shadow" size="large" shape="circle" />
-                                <div class="flex-1">
-                                    <!-- Cliente y Servicio -->
-                                    <div>
-                                        <h4 class="font-medium text-gray-900 leading-snug">
-                                            {{ reserva.cliente }}
-                                        </h4>
-                                        <p class="text-sm text-gray-600">{{ reserva.servicio }}</p>
-                                    </div>
-
-                                    <!-- Info de la Cita -->
-                                    <div class="flex flex-wrap gap-3 mt-2 text-sm text-gray-700 items-center">
-                                        <div class="flex items-center gap-1">
-                                            <i class="pi pi-calendar text-gray-400" />
-                                            <span>{{ formatDate(reserva.fecha) }}</span>
-                                        </div>
-                                        <div class="flex items-center gap-1">
-                                            <i class="pi pi-clock text-gray-400" />
-                                            <span>{{ reserva.hora }}</span>
-                                        </div>
-                                        <div class="flex items-center gap-1">
-                                            <i class="pi pi-dollar text-gray-400" />
-                                            <span class="font-semibold text-green-600">${{ reserva.precio }}</span>
-                                        </div>
-                                        <Tag :value="reserva.estado" :severity="getStatusSeverity(reserva.estado)" class="text-xs px-2 py-1 rounded-full" />
-                                    </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-900 leading-snug">
+                                        {{ reserva.cliente }}
+                                    </h4>
+                                    <p class="text-sm text-gray-600">{{ reserva.servicio }}</p>
                                 </div>
+                            </div>
+
+                            <!-- Fecha + Hora -->
+                            <div class="text-sm text-gray-700">
+                                <div class="flex items-center gap-1">
+                                    <i class="pi pi-calendar text-gray-400" />
+                                    <span>{{ formatDate(reserva.fecha) }}</span>
+                                </div>
+                                <div class="flex items-center gap-1 mt-1">
+                                    <i class="pi pi-clock text-gray-400" />
+                                    <span>{{ reserva.hora }}</span>
+                                </div>
+                            </div>
+
+                            <!-- Estado + Precio -->
+                            <div class="flex justify-end items-center gap-3 text-sm">
+                                <Tag :value="reserva.estado" :severity="getStatusSeverity(reserva.estado)" class="text-xs px-2 py-1 rounded-full" />
+                                <span class="font-semibold text-green-600"> ${{ reserva.precio }} </span>
                             </div>
                         </div>
                     </div>
