@@ -6,7 +6,7 @@ import Button from 'primevue/button';
 import Card from 'primevue/card';
 import Chart from 'primevue/chart';
 import Tag from 'primevue/tag';
-import { computed, onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 
 const dashboardStore = useDashboardStore();
 const { dashboardData } = storeToRefs(dashboardStore);
@@ -15,20 +15,9 @@ const { dashboardData } = storeToRefs(dashboardStore);
 const loadingReservations = ref(false);
 
 // Chart data
-const chartData = computed(() => {
-    const servicios = dashboardData.value?.servicios_populares || [];
-
-    return {
-        labels: servicios.map((s) => s.nombre),
-        datasets: [
-            {
-                data: servicios.map((s) => s.total),
-                backgroundColor: ['#60A5FA', '#FBBF24', '#34D399', '#F87171', '#A78BFA'],
-                borderColor: '#fff',
-                borderWidth: 2
-            }
-        ]
-    };
+const chartData = ref({
+    labels: [],
+    datasets: []
 });
 
 const chartOptions = ref({
@@ -74,6 +63,24 @@ const getStatusSeverity = (status) => {
 const refreshChart = async () => {
     await dashboardStore.cargarDashboard(); // volverá a disparar el `computed`
 };
+
+watch(
+    () => dashboardData.value?.servicios_populares,
+    (servicios = []) => {
+        chartData.value = {
+            labels: servicios.map((s) => s.nombre),
+            datasets: [
+                {
+                    data: servicios.map((s) => s.total),
+                    backgroundColor: ['#60A5FA', '#FBBF24', '#34D399', '#F87171', '#A78BFA'],
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }
+            ]
+        };
+    },
+    { immediate: true }
+);
 
 onMounted(async () => {
     await dashboardStore.cargarDashboard();
