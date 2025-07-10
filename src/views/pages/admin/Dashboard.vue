@@ -330,13 +330,23 @@ onMounted(async () => {
 
                 <template #content>
                     <div class="p-4">
-                        <DataTable :value="reservasRecientes" stripedRows responsiveLayout="scroll" class="p-datatable-sm" :loading="loadingReservations" :rows="8" scrollable scrollHeight="400px" emptyMessage="No hay reservas recientes">
+                        <DataTable
+                            :value="reservasRecientes"
+                            stripedRows
+                            responsiveLayout="scroll"
+                            class="p-datatable-sm custom-datatable"
+                            :loading="loadingReservations"
+                            :rows="8"
+                            scrollable
+                            scrollHeight="400px"
+                            emptyMessage="No hay reservas recientes"
+                        >
                             <!-- Cliente -->
                             <Column field="cliente" header="Cliente">
                                 <template #body="{ data }">
-                                    <div class="flex items-center gap-2">
+                                    <div class="flex items-center gap-3 py-2">
                                         <Avatar :label="data.cliente.charAt(0)" class="bg-blue-500 text-white font-bold shadow" size="small" shape="circle" />
-                                        <span>{{ data.cliente }}</span>
+                                        <span class="text-gray-800 font-medium">{{ data.cliente }}</span>
                                     </div>
                                 </template>
                             </Column>
@@ -344,14 +354,14 @@ onMounted(async () => {
                             <!-- Servicio -->
                             <Column field="servicio" header="Servicio">
                                 <template #body="{ data }">
-                                    <span class="text-sm text-gray-700">{{ data.servicio }}</span>
+                                    <span class="text-sm text-gray-600 py-2 block">{{ data.servicio }}</span>
                                 </template>
                             </Column>
 
                             <!-- Fecha -->
                             <Column field="fecha" header="Fecha">
                                 <template #body="{ data }">
-                                    <div class="flex items-center gap-1 text-sm text-gray-700">
+                                    <div class="flex items-center gap-1 text-sm text-gray-700 py-2">
                                         <i class="pi pi-calendar text-gray-400" />
                                         <span>{{ formatDate(data.fecha) }}</span>
                                     </div>
@@ -361,7 +371,7 @@ onMounted(async () => {
                             <!-- Hora -->
                             <Column field="hora" header="Hora">
                                 <template #body="{ data }">
-                                    <div class="flex items-center gap-1 text-sm text-gray-700">
+                                    <div class="flex items-center gap-1 text-sm text-gray-700 py-2">
                                         <i class="pi pi-clock text-gray-400" />
                                         <span>{{ data.hora }}</span>
                                     </div>
@@ -371,7 +381,7 @@ onMounted(async () => {
                             <!-- Precio -->
                             <Column field="precio" header="Precio">
                                 <template #body="{ data }">
-                                    <div class="flex items-center gap-1 text-sm font-semibold text-green-600">
+                                    <div class="flex items-center gap-1 text-sm font-semibold text-green-600 py-2">
                                         <i class="pi pi-dollar text-gray-400" />
                                         <span>${{ data.precio }}</span>
                                     </div>
@@ -381,7 +391,9 @@ onMounted(async () => {
                             <!-- Estado -->
                             <Column field="estado" header="Estado">
                                 <template #body="{ data }">
-                                    <Tag :value="data.estado" :severity="getStatusSeverity(data.estado)" class="text-xs px-2 py-1 rounded-full" />
+                                    <div class="py-2 flex justify-start md:justify-end">
+                                        <Tag :value="data.estado" :severity="getStatusSeverity(data.estado)" class="text-xs px-2 py-1 rounded-full" />
+                                    </div>
                                 </template>
                             </Column>
                         </DataTable>
