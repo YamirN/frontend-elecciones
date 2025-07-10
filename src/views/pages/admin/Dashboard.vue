@@ -7,7 +7,6 @@ import { computed, onMounted, ref } from 'vue';
 import Avatar from 'primevue/avatar';
 import Button from 'primevue/button';
 import Card from 'primevue/card';
-import Chart from 'primevue/chart';
 import Tag from 'primevue/tag';
 
 // 1. Store
@@ -180,8 +179,8 @@ const getStatusSeverity = (status) => {
             </div>
 
             <!-- Charts and Stats Section -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                <!-- Servicios Más Vendidos Chart -->
+            <!-- <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                Servicios Más Vendidos Chart
                 <Card class="shadow-sm rounded-2xl">
                     <template #title>
                         <div class="flex items-center justify-between px-4 pt-4">
@@ -197,14 +196,14 @@ const getStatusSeverity = (status) => {
                     </template>
                 </Card>
 
-                <!-- Estadísticas Rápidas -->
+                Estadísticas Rápidas
                 <Card v-if="dashboardData.estadisticas_rapidas" class="shadow-sm rounded-2xl">
                     <template #title>
                         <h3 class="text-lg font-semibold text-gray-800 px-4 pt-4">Estadísticas Rápidas</h3>
                     </template>
                     <template #content>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
-                            <!-- Reservas Hoy -->
+                            Reservas Hoy
                             <div class="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
                                 <div class="flex items-center space-x-3">
                                     <i class="pi pi-calendar text-blue-600 text-xl"></i>
@@ -215,7 +214,7 @@ const getStatusSeverity = (status) => {
                                 </span>
                             </div>
 
-                            <!-- Citas sin trabajador -->
+                            Citas sin trabajador
                             <div class="flex items-center justify-between p-4 bg-purple-50 rounded-lg">
                                 <div class="flex items-center space-x-3">
                                     <i class="pi pi-user-minus text-purple-600 text-xl"></i>
@@ -226,7 +225,7 @@ const getStatusSeverity = (status) => {
                                 </span>
                             </div>
 
-                            <!-- Pendientes -->
+                            Pendientes
                             <div class="flex items-center justify-between p-4 bg-yellow-50 rounded-lg col-span-1 sm:col-span-2">
                                 <div class="flex items-center space-x-3">
                                     <i class="pi pi-exclamation-triangle text-yellow-600 text-xl"></i>
@@ -239,7 +238,7 @@ const getStatusSeverity = (status) => {
                         </div>
                     </template>
                 </Card>
-            </div>
+            </div> -->
 
             <!-- Reservas Recientes - Diseño en Columnas -->
             <Card class="shadow-sm rounded-2xl border border-gray-100">
