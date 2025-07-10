@@ -155,7 +155,7 @@ onMounted(async () => {
             <!-- Toolbar -->
 
             <!-- Tabla de citas -->
-            <DataTable :value="loadingCitas ? skeletonRows : citas" :paginator="true" :rows="8" :filters="filters" :globalFilterFields="['servicio.nombre', 'estado', 'cliente.nombre', 'cliente.apellido']" tableStyle="min-width: 40rem">
+            <DataTable :value="loadingCitas ? skeletonRows : citas" :paginator="true" :rows="10" :filters="filters" :globalFilterFields="['servicio.nombre', 'estado', 'cliente.nombre', 'cliente.apellido']" tableStyle="min-width: 40rem">
                 <template #header>
                     <div class="flex flex-wrap gap-2 items-center justify-between">
                         <h4 class="m-0">Administrar Citas</h4>
@@ -175,10 +175,10 @@ onMounted(async () => {
                         <span
                             class="px-3 py-1 rounded-full text-sm font-medium text-white"
                             :class="{
-                                'bg-yellow-500': slotProps.data.estado === 'pendiente',
+                                'bg-blue-500': slotProps.data.estado === 'pendiente',
                                 'bg-green-500': slotProps.data.estado === 'atendida',
                                 'bg-red-500': slotProps.data.estado === 'cancelada',
-                                'bg-orange-500': slotProps.data.estado === 'cliente_ausente',
+                                'bg-red-500': slotProps.data.estado === 'cliente_ausente',
                                 'bg-gray-500': !slotProps.data.estado
                             }"
                         >

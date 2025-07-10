@@ -2,68 +2,79 @@
 import { useDashboardStore } from '@/stores/dashboardStore';
 import { computed, onMounted, ref } from 'vue';
 
+import router from '@/router';
 import Avatar from 'primevue/avatar';
 import Button from 'primevue/button';
 import Card from 'primevue/card';
-import Tag from 'primevue/tag';
+import Chart from 'primevue/chart';
 
-// 1. Store
 const dashboardStore = useDashboardStore();
 const dashboardData = computed(() => dashboardStore.dashboardData);
-console.log('DashboardData inicial:', dashboardStore.dashboardData);
-// 2. Estados
+
 const loadingReservations = ref(false);
-const chartData = ref(null);
-const chartOptions = ref(null);
 
-// 3. Cargar datos
-onMounted(async () => {
-    await dashboardStore.cargarDashboard();
-});
+const reservasRecientes = computed(() => dashboardData.value.reservas_recientes ?? []);
 
-// 4. Estado de carga
-// const isLoaded = computed(() => !dashboardStore.loading && dashboardData.value.servicios_populares.length > 0);
-// const reservasRecientes = computed(() => dashboardData.value.reservas_recientes ?? []);
+const chartData = ref();
+const chartOptions = ref();
 
-// 5. Método para refrescar
-const refreshChart = async () => {
-    await dashboardStore.cargarDashboard();
+const loadChartData = () => {
+    const servicios = dashboardStore.dashboardData.servicios_populares;
+    const documentStyle = getComputedStyle(document.body);
+
+    chartData.value = {
+        labels: servicios.map((s) => s.nombre),
+        datasets: [
+            {
+                data: servicios.map((s) => s.total),
+                backgroundColor: [
+                    documentStyle.getPropertyValue('--p-cyan-500'),
+                    documentStyle.getPropertyValue('--p-orange-500'),
+                    documentStyle.getPropertyValue('--p-pink-500'),
+                    documentStyle.getPropertyValue('--p-purple-500'),
+                    documentStyle.getPropertyValue('--p-green-500')
+                ],
+                hoverBackgroundColor: [
+                    documentStyle.getPropertyValue('--p-cyan-400'),
+                    documentStyle.getPropertyValue('--p-orange-400'),
+                    documentStyle.getPropertyValue('--p-pink-400'),
+                    documentStyle.getPropertyValue('--p-purple-400'),
+                    documentStyle.getPropertyValue('--p-green-400')
+                ]
+            }
+        ]
+    };
 };
 
-// 6. Actualizar gráfico cuando cambie servicios_populares
-// watch(
-//     () => dashboardData.value?.servicios_populares,
-//     (servicios) => {
-//         if (!servicios || !servicios.length) return;
+const setChartOptions = () => {
+    const documentStyle = getComputedStyle(document.documentElement);
+    const textColor = documentStyle.getPropertyValue('--p-text-color');
 
-//         chartData.value = {
-//             labels: servicios.map((s) => s.nombre),
-//             datasets: [
-//                 {
-//                     data: servicios.map((s) => s.total),
-//                     backgroundColor: ['#60A5FA', '#FBBF24', '#34D399', '#F87171', '#A78BFA'],
-//                     borderColor: '#fff',
-//                     borderWidth: 2
-//                 }
-//             ]
-//         };
+    chartOptions.value = {
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    color: textColor,
+                    padding: 20
+                }
+            }
+        },
+        responsive: true,
+        maintainAspectRatio: false
+    };
+};
 
-//         chartOptions.value = {
-//             responsive: true,
-//             maintainAspectRatio: false,
-//             plugins: {
-//                 legend: {
-//                     position: 'bottom',
-//                     labels: {
-//                         usePointStyle: true,
-//                         padding: 20
-//                     }
-//                 }
-//             }
-//         };
-//     },
-//     { immediate: true }
-// );
+const refreshChart = async () => {
+    await dashboardStore.cargarDashboard();
+    loadChartData();
+};
+
+onMounted(async () => {
+    await dashboardStore.cargarDashboard();
+    loadChartData();
+    setChartOptions();
+});
 
 // 7. Utilidades
 const formatDate = (date) => {
@@ -74,20 +85,8 @@ const formatDate = (date) => {
     }).format(new Date(date));
 };
 
-const getStatusSeverity = (status) => {
-    switch (status) {
-        case 'Completado':
-            return 'success';
-        case 'En Curso':
-            return 'info';
-        case 'Confirmado':
-        case 'Pendiente':
-            return 'warning';
-        case 'Cancelado':
-            return 'danger';
-        default:
-            return 'info';
-    }
+const goToReservasList = () => {
+    router.push({ path: '/admin/citas' });
 };
 </script>
 
@@ -138,7 +137,7 @@ const getStatusSeverity = (status) => {
                 </Card>
 
                 <!-- Clientes -->
-                <Card v-if="dashboardData.value?.kpis_totales" class="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
+                <Card v-if="dashboardData.kpis_totales" class="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
                     <template #content>
                         <div class="flex items-center justify-between">
                             <div>
@@ -177,8 +176,8 @@ const getStatusSeverity = (status) => {
             </div>
 
             <!-- Charts and Stats Section -->
-            <!-- <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                Servicios Más Vendidos Chart
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <!-- Servicios Más Vendidos Chart -->
                 <Card class="shadow-sm rounded-2xl">
                     <template #title>
                         <div class="flex items-center justify-between px-4 pt-4">
@@ -188,20 +187,19 @@ const getStatusSeverity = (status) => {
                     </template>
                     <template #content>
                         <div class="p-4">
-                            <Chart v-if="isLoaded" :data="chartData" :options="chartOptions" type="doughnut" />
-                            <div v-else class="text-center text-sm text-gray-400">Cargando gráfico...</div>
+                            <Chart :data="chartData" :options="chartOptions" type="doughnut" />
                         </div>
                     </template>
                 </Card>
 
-                Estadísticas Rápidas
+                <!-- Estadísticas Rápidas -->
                 <Card v-if="dashboardData.estadisticas_rapidas" class="shadow-sm rounded-2xl">
                     <template #title>
                         <h3 class="text-lg font-semibold text-gray-800 px-4 pt-4">Estadísticas Rápidas</h3>
                     </template>
                     <template #content>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
-                            Reservas Hoy
+                            <!-- Reservas Hoy -->
                             <div class="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
                                 <div class="flex items-center space-x-3">
                                     <i class="pi pi-calendar text-blue-600 text-xl"></i>
@@ -212,7 +210,7 @@ const getStatusSeverity = (status) => {
                                 </span>
                             </div>
 
-                            Citas sin trabajador
+                            <!-- Citas sin trabajador -->
                             <div class="flex items-center justify-between p-4 bg-purple-50 rounded-lg">
                                 <div class="flex items-center space-x-3">
                                     <i class="pi pi-user-minus text-purple-600 text-xl"></i>
@@ -223,7 +221,7 @@ const getStatusSeverity = (status) => {
                                 </span>
                             </div>
 
-                            Pendientes
+                            <!-- Pendientes -->
                             <div class="flex items-center justify-between p-4 bg-yellow-50 rounded-lg col-span-1 sm:col-span-2">
                                 <div class="flex items-center space-x-3">
                                     <i class="pi pi-exclamation-triangle text-yellow-600 text-xl"></i>
@@ -236,7 +234,7 @@ const getStatusSeverity = (status) => {
                         </div>
                     </template>
                 </Card>
-            </div> -->
+            </div>
 
             <!-- Reservas Recientes - Diseño en Columnas -->
             <Card class="shadow-sm rounded-2xl border border-gray-100">
@@ -253,9 +251,9 @@ const getStatusSeverity = (status) => {
                             :value="reservasRecientes"
                             stripedRows
                             responsiveLayout="scroll"
-                            class="p-datatable-sm custom-datatable"
+                            class="text-sm text-gray-800 text-center"
                             :loading="loadingReservations"
-                            :rows="8"
+                            :rows="10"
                             scrollable
                             scrollHeight="400px"
                             emptyMessage="No hay reservas recientes"
@@ -301,18 +299,26 @@ const getStatusSeverity = (status) => {
                             <Column field="precio" header="Precio">
                                 <template #body="{ data }">
                                     <div class="flex items-center gap-1 text-sm font-semibold text-green-600 py-2">
-                                        <i class="pi pi-dollar text-gray-400" />
-                                        <span>${{ data.precio }}</span>
+                                        <span>S/. {{ data.precio }}</span>
                                     </div>
                                 </template>
                             </Column>
 
                             <!-- Estado -->
                             <Column field="estado" header="Estado">
-                                <template #body="{ data }">
-                                    <div class="py-2 flex justify-start md:justify-end">
-                                        <Tag :value="data.estado" :severity="getStatusSeverity(data.estado)" class="text-xs px-2 py-1 rounded-full" />
-                                    </div>
+                                <template #body="slotProps">
+                                    <span
+                                        class="px-3 py-1 rounded-full text-sm font-medium text-white"
+                                        :class="{
+                                            'bg-blue-500': slotProps.data.estado?.toLowerCase() === 'pendiente',
+                                            'bg-green-500': slotProps.data.estado?.toLowerCase() === 'atendida',
+                                            'bg-red-500': slotProps.data.estado?.toLowerCase() === 'cancelada',
+                                            'bg-red-500': slotProps.data.estado?.toLowerCase() === 'cliente_ausente',
+                                            'bg-gray-500': !slotProps.data.estado
+                                        }"
+                                    >
+                                        {{ slotProps.data.estado ? slotProps.data.estado.charAt(0).toUpperCase() + slotProps.data.estado.slice(1).toLowerCase() : 'Sin estado' }}
+                                    </span>
                                 </template>
                             </Column>
                         </DataTable>
