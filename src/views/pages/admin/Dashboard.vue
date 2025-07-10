@@ -6,7 +6,7 @@ import Button from 'primevue/button';
 import Card from 'primevue/card';
 import Chart from 'primevue/chart';
 import Tag from 'primevue/tag';
-import { computed, onMounted, ref, watchEffect } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 
 const dashboardStore = useDashboardStore();
 const { dashboardData } = storeToRefs(dashboardStore);
@@ -50,10 +50,11 @@ const refreshChart = async () => {
 
 const isLoaded = computed(() => !dashboardStore.loading && dashboardData.value?.servicios_populares?.length > 0);
 
-watchEffect(() => {
-    const servicios = dashboardData.value?.servicios_populares;
+watch(
+    () => dashboardData.value.servicios_populares,
+    (servicios) => {
+        if (!servicios || !servicios.length) return;
 
-    if (Array.isArray(servicios) && servicios.length > 0) {
         chartData.value = {
             labels: servicios.map((s) => s.nombre),
             datasets: [
@@ -79,10 +80,10 @@ watchEffect(() => {
                 }
             }
         };
-    } else {
-        chartData.value = null; // o mantener undefined
-    }
-});
+    },
+    { immediate: true }
+);
+
 onMounted(async () => {
     await dashboardStore.cargarDashboard();
 });
