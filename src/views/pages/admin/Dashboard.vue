@@ -50,10 +50,10 @@ const refreshChart = async () => {
 const isLoaded = computed(() => !dashboardStore.loading && dashboardData.value?.servicios_populares?.length > 0);
 
 watch(
-    () => dashboardData.value.servicios_populares,
+    () => dashboardData.value?.servicios_populares,
     (servicios) => {
         if (!servicios || !servicios.length) return;
-        // Actualiza tus datos del gráfico:
+
         chartData.value = {
             labels: servicios.map((s) => s.nombre),
             datasets: [
@@ -65,6 +65,7 @@ watch(
                 }
             ]
         };
+
         chartOptions.value = {
             responsive: true,
             maintainAspectRatio: false,
