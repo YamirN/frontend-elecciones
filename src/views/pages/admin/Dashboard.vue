@@ -2,7 +2,7 @@
 console.log('DashboardData inicial:', dashboardStore.dashboardData);
 
 import { useDashboardStore } from '@/stores/dashboardStore';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
 import Avatar from 'primevue/avatar';
 import Button from 'primevue/button';
@@ -34,39 +34,39 @@ const refreshChart = async () => {
 };
 
 // 6. Actualizar gráfico cuando cambie servicios_populares
-watch(
-    () => dashboardData.value?.servicios_populares,
-    (servicios) => {
-        if (!servicios || !servicios.length) return;
+// watch(
+//     () => dashboardData.value?.servicios_populares,
+//     (servicios) => {
+//         if (!servicios || !servicios.length) return;
 
-        chartData.value = {
-            labels: servicios.map((s) => s.nombre),
-            datasets: [
-                {
-                    data: servicios.map((s) => s.total),
-                    backgroundColor: ['#60A5FA', '#FBBF24', '#34D399', '#F87171', '#A78BFA'],
-                    borderColor: '#fff',
-                    borderWidth: 2
-                }
-            ]
-        };
+//         chartData.value = {
+//             labels: servicios.map((s) => s.nombre),
+//             datasets: [
+//                 {
+//                     data: servicios.map((s) => s.total),
+//                     backgroundColor: ['#60A5FA', '#FBBF24', '#34D399', '#F87171', '#A78BFA'],
+//                     borderColor: '#fff',
+//                     borderWidth: 2
+//                 }
+//             ]
+//         };
 
-        chartOptions.value = {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        usePointStyle: true,
-                        padding: 20
-                    }
-                }
-            }
-        };
-    },
-    { immediate: true }
-);
+//         chartOptions.value = {
+//             responsive: true,
+//             maintainAspectRatio: false,
+//             plugins: {
+//                 legend: {
+//                     position: 'bottom',
+//                     labels: {
+//                         usePointStyle: true,
+//                         padding: 20
+//                     }
+//                 }
+//             }
+//         };
+//     },
+//     { immediate: true }
+// );
 
 // 7. Utilidades
 const formatDate = (date) => {
