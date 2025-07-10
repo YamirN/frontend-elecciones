@@ -269,50 +269,61 @@ onMounted(async () => {
                 </Card>
             </div>
 
-            <!-- Charts and Tables Row -->
+            <!-- Charts and Stats Section -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                 <!-- Servicios Más Vendidos Chart -->
-                <Card>
+                <Card class="shadow-sm rounded-2xl">
                     <template #title>
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between px-4 pt-4">
                             <h3 class="text-lg font-semibold text-gray-800">Servicios Más Vendidos</h3>
                             <Button icon="pi pi-refresh" text @click="refreshChart" />
                         </div>
                     </template>
                     <template #content>
-                        <Chart type="doughnut" :data="chartData" :options="chartOptions" class="w-full h-80" />
+                        <div class="p-4">
+                            <Chart type="doughnut" :data="chartData" :options="chartOptions" class="w-full max-h-80" />
+                        </div>
                     </template>
                 </Card>
 
-                <!-- Quick Stats -->
-                <Card>
+                <!-- Estadísticas Rápidas -->
+                <Card class="shadow-sm rounded-2xl">
                     <template #title>
-                        <h3 class="text-lg font-semibold text-gray-800">Estadísticas Rápidas</h3>
+                        <h3 class="text-lg font-semibold text-gray-800 px-4 pt-4">Estadísticas Rápidas</h3>
                     </template>
                     <template #content>
-                        <div class="space-y-4">
-                            <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
+                            <!-- Reservas Hoy -->
+                            <div class="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
                                 <div class="flex items-center space-x-3">
-                                    <i class="pi pi-calendar text-blue-600"></i>
+                                    <i class="pi pi-calendar text-blue-600 text-xl"></i>
                                     <span class="font-medium text-gray-700">Reservas Hoy</span>
                                 </div>
-                                <span class="text-xl font-bold text-blue-600">{{ quickStats.reservasHoy }}</span>
+                                <span class="text-2xl font-bold text-blue-600">
+                                    {{ estadisticas_rapidas.reservasHoy }}
+                                </span>
                             </div>
 
-                            <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                            <!-- Citas sin trabajador -->
+                            <div class="flex items-center justify-between p-4 bg-purple-50 rounded-lg">
                                 <div class="flex items-center space-x-3">
-                                    <i class="pi pi-clock text-green-600"></i>
-                                    <span class="font-medium text-gray-700">Servicios en Curso</span>
+                                    <i class="pi pi-user-minus text-purple-600 text-xl"></i>
+                                    <span class="font-medium text-gray-700">Citas con trabajador sin asignar</span>
                                 </div>
-                                <span class="text-xl font-bold text-green-600">{{ quickStats.serviciosEnCurso }}</span>
+                                <span class="text-2xl font-bold text-purple-600">
+                                    {{ estadisticas_rapidas.citasSinTrabajador }}
+                                </span>
                             </div>
 
-                            <div class="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+                            <!-- Pendientes -->
+                            <div class="flex items-center justify-between p-4 bg-yellow-50 rounded-lg col-span-1 sm:col-span-2">
                                 <div class="flex items-center space-x-3">
-                                    <i class="pi pi-exclamation-triangle text-yellow-600"></i>
+                                    <i class="pi pi-exclamation-triangle text-yellow-600 text-xl"></i>
                                     <span class="font-medium text-gray-700">Pendientes</span>
                                 </div>
-                                <span class="text-xl font-bold text-yellow-600">{{ quickStats.pendientes }}</span>
+                                <span class="text-2xl font-bold text-yellow-600">
+                                    {{ estadisticas_rapidas.pendientes }}
+                                </span>
                             </div>
                         </div>
                     </template>
