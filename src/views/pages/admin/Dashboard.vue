@@ -218,7 +218,7 @@ onMounted(async () => {
                 </Card>
 
                 <!-- Ingresos -->
-                <Card v-if="estadisticas_rapidas" class="bg-gradient-to-r from-green-500 to-green-600 text-white">
+                <Card v-if="dashboardData?.kpis_totales" class="bg-gradient-to-r from-green-500 to-green-600 text-white">
                     <template #content>
                         <div class="flex items-center justify-between">
                             <div>
@@ -293,7 +293,7 @@ onMounted(async () => {
                 </Card>
 
                 <!-- Estadísticas Rápidas -->
-                <Card v-if="dashboardData?.estadisticas_rapidas" class="shadow-sm rounded-2xl">
+                <Card v-if="estadisticas_rapidas" class="shadow-sm rounded-2xl">
                     <template #title>
                         <h3 class="text-lg font-semibold text-gray-800 px-4 pt-4">Estadísticas Rápidas</h3>
                     </template>
