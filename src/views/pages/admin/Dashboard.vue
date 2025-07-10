@@ -15,8 +15,8 @@ const { dashboardData } = storeToRefs(dashboardStore);
 const loadingReservations = ref(false);
 
 // Chart data
-const chartData = ref({});
-const chartOptions = ref({});
+const chartData = ref(null);
+const chartOptions = ref(null);
 
 // Methods
 const formatDate = (date) => {
@@ -49,33 +49,35 @@ const refreshChart = async () => {
 };
 
 watchEffect(() => {
-    const servicios = dashboardData.value?.servicios_populares || [];
+    const servicios = dashboardData.value?.servicios_populares;
 
-    chartData.value = {
-        labels: servicios.map((s) => s.nombre),
-        datasets: [
-            {
-                data: servicios.map((s) => s.total),
-                backgroundColor: ['#60A5FA', '#FBBF24', '#34D399', '#F87171', '#A78BFA'],
-                borderColor: '#fff',
-                borderWidth: 2
-            }
-        ]
-    };
+    if (servicios && servicios.length) {
+        chartData.value = {
+            labels: servicios.map((s) => s.nombre),
+            datasets: [
+                {
+                    data: servicios.map((s) => s.total),
+                    backgroundColor: ['#60A5FA', '#FBBF24', '#34D399', '#F87171', '#A78BFA'],
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }
+            ]
+        };
 
-    chartOptions.value = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                position: 'bottom',
-                labels: {
-                    usePointStyle: true,
-                    padding: 20
+        chartOptions.value = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 20
+                    }
                 }
             }
-        }
-    };
+        };
+    }
 });
 
 onMounted(async () => {
@@ -180,7 +182,8 @@ onMounted(async () => {
                     </template>
                     <template #content>
                         <div class="p-4">
-                            <Chart type="doughnut" :data="chartData" :options="chartOptions" class="w-full max-h-80" />
+                            <Chart v-if="chartData && chartOptions" type="doughnut" :data="chartData" :options="chartOptions" class="w-full max-h-80" />
+                            <div v-else class="text-center text-sm text-gray-400">Cargando gráfico...</div>
                         </div>
                     </template>
                 </Card>
