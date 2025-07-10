@@ -25,8 +25,8 @@ onMounted(async () => {
 });
 
 // 4. Estado de carga
-const isLoaded = computed(() => !dashboardStore.loading && dashboardData.value.servicios_populares.length > 0);
-const reservasRecientes = computed(() => dashboardData.value.reservas_recientes ?? []);
+// const isLoaded = computed(() => !dashboardStore.loading && dashboardData.value.servicios_populares.length > 0);
+// const reservasRecientes = computed(() => dashboardData.value.reservas_recientes ?? []);
 
 // 5. Método para refrescar
 const refreshChart = async () => {
