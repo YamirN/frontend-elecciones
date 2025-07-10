@@ -1,54 +1,39 @@
 <script setup>
+console.log('DashboardData inicial:', dashboardStore.dashboardData);
+
 import { useDashboardStore } from '@/stores/dashboardStore';
+import { computed, onMounted, ref, watch } from 'vue';
+
 import Avatar from 'primevue/avatar';
 import Button from 'primevue/button';
 import Card from 'primevue/card';
 import Chart from 'primevue/chart';
 import Tag from 'primevue/tag';
-import { computed, onMounted, ref, watch } from 'vue';
 
+// 1. Store
 const dashboardStore = useDashboardStore();
 const dashboardData = computed(() => dashboardStore.dashboardData);
-// Reactive data
 
+// 2. Estados
 const loadingReservations = ref(false);
-
-// Chart data
 const chartData = ref(null);
 const chartOptions = ref(null);
 
-// Methods
-const formatDate = (date) => {
-    return new Intl.DateTimeFormat('es-ES', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-    }).format(date);
-};
+// 3. Cargar datos
+onMounted(async () => {
+    await dashboardStore.cargarDashboard();
+});
 
-const getStatusSeverity = (status) => {
-    switch (status) {
-        case 'Completado':
-            return 'success';
-        case 'En Curso':
-            return 'info';
-        case 'Confirmado':
-            return 'warning';
-        case 'Pendiente':
-            return 'warning';
-        case 'Cancelado':
-            return 'danger';
-        default:
-            return 'info';
-    }
-};
+// 4. Estado de carga
+const isLoaded = computed(() => !dashboardStore.loading && dashboardData.value.servicios_populares.length > 0);
+const reservasRecientes = computed(() => dashboardData.value.reservas_recientes ?? []);
 
+// 5. Método para refrescar
 const refreshChart = async () => {
-    await dashboardStore.cargarDashboard(); // volverá a disparar el `computed`
+    await dashboardStore.cargarDashboard();
 };
 
-const isLoaded = computed(() => !dashboardStore.loading && dashboardData.value?.servicios_populares?.length > 0);
-
+// 6. Actualizar gráfico cuando cambie servicios_populares
 watch(
     () => dashboardData.value?.servicios_populares,
     (servicios) => {
@@ -83,9 +68,30 @@ watch(
     { immediate: true }
 );
 
-onMounted(async () => {
-    await dashboardStore.cargarDashboard();
-});
+// 7. Utilidades
+const formatDate = (date) => {
+    return new Intl.DateTimeFormat('es-ES', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    }).format(new Date(date));
+};
+
+const getStatusSeverity = (status) => {
+    switch (status) {
+        case 'Completado':
+            return 'success';
+        case 'En Curso':
+            return 'info';
+        case 'Confirmado':
+        case 'Pendiente':
+            return 'warning';
+        case 'Cancelado':
+            return 'danger';
+        default:
+            return 'info';
+    }
+};
 </script>
 
 <template>
@@ -95,17 +101,17 @@ onMounted(async () => {
             <!-- KPI Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <!-- Servicios Vendidos -->
-                <Card v-if="dashboardData.value?.kpis_totales" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+                <Card v-if="dashboardData.kpis_totales" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
                     <template #content>
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-blue-500 text-sm font-medium">Servicios Vendidos</p>
                                 <p class="text-3xl font-bold">
-                                    {{ dashboardData.value.kpis_totales.totalServiciosVendidos ?? 0 }}
+                                    {{ dashboardData.kpis_totales.totalServiciosVendidos ?? 0 }}
                                 </p>
                                 <p class="text-blue-500 text-xs mt-1">
                                     <i class="pi pi-arrow-up mr-1"></i>
-                                    {{ dashboardData.value.kpis_mensuales.servicios.variacion ?? 0 }}% vs mes anterior
+                                    {{ dashboardData.kpis_mensuales.servicios.variacion ?? 0 }}% vs mes anterior
                                 </p>
                             </div>
                             <div class="bg-blue-400 bg-opacity-30 p-3 rounded-full">
@@ -116,15 +122,15 @@ onMounted(async () => {
                 </Card>
 
                 <!-- Ingresos -->
-                <Card v-if="dashboardData.value?.kpis_totales" class="bg-gradient-to-r from-green-500 to-green-600 text-white">
+                <Card v-if="dashboardData.kpis_totales" class="bg-gradient-to-r from-green-500 to-green-600 text-white">
                     <template #content>
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-green-500 text-sm font-medium">Ingresos</p>
-                                <p class="text-3xl font-bold">S/. {{ dashboardData.value.kpis_totales.totalIngresos ?? 0 }}</p>
+                                <p class="text-3xl font-bold">S/. {{ dashboardData.kpis_totales.totalIngresos ?? 0 }}</p>
                                 <p class="text-green-500 text-xs mt-1">
                                     <i class="pi pi-arrow-up mr-1"></i>
-                                    + {{ dashboardData.value.kpis_mensuales.ingresos.variacion ?? 0 }}% vs mes anterior
+                                    + {{ dashboardData.kpis_mensuales.ingresos.variacion ?? 0 }}% vs mes anterior
                                 </p>
                             </div>
                             <div class="bg-green-400 bg-opacity-30 p-3 rounded-full">
@@ -140,10 +146,10 @@ onMounted(async () => {
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-purple-500 text-sm font-medium">Clientes</p>
-                                <p class="text-3xl font-bold">{{ dashboardData.value.kpis_totales.totalClientes ?? 0 }}</p>
+                                <p class="text-3xl font-bold">{{ dashboardData.kpis_totales.totalClientes ?? 0 }}</p>
                                 <p class="text-purple-500 text-xs mt-1">
                                     <i class="pi pi-arrow-up mr-1"></i>
-                                    + {{ dashboardData.value.kpis_mensuales.clientes.variacion ?? 0 }}% vs mes anterior
+                                    + {{ dashboardData.kpis_mensuales.clientes.variacion ?? 0 }}% vs mes anterior
                                 </p>
                             </div>
                             <div class="bg-purple-400 bg-opacity-30 p-3 rounded-full">
@@ -154,12 +160,12 @@ onMounted(async () => {
                 </Card>
 
                 <!-- Trabajadores -->
-                <Card v-if="dashboardData.value?.kpis_totales" class="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
+                <Card v-if="dashboardData.kpis_totales" class="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
                     <template #content>
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-orange-500 text-sm font-medium">Trabajadores</p>
-                                <p class="text-3xl font-bold">{{ dashboardData.value.kpis_totales.totalTrabajadores ?? 0 }}</p>
+                                <p class="text-3xl font-bold">{{ dashboardData.kpis_totales.totalTrabajadores ?? 0 }}</p>
                                 <p class="text-orange-500 text-xs mt-1">
                                     <i class="pi pi-check mr-1"></i>
                                     Activos
@@ -192,7 +198,7 @@ onMounted(async () => {
                 </Card>
 
                 <!-- Estadísticas Rápidas -->
-                <Card v-if="dashboardData.value?.estadisticas_rapidas" class="shadow-sm rounded-2xl">
+                <Card v-if="dashboardData.estadisticas_rapidas" class="shadow-sm rounded-2xl">
                     <template #title>
                         <h3 class="text-lg font-semibold text-gray-800 px-4 pt-4">Estadísticas Rápidas</h3>
                     </template>
@@ -205,7 +211,7 @@ onMounted(async () => {
                                     <span class="font-medium text-gray-700">Reservas Hoy</span>
                                 </div>
                                 <span class="text-2xl font-bold text-blue-600">
-                                    {{ dashboardData.value.estadisticas_rapidas?.reservasHoy ?? 0 }}
+                                    {{ dashboardData.estadisticas_rapidas?.reservasHoy ?? 0 }}
                                 </span>
                             </div>
 
@@ -216,7 +222,7 @@ onMounted(async () => {
                                     <span class="font-medium text-gray-700">Citas con trabajador sin asignar</span>
                                 </div>
                                 <span class="text-2xl font-bold text-purple-600">
-                                    {{ dashboardData.value.estadisticas_rapidas?.citasSinTrabajador ?? 0 }}
+                                    {{ dashboardData.estadisticas_rapidas?.citasSinTrabajador ?? 0 }}
                                 </span>
                             </div>
 
@@ -227,7 +233,7 @@ onMounted(async () => {
                                     <span class="font-medium text-gray-700">Pendientes</span>
                                 </div>
                                 <span class="text-2xl font-bold text-yellow-600">
-                                    {{ dashboardData.value.estadisticas_rapidas?.pendientes ?? 0 }}
+                                    {{ dashboardData.estadisticas_rapidas?.pendientes ?? 0 }}
                                 </span>
                             </div>
                         </div>
