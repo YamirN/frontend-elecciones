@@ -321,55 +321,72 @@ onMounted(async () => {
 
             <!-- Reservas Recientes - Diseño en Columnas -->
             <Card class="shadow-sm rounded-2xl border border-gray-100">
-                <DataTable :value="reservasRecientes" stripedRows responsiveLayout="scroll" class="p-datatable-sm" :loading="loadingReservations" :rows="8" scrollable scrollHeight="400px">
-                    <Column field="cliente" header="Cliente">
-                        <template #body="{ data }">
-                            <div class="flex items-center gap-2">
-                                <Avatar :label="data.cliente.charAt(0)" class="bg-blue-500 text-white font-bold shadow" size="small" shape="circle" />
-                                <span>{{ data.cliente }}</span>
-                            </div>
-                        </template>
-                    </Column>
+                <template #title>
+                    <div class="flex items-center justify-between px-4 pt-4">
+                        <h3 class="text-xl font-semibold text-gray-800 tracking-tight">Reservas Recientes</h3>
+                        <Button label="Ver Todas" icon="pi pi-external-link" text size="small" class="!text-primary-600 hover:underline" @click="goToReservasList" />
+                    </div>
+                </template>
 
-                    <Column field="servicio" header="Servicio">
-                        <template #body="{ data }">
-                            <span class="text-gray-700 text-sm">{{ data.servicio }}</span>
-                        </template>
-                    </Column>
+                <template #content>
+                    <div class="p-4">
+                        <DataTable :value="reservasRecientes" stripedRows responsiveLayout="scroll" class="p-datatable-sm" :loading="loadingReservations" :rows="8" scrollable scrollHeight="400px" emptyMessage="No hay reservas recientes">
+                            <!-- Cliente -->
+                            <Column field="cliente" header="Cliente">
+                                <template #body="{ data }">
+                                    <div class="flex items-center gap-2">
+                                        <Avatar :label="data.cliente.charAt(0)" class="bg-blue-500 text-white font-bold shadow" size="small" shape="circle" />
+                                        <span>{{ data.cliente }}</span>
+                                    </div>
+                                </template>
+                            </Column>
 
-                    <Column field="fecha" header="Fecha">
-                        <template #body="{ data }">
-                            <div class="flex items-center gap-1 text-sm text-gray-700">
-                                <i class="pi pi-calendar text-gray-400" />
-                                <span>{{ formatDate(data.fecha) }}</span>
-                            </div>
-                        </template>
-                    </Column>
+                            <!-- Servicio -->
+                            <Column field="servicio" header="Servicio">
+                                <template #body="{ data }">
+                                    <span class="text-sm text-gray-700">{{ data.servicio }}</span>
+                                </template>
+                            </Column>
 
-                    <Column field="hora" header="Hora">
-                        <template #body="{ data }">
-                            <div class="flex items-center gap-1 text-sm text-gray-700">
-                                <i class="pi pi-clock text-gray-400" />
-                                <span>{{ data.hora }}</span>
-                            </div>
-                        </template>
-                    </Column>
+                            <!-- Fecha -->
+                            <Column field="fecha" header="Fecha">
+                                <template #body="{ data }">
+                                    <div class="flex items-center gap-1 text-sm text-gray-700">
+                                        <i class="pi pi-calendar text-gray-400" />
+                                        <span>{{ formatDate(data.fecha) }}</span>
+                                    </div>
+                                </template>
+                            </Column>
 
-                    <Column field="precio" header="Precio">
-                        <template #body="{ data }">
-                            <div class="flex items-center gap-1 text-green-600 font-semibold text-sm">
-                                <i class="pi pi-dollar text-gray-400" />
-                                <span>${{ data.precio }}</span>
-                            </div>
-                        </template>
-                    </Column>
+                            <!-- Hora -->
+                            <Column field="hora" header="Hora">
+                                <template #body="{ data }">
+                                    <div class="flex items-center gap-1 text-sm text-gray-700">
+                                        <i class="pi pi-clock text-gray-400" />
+                                        <span>{{ data.hora }}</span>
+                                    </div>
+                                </template>
+                            </Column>
 
-                    <Column field="estado" header="Estado">
-                        <template #body="{ data }">
-                            <Tag :value="data.estado" :severity="getStatusSeverity(data.estado)" class="text-xs px-2 py-1 rounded-full" />
-                        </template>
-                    </Column>
-                </DataTable>
+                            <!-- Precio -->
+                            <Column field="precio" header="Precio">
+                                <template #body="{ data }">
+                                    <div class="flex items-center gap-1 text-sm font-semibold text-green-600">
+                                        <i class="pi pi-dollar text-gray-400" />
+                                        <span>${{ data.precio }}</span>
+                                    </div>
+                                </template>
+                            </Column>
+
+                            <!-- Estado -->
+                            <Column field="estado" header="Estado">
+                                <template #body="{ data }">
+                                    <Tag :value="data.estado" :severity="getStatusSeverity(data.estado)" class="text-xs px-2 py-1 rounded-full" />
+                                </template>
+                            </Column>
+                        </DataTable>
+                    </div>
+                </template>
             </Card>
         </div>
     </div>
