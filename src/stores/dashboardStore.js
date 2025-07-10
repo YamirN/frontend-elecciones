@@ -5,7 +5,11 @@ export const useDashboardStore = defineStore('dashboard', {
     state: () => ({
         dashboardData: {
             kpis_totales: {},
-            kpis_mensuales: {},
+            kpis_mensuales: {
+                servicios: {},
+                ingresos: {},
+                clientes: {}
+            },
             servicios_populares: [],
             estadisticas_rapidas: {}
         },
