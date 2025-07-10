@@ -329,59 +329,55 @@ onMounted(async () => {
                 </template>
 
                 <template #content>
-                    <!-- Loading -->
+                    <!-- Skeleton Loading -->
                     <div v-if="loadingReservations" class="px-4 pb-4 space-y-3">
-                        <div v-for="n in 5" :key="n" class="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg animate-pulse">
+                        <div v-for="n in 5" :key="n" class="grid grid-cols-1 md:grid-cols-6 gap-4 p-4 bg-gray-50 rounded-lg animate-pulse">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 bg-gray-300 rounded-full"></div>
-                                <div class="space-y-2 w-full">
-                                    <div class="h-4 bg-gray-300 rounded w-3/4"></div>
-                                </div>
+                                <div class="h-4 bg-gray-300 rounded w-3/4"></div>
                             </div>
-                            <div class="h-4 bg-gray-300 rounded w-1/2"></div>
-                            <div class="grid grid-cols-3 gap-4">
-                                <div class="h-4 bg-gray-300 rounded w-full"></div>
-                                <div class="h-4 bg-gray-300 rounded w-full"></div>
-                                <div class="h-4 bg-gray-300 rounded w-full"></div>
-                            </div>
-                            <div class="h-6 w-20 bg-gray-300 rounded-full justify-self-end"></div>
+                            <div class="h-4 bg-gray-300 rounded w-2/3"></div>
+                            <div class="h-4 bg-gray-300 rounded w-2/3"></div>
+                            <div class="h-4 bg-gray-300 rounded w-1/3"></div>
+                            <div class="h-4 bg-gray-300 rounded w-1/3"></div>
+                            <div class="h-6 w-16 bg-gray-300 rounded-full justify-self-end"></div>
                         </div>
                     </div>
 
                     <!-- Lista de Reservas -->
                     <div v-else-if="reservasRecientes && reservasRecientes.length > 0" class="px-4 divide-y divide-gray-100">
-                        <div v-for="reserva in reservasRecientes.slice(0, 8)" :key="reserva.id" class="grid grid-cols-1 md:grid-cols-4 items-start gap-4 py-4 hover:bg-gray-50 transition-colors">
+                        <div v-for="reserva in reservasRecientes.slice(0, 8)" :key="reserva.id" class="grid grid-cols-1 md:grid-cols-6 gap-4 py-4 hover:bg-gray-50 transition-colors items-center">
                             <!-- Cliente -->
                             <div class="flex items-center gap-3">
                                 <Avatar :label="reserva.cliente.charAt(0)" class="bg-blue-500 text-white font-bold shadow" size="large" shape="circle" />
-                                <div>
-                                    <h4 class="font-medium text-gray-900">{{ reserva.cliente }}</h4>
-                                </div>
+                                <h4 class="font-medium text-gray-900">{{ reserva.cliente }}</h4>
                             </div>
 
                             <!-- Servicio -->
-                            <div class="text-sm text-gray-600 md:mt-1">
-                                <span class="block">{{ reserva.servicio }}</span>
+                            <div class="text-sm text-gray-600">
+                                {{ reserva.servicio }}
                             </div>
 
-                            <!-- Fecha, Hora, Precio -->
-                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm text-gray-700">
-                                <div class="flex items-center gap-1">
-                                    <i class="pi pi-calendar text-gray-400" />
-                                    <span>{{ formatDate(reserva.fecha) }}</span>
-                                </div>
-                                <div class="flex items-center gap-1">
-                                    <i class="pi pi-clock text-gray-400" />
-                                    <span>{{ reserva.hora }}</span>
-                                </div>
-                                <div class="flex items-center gap-1">
-                                    <i class="pi pi-dollar text-gray-400" />
-                                    <span class="font-semibold text-green-600">${{ reserva.precio }}</span>
-                                </div>
+                            <!-- Fecha -->
+                            <div class="flex items-center gap-1 text-sm text-gray-700">
+                                <i class="pi pi-calendar text-gray-400" />
+                                <span>{{ formatDate(reserva.fecha) }}</span>
+                            </div>
+
+                            <!-- Hora -->
+                            <div class="flex items-center gap-1 text-sm text-gray-700">
+                                <i class="pi pi-clock text-gray-400" />
+                                <span>{{ reserva.hora }}</span>
+                            </div>
+
+                            <!-- Precio -->
+                            <div class="flex items-center gap-1 text-sm text-green-600 font-semibold">
+                                <i class="pi pi-dollar text-gray-400" />
+                                <span>${{ reserva.precio }}</span>
                             </div>
 
                             <!-- Estado -->
-                            <div class="flex justify-start md:justify-end items-center">
+                            <div class="flex justify-start md:justify-end">
                                 <Tag :value="reserva.estado" :severity="getStatusSeverity(reserva.estado)" class="text-xs px-2 py-1 rounded-full" />
                             </div>
                         </div>
