@@ -6,7 +6,7 @@ import Button from 'primevue/button';
 import Card from 'primevue/card';
 import Chart from 'primevue/chart';
 import Tag from 'primevue/tag';
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watchEffect } from 'vue';
 
 const dashboardStore = useDashboardStore();
 const { dashboardData } = storeToRefs(dashboardStore);
@@ -15,24 +15,8 @@ const { dashboardData } = storeToRefs(dashboardStore);
 const loadingReservations = ref(false);
 
 // Chart data
-const chartData = ref({
-    labels: [],
-    datasets: []
-});
-
-const chartOptions = ref({
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-        legend: {
-            position: 'bottom',
-            labels: {
-                usePointStyle: true,
-                padding: 20
-            }
-        }
-    }
-});
+let chartData = {};
+let chartOptions = {};
 
 // Methods
 const formatDate = (date) => {
@@ -64,23 +48,35 @@ const refreshChart = async () => {
     await dashboardStore.cargarDashboard(); // volverá a disparar el `computed`
 };
 
-watch(
-    () => dashboardData.value?.servicios_populares,
-    (servicios = []) => {
-        chartData.value = {
-            labels: servicios.map((s) => s.nombre),
-            datasets: [
-                {
-                    data: servicios.map((s) => s.total),
-                    backgroundColor: ['#60A5FA', '#FBBF24', '#34D399', '#F87171', '#A78BFA'],
-                    borderColor: '#fff',
-                    borderWidth: 2
+watchEffect(() => {
+    const servicios = dashboardData.value?.servicios_populares || [];
+
+    chartData = {
+        labels: servicios.map((s) => s.nombre),
+        datasets: [
+            {
+                data: servicios.map((s) => s.total),
+                backgroundColor: ['#60A5FA', '#FBBF24', '#34D399', '#F87171', '#A78BFA'],
+                borderColor: '#fff',
+                borderWidth: 2
+            }
+        ]
+    };
+
+    chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    usePointStyle: true,
+                    padding: 20
                 }
-            ]
-        };
-    },
-    { immediate: true }
-);
+            }
+        }
+    };
+});
 
 onMounted(async () => {
     await dashboardStore.cargarDashboard();
@@ -184,7 +180,7 @@ onMounted(async () => {
                     </template>
                     <template #content>
                         <div class="p-4">
-                            <Chart type="doughnut" :data="chartData.value" :options="chartOptions.value" class="w-full max-h-80" />
+                            <Chart type="doughnut" :data="chartData" :options="chartOptions" class="w-full max-h-80" />
                         </div>
                     </template>
                 </Card>
