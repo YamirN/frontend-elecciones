@@ -1,6 +1,4 @@
 <script setup>
-console.log('DashboardData inicial:', dashboardStore.dashboardData);
-
 import { useDashboardStore } from '@/stores/dashboardStore';
 import { computed, onMounted, ref } from 'vue';
 
@@ -12,7 +10,7 @@ import Tag from 'primevue/tag';
 // 1. Store
 const dashboardStore = useDashboardStore();
 const dashboardData = computed(() => dashboardStore.dashboardData);
-
+console.log('DashboardData inicial:', dashboardStore.dashboardData);
 // 2. Estados
 const loadingReservations = ref(false);
 const chartData = ref(null);

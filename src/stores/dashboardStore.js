@@ -11,10 +11,11 @@ export const useDashboardStore = defineStore('dashboard', {
                 clientes: {}
             },
             servicios_populares: [],
-            estadisticas_rapidas: {}
+            estadisticas_rapidas: {},
+            reservas_recientes: []
         },
         loading: false,
-        errors: {}
+        error: null
     }),
 
     actions: {
@@ -24,13 +25,18 @@ export const useDashboardStore = defineStore('dashboard', {
 
             try {
                 const response = await obtenerDashboard();
-                this.dashboardData = response || {
-                    kpis_totales: {},
-                    kpis_mensuales: { servicios: {}, ingresos: {}, clientes: {} },
-                    servicios_populares: [],
-                    estadisticas_rapidas: {}
+
+                this.dashboardData = {
+                    kpis_totales: response.kpis_totales || {},
+                    kpis_mensuales: response.kpis_mensuales || {
+                        servicios: {},
+                        ingresos: {},
+                        clientes: {}
+                    },
+                    servicios_populares: response.servicios_populares || [],
+                    estadisticas_rapidas: response.estadisticas_rapidas || {},
+                    reservas_recientes: response.reservas_recientes || []
                 };
-                console.log(response);
             } catch (err) {
                 this.error = 'No se pudo cargar el dashboard';
                 console.error(err);
