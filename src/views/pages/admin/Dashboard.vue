@@ -15,8 +15,8 @@ const { dashboardData } = storeToRefs(dashboardStore);
 const loadingReservations = ref(false);
 
 // Chart data
-let chartData = {};
-let chartOptions = {};
+const chartData = ref({});
+const chartOptions = ref({});
 
 // Methods
 const formatDate = (date) => {
@@ -51,7 +51,7 @@ const refreshChart = async () => {
 watchEffect(() => {
     const servicios = dashboardData.value?.servicios_populares || [];
 
-    chartData = {
+    chartData.value = {
         labels: servicios.map((s) => s.nombre),
         datasets: [
             {
@@ -63,7 +63,7 @@ watchEffect(() => {
         ]
     };
 
-    chartOptions = {
+    chartOptions.value = {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
