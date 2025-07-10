@@ -184,7 +184,7 @@ onMounted(async () => {
                     </template>
                     <template #content>
                         <div class="p-4">
-                            <Chart type="doughnut" :data="chartData" :options="chartOptions" class="w-full max-h-80" />
+                            <Chart type="doughnut" :data="chartData.value" :options="chartOptions.value" class="w-full max-h-80" />
                         </div>
                     </template>
                 </Card>
