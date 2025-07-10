@@ -6,7 +6,7 @@ import Button from 'primevue/button';
 import Card from 'primevue/card';
 import Chart from 'primevue/chart';
 import Tag from 'primevue/tag';
-import { onMounted, ref, watchEffect } from 'vue';
+import { computed, onMounted, ref, watchEffect } from 'vue';
 
 const dashboardStore = useDashboardStore();
 const { dashboardData } = storeToRefs(dashboardStore);
@@ -47,6 +47,8 @@ const getStatusSeverity = (status) => {
 const refreshChart = async () => {
     await dashboardStore.cargarDashboard(); // volverá a disparar el `computed`
 };
+
+const isLoaded = computed(() => !dashboardStore.loading && dashboardData.value?.servicios_populares?.length > 0);
 
 watchEffect(() => {
     const servicios = dashboardData.value?.servicios_populares;
@@ -183,7 +185,7 @@ onMounted(async () => {
                     </template>
                     <template #content>
                         <div class="p-4">
-                            <Chart v-if="chartData" type="doughnut" :data="chartData" :options="chartOptions" class="w-full max-h-80" />
+                            <Chart v-if="isLoaded" :data="chartData" :options="chartOptions" type="doughnut" />
                             <div v-else class="text-center text-sm text-gray-400">Cargando gráfico...</div>
                         </div>
                     </template>
