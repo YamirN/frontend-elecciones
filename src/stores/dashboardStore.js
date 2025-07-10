@@ -30,6 +30,7 @@ export const useDashboardStore = defineStore('dashboard', {
                     servicios_populares: [],
                     estadisticas_rapidas: {}
                 };
+                console.log(response);
             } catch (err) {
                 this.error = 'No se pudo cargar el dashboard';
                 console.error(err);
