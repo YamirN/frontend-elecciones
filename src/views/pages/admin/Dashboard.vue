@@ -179,21 +179,6 @@ const editReservation = (reservation) => {
     // Implement edit logic
 };
 
-const deleteReservation = (reservation) => {
-    console.log('Deleting reservation:', reservation);
-    // Implement delete logic with confirmation
-};
-
-// onMounted(() => {
-//     // Check authentication
-//     const isAuthenticated = localStorage.getItem('isAuthenticated');
-//     const userRole = localStorage.getItem('userRole');
-
-//     if (!isAuthenticated || userRole !== 'admin') {
-//         window.location.href = '/login';
-//     }
-// });
-
 onMounted(async () => {
     await dashboardStore.cargarDashboard();
 });
@@ -334,57 +319,61 @@ onMounted(async () => {
                 </Card>
             </div>
 
-            <!-- Reservas Recientes - Diseño Simple -->
-            <Card>
+            <!-- Reservas Recientes - Diseño Refinado -->
+            <Card class="shadow-sm rounded-2xl border border-gray-100">
                 <template #title>
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-lg font-semibold text-gray-800">Reservas Recientes</h3>
-                        <Button label="Ver Todas" icon="pi pi-external-link" text size="small" @click="goToReservasList" />
+                    <div class="flex items-center justify-between px-4 pt-4">
+                        <h3 class="text-xl font-semibold text-gray-800 tracking-tight">Reservas Recientes</h3>
+                        <Button label="Ver Todas" icon="pi pi-external-link" text size="small" class="!text-primary-600 hover:underline" @click="goToReservasList" />
                     </div>
                 </template>
+
                 <template #content>
-                    <div v-if="loadingReservations" class="space-y-4">
-                        <!-- Skeleton loading -->
-                        <div v-for="n in 5" :key="n" class="p-4 bg-gray-50 rounded animate-pulse">
-                            <div class="flex items-center space-x-3">
-                                <div class="w-8 h-8 bg-gray-300 rounded-full"></div>
-                                <div class="flex-1">
-                                    <div class="h-4 bg-gray-300 rounded w-1/2 mb-2"></div>
-                                    <div class="h-3 bg-gray-300 rounded w-1/3"></div>
-                                </div>
+                    <!-- Loading -->
+                    <div v-if="loadingReservations" class="px-4 pb-4 space-y-3">
+                        <div v-for="n in 5" :key="n" class="flex items-center gap-4 p-4 bg-gray-50 rounded-lg animate-pulse">
+                            <div class="w-10 h-10 bg-gray-300 rounded-full"></div>
+                            <div class="flex-1 space-y-2">
+                                <div class="h-4 bg-gray-300 rounded w-1/2"></div>
+                                <div class="h-3 bg-gray-300 rounded w-1/3"></div>
                             </div>
                         </div>
                     </div>
 
-                    <div v-else-if="reservasRecientes && reservasRecientes.length > 0" class="divide-y divide-gray-100">
-                        <div v-for="reserva in reservasRecientes.slice(0, 8)" :key="reserva.id" class="py-4 hover:bg-gray-50 transition-colors">
-                            <div class="flex items-start justify-between">
-                                <!-- Info Principal -->
-                                <div class="flex items-center space-x-3">
-                                    <Avatar :label="reserva.cliente.charAt(0)" class="bg-blue-500 text-white" size="normal" shape="circle" />
+                    <!-- Listado de Reservas -->
+                    <div v-else-if="reservasRecientes && reservasRecientes.length > 0" class="px-4 divide-y divide-gray-100">
+                        <div v-for="reserva in reservasRecientes.slice(0, 8)" :key="reserva.id" class="group py-4 transition-colors hover:bg-gray-50">
+                            <div class="flex justify-between items-start gap-4">
+                                <!-- Cliente + Servicio -->
+                                <div class="flex items-center gap-3">
+                                    <Avatar :label="reserva.cliente.charAt(0)" class="bg-blue-500 text-white font-bold shadow" size="large" shape="circle" />
                                     <div>
-                                        <h4 class="font-medium text-gray-900">{{ reserva.cliente }}</h4>
-                                        <p class="text-sm text-gray-600">{{ reserva.servicio }}</p>
+                                        <h4 class="font-medium text-gray-900 leading-snug">
+                                            {{ reserva.cliente }}
+                                        </h4>
+                                        <p class="text-sm text-gray-600">
+                                            {{ reserva.servicio }}
+                                        </p>
                                     </div>
                                 </div>
 
-                                <!-- Fecha y Estado -->
+                                <!-- Fecha + Estado + Precio -->
                                 <div class="text-right">
-                                    <div class="text-sm text-gray-900 mb-1">{{ formatDate(reserva.fecha) }} - {{ reserva.hora }}</div>
-                                    <div class="flex items-center justify-end space-x-2">
-                                        <Tag :value="reserva.estado" :severity="getStatusSeverity(reserva.estado)" class="text-xs" />
-                                        <span class="font-semibold text-green-600">${{ reserva.precio }}</span>
+                                    <p class="text-sm text-gray-700 font-medium">{{ formatDate(reserva.fecha) }} - {{ reserva.hora }}</p>
+                                    <div class="flex justify-end items-center gap-2 mt-1">
+                                        <Tag :value="reserva.estado" :severity="getStatusSeverity(reserva.estado)" class="text-xs px-2 py-1 rounded-full" />
+                                        <span class="text-sm font-semibold text-green-600"> ${{ reserva.precio }} </span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Estado vacío -->
-                    <div v-else class="text-center py-12">
-                        <i class="pi pi-calendar text-4xl text-gray-300 mb-4"></i>
-                        <p class="text-gray-500 mb-4">No hay reservas recientes</p>
-                        <Button label="Ver Reservas" icon="pi pi-calendar" outlined @click="goToReservasList" />
+                    <!-- Sin Reservas -->
+                    <div v-else class="flex flex-col items-center justify-center text-center px-6 py-12 text-gray-500">
+                        <i class="pi pi-calendar text-5xl mb-4 text-gray-300"></i>
+                        <p class="mb-3 text-lg">No hay reservas recientes</p>
+                        <Button label="Ver Reservas" icon="pi pi-calendar" outlined class="mt-2" @click="goToReservasList" />
                     </div>
                 </template>
             </Card>
