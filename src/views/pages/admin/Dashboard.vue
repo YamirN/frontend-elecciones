@@ -334,75 +334,57 @@ onMounted(async () => {
                 </Card>
             </div>
 
-            <!-- Reservas Recientes Table -->
-            <!-- Reservas Recientes Card Layout -->
-            <!-- Reservas Recientes Card Layout -->
+            <!-- Reservas Recientes - Diseño Simple -->
             <Card>
                 <template #title>
                     <div class="flex items-center justify-between">
                         <h3 class="text-lg font-semibold text-gray-800">Reservas Recientes</h3>
-                        <Button label="Ver Todas" icon="pi pi-external-link" text size="small" class="text-blue-600 hover:text-blue-800" @click="goToReservasList" />
+                        <Button label="Ver Todas" icon="pi pi-external-link" text size="small" @click="goToReservasList" />
                     </div>
                 </template>
                 <template #content>
-                    <div v-if="loadingReservations" class="space-y-3">
+                    <div v-if="loadingReservations" class="space-y-4">
                         <!-- Skeleton loading -->
-                        <div v-for="n in 5" :key="n" class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg animate-pulse">
-                            <div class="w-10 h-10 bg-gray-300 rounded-full"></div>
-                            <div class="flex-1 space-y-2">
-                                <div class="h-4 bg-gray-300 rounded w-3/4"></div>
-                                <div class="h-3 bg-gray-300 rounded w-1/2"></div>
+                        <div v-for="n in 5" :key="n" class="p-4 bg-gray-50 rounded animate-pulse">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-gray-300 rounded-full"></div>
+                                <div class="flex-1">
+                                    <div class="h-4 bg-gray-300 rounded w-1/2 mb-2"></div>
+                                    <div class="h-3 bg-gray-300 rounded w-1/3"></div>
+                                </div>
                             </div>
-                            <div class="w-16 h-6 bg-gray-300 rounded"></div>
                         </div>
                     </div>
 
-                    <div v-else-if="reservasRecientes && reservasRecientes.length > 0" class="space-y-2">
-                        <div
-                            v-for="reserva in reservasRecientes.slice(0, 8)"
-                            :key="reserva.id"
-                            class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition-colors border-l-4"
-                            :class="{
-                                'border-l-green-500': reserva.estado === 'completado',
-                                'border-l-blue-500': reserva.estado === 'confirmado',
-                                'border-l-yellow-500': reserva.estado === 'pendiente',
-                                'border-l-red-500': reserva.estado === 'cancelado',
-                                'border-l-gray-300': !reserva.estado
-                            }"
-                        >
-                            <!-- Avatar y Info Principal -->
-                            <div class="flex items-center space-x-3 flex-1">
-                                <Avatar :label="reserva.cliente.charAt(0)" class="bg-blue-500 text-white" size="normal" shape="circle" />
-                                <div class="flex-1">
-                                    <div class="font-medium text-gray-900">{{ reserva.cliente }}</div>
-                                    <div class="text-sm text-gray-600">{{ reserva.servicio }}</div>
-                                    <div class="text-xs text-gray-500">{{ reserva.trabajador || 'Sin asignar' }}</div>
+                    <div v-else-if="reservasRecientes && reservasRecientes.length > 0" class="divide-y divide-gray-100">
+                        <div v-for="reserva in reservasRecientes.slice(0, 8)" :key="reserva.id" class="py-4 hover:bg-gray-50 transition-colors">
+                            <div class="flex items-start justify-between">
+                                <!-- Info Principal -->
+                                <div class="flex items-center space-x-3">
+                                    <Avatar :label="reserva.cliente.charAt(0)" class="bg-blue-500 text-white" size="normal" shape="circle" />
+                                    <div>
+                                        <h4 class="font-medium text-gray-900">{{ reserva.cliente }}</h4>
+                                        <p class="text-sm text-gray-600">{{ reserva.servicio }}</p>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <!-- Fecha/Hora -->
-                            <div class="text-right mr-4">
-                                <div class="text-sm font-medium text-gray-900">{{ formatDate(reserva.fecha) }}</div>
-                                <div class="text-xs text-gray-500">{{ reserva.hora }}</div>
-                            </div>
-
-                            <!-- Estado -->
-                            <div class="mr-4">
-                                <Tag :value="reserva.estado" :severity="getStatusSeverity(reserva.estado)" class="text-xs" />
-                            </div>
-
-                            <!-- Precio -->
-                            <div class="text-right min-w-[60px]">
-                                <div class="font-semibold text-green-600">${{ reserva.precio }}</div>
+                                <!-- Fecha y Estado -->
+                                <div class="text-right">
+                                    <div class="text-sm text-gray-900 mb-1">{{ formatDate(reserva.fecha) }} - {{ reserva.hora }}</div>
+                                    <div class="flex items-center justify-end space-x-2">
+                                        <Tag :value="reserva.estado" :severity="getStatusSeverity(reserva.estado)" class="text-xs" />
+                                        <span class="font-semibold text-green-600">${{ reserva.precio }}</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Estado vacío -->
-                    <div v-else class="text-center py-8">
-                        <i class="pi pi-calendar text-3xl text-gray-400 mb-3"></i>
+                    <div v-else class="text-center py-12">
+                        <i class="pi pi-calendar text-4xl text-gray-300 mb-4"></i>
                         <p class="text-gray-500 mb-4">No hay reservas recientes</p>
-                        <Button label="Ver Todas las Reservas" icon="pi pi-calendar" outlined size="small" @click="goToReservasList" />
+                        <Button label="Ver Reservas" icon="pi pi-calendar" outlined @click="goToReservasList" />
                     </div>
                 </template>
             </Card>
