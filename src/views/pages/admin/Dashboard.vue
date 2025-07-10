@@ -339,12 +339,21 @@ onMounted(async () => {
                                     <div class="h-3 bg-gray-300 rounded w-1/2"></div>
                                 </div>
                             </div>
-                            <div class="w-full md:w-1/3 space-y-2">
-                                <div class="h-4 bg-gray-300 rounded w-2/3"></div>
-                                <div class="h-3 bg-gray-300 rounded w-1/3"></div>
+                            <div class="w-full md:w-1/3 grid grid-cols-3 gap-4 text-sm text-gray-700">
+                                <div class="flex items-center gap-1">
+                                    <i class="pi pi-calendar text-gray-400" />
+                                    <span class="whitespace-nowrap">10/07/2025</span>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <i class="pi pi-clock text-gray-400" />
+                                    <span>4:00 PM</span>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <i class="pi pi-dollar text-gray-400" />
+                                    <span class="font-semibold text-green-600">$40</span>
+                                </div>
                             </div>
                             <div class="w-full md:w-1/3 flex justify-start md:justify-end items-center gap-3">
-                                <div class="h-4 w-12 bg-gray-300 rounded"></div>
                                 <div class="h-6 w-16 bg-gray-300 rounded-full"></div>
                             </div>
                         </div>
@@ -364,8 +373,8 @@ onMounted(async () => {
                                 </div>
                             </div>
 
-                            <!-- Fecha + Hora + Precio -->
-                            <div class="w-full md:w-1/3 text-sm text-gray-700 flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
+                            <!-- Fecha + Hora + Precio en 3 columnas -->
+                            <div class="w-full md:w-1/3 grid grid-cols-3 gap-4 text-sm text-gray-700">
                                 <div class="flex items-center gap-1">
                                     <i class="pi pi-calendar text-gray-400" />
                                     <span>{{ formatDate(reserva.fecha) }}</span>
