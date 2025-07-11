@@ -39,8 +39,6 @@ export const obtenerTrabajadoresDisponibles = async (fecha, hora, citaId = null)
         params.cita_id = citaId;
     }
 
-    console.log('Enviando a API:', params); // Para verificar
-
     const response = await apiClient.get('/trabajadores-disponibles', { params });
     return response.data.data;
 };

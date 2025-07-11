@@ -36,8 +36,8 @@ export const useTrabajadorStore = defineStore('trabajador', {
 
         async actualizarTrabajador(formData, id) {
             try {
-                await updateTrabajador(id, formData);
-                return true;
+                const response = await updateTrabajador(id, formData);
+                return response.data;
             } catch (error) {
                 if (error.response?.status === 422) {
                     throw error;
