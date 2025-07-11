@@ -36,7 +36,6 @@ export const useClienteStore = defineStore('cliente', {
 
         async actualizarCliente(formData, id) {
             try {
-                console.log('Payload recibido en store:', formData); // 👈
                 await updateCliente(id, formData);
                 return true;
             } catch (error) {

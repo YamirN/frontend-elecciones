@@ -40,7 +40,8 @@ export const useTrabajadorStore = defineStore('trabajador', {
                 return true;
             } catch (error) {
                 if (error.response?.status === 422) {
-                    throw error;
+                    this.errors = error.response.data.errors;
+                    return false;
                 }
                 console.error('Error al actualizar trabajador:', error);
                 throw new Error('Error inesperado al actualizar el trabajador');
