@@ -95,7 +95,7 @@ const openEdit = (trabajador) => {
         estado: trabajador.user.estado,
         password: '' // opcional para editar
     };
-
+    errors.value = {};
     showFormDialog.value = true;
 };
 
