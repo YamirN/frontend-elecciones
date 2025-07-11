@@ -289,8 +289,8 @@ watch(
                 <!-- TAB 1: Bienvenida -->
                 <TabPanel name="inicio" title="Inicio" value="0">
                     <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg p-8 mb-6 text-center">
-                        <h2 v-if="user" class="text-4xl font-bold mb-4">¡Bienvenido de vuelta, {{ user.nombre }}!</h2>
-                        <p class="text-xl mb-6">Tu bienestar es nuestra prioridad</p>
+                        <h2 v-if="user" class="text-4xl font-bold mb-4 text-white">¡Bienvenido de vuelta, {{ user.nombre }}!</h2>
+                        <p class="text-xl mb-6 text-white">Tu bienestar es nuestra prioridad</p>
                         <div class="flex flex-col sm:flex-row gap-4 justify-center">
                             <Button label="Reservar Ahora" icon="pi pi-calendar-plus" size="large" class="bg-white text-blue-900 hover:bg-gray-100" @click="showBookingDialog = true" />
                             <Button label="Mis Reservas" icon="pi pi-list" @click="activeIndex = '1'" />
@@ -342,52 +342,60 @@ watch(
 
                 <TabPanel value="1">
                     <div class="bg-white rounded-lg shadow p-6 mb-8">
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            <div v-for="booking in citasCliente" :key="booking.id" class="bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg transition-shadow duration-300">
-                                <div class="p-4">
-                                    <!-- Título y estado -->
-                                    <div class="flex justify-between items-start mb-3">
-                                        <h3 class="font-semibold text-gray-800">{{ booking.servicio.nombre }}</h3>
-                                        <span
-                                            class="px-3 py-1 rounded-full text-xs font-medium text-white"
-                                            :class="{
-                                                'bg-blue-500': booking.estado?.toLowerCase() === 'pendiente',
-                                                'bg-green-500': booking.estado?.toLowerCase() === 'atendida',
-                                                'bg-red-500': booking.estado?.toLowerCase() === 'cancelada' || booking.estado?.toLowerCase() === 'cliente_ausente',
-                                                'bg-gray-500': !booking.estado
-                                            }"
-                                        >
-                                            {{ booking.estado }}
-                                        </span>
-                                    </div>
-                                    <!-- Fecha, hora y trabajador -->
-                                    <div class="space-y-2 text-sm text-gray-600 mb-4">
-                                        <div class="flex items-center">
-                                            <i class="pi pi-calendar mr-2"></i>
-                                            <span>{{ formatDate(booking.fecha) }}</span>
-                                        </div>
-                                        <div class="flex items-center">
-                                            <i class="pi pi-clock mr-2"></i>
-                                            <span>{{ booking.hora }}</span>
-                                        </div>
-                                        <div class="flex items-center">
-                                            <i class="pi pi-user mr-2"></i>
-                                            <span>
-                                                {{ booking.trabajador ? booking.trabajador.nombre + ' ' + booking.trabajador.apellido : 'Sin asignar' }}
+                        <template v-if="citasCliente.length">
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                <div v-for="booking in citasCliente" :key="booking.id" class="bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg transition-shadow duration-300">
+                                    <div class="p-4">
+                                        <!-- Título y estado -->
+                                        <div class="flex justify-between items-start mb-3">
+                                            <h3 class="font-semibold text-gray-800">{{ booking.servicio.nombre }}</h3>
+                                            <span
+                                                class="px-3 py-1 rounded-full text-xs font-medium text-white"
+                                                :class="{
+                                                    'bg-blue-500': booking.estado?.toLowerCase() === 'pendiente',
+                                                    'bg-green-500': booking.estado?.toLowerCase() === 'atendida',
+                                                    'bg-red-500': booking.estado?.toLowerCase() === 'cancelada' || booking.estado?.toLowerCase() === 'cliente_ausente',
+                                                    'bg-gray-500': !booking.estado
+                                                }"
+                                            >
+                                                {{ booking.estado }}
                                             </span>
                                         </div>
-                                    </div>
-                                    <!-- Precio y acciones -->
-                                    <div class="flex justify-between items-center pt-3 border-t border-gray-200">
-                                        <span class="font-semibold text-green-600">S/. {{ booking.servicio.precio }}</span>
-                                        <!-- <div class="flex space-x-2">
-                                            <Button v-if="booking.estado === 'Confirmado'" label="Reagendar" size="small" outlined @click="rescheduleBooking(booking)" />
-                                            <Button v-if="booking.estado === 'Completado'" label="Calificar" size="small" @click="rateService(booking)" />
-                                        </div> -->
+
+                                        <!-- Fecha, hora y trabajador -->
+                                        <div class="space-y-2 text-sm text-gray-600 mb-4">
+                                            <div class="flex items-center">
+                                                <i class="pi pi-calendar mr-2"></i>
+                                                <span>{{ formatDate(booking.fecha) }}</span>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <i class="pi pi-clock mr-2"></i>
+                                                <span>{{ booking.hora }}</span>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <i class="pi pi-user mr-2"></i>
+                                                <span>
+                                                    {{ booking.trabajador ? booking.trabajador.nombre + ' ' + booking.trabajador.apellido : 'Sin asignar' }}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Precio -->
+                                        <div class="flex justify-between items-center pt-3 border-t border-gray-200">
+                                            <span class="font-semibold text-green-600">S/. {{ booking.servicio.precio }}</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </template>
+
+                        <template v-else>
+                            <div class="text-center py-10 text-gray-500">
+                                <i class="pi pi-calendar-times text-4xl mb-4"></i>
+                                <p class="text-lg font-semibold">Aún no has hecho ninguna reserva</p>
+                                <p class="text-sm">Cuando lo hagas, aparecerán aquí ✨</p>
+                            </div>
+                        </template>
                     </div>
                 </TabPanel>
             </TabPanels>
@@ -537,6 +545,9 @@ watch(
                                         <span class="font-medium">{{ slotProps.option }}</span>
                                         <i class="pi pi-check-circle text-green-500"></i>
                                     </div>
+                                </template>
+                                <template #empty>
+                                    <div class="p-2 text-gray-500 text-full text-center">No hay horarios disponibles</div>
                                 </template>
                             </Select>
                         </div>

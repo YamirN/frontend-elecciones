@@ -1,10 +1,6 @@
 <script setup>
 import { useAuthStore } from '@/stores/auth';
 import { useClienteStore } from '@/stores/clienteStore';
-import Button from 'primevue/button';
-import InputText from 'primevue/inputtext';
-import Password from 'primevue/password';
-import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -25,104 +21,22 @@ const form = ref({
     telefono: ''
 });
 
+const isFormComplete = computed(() => {
+    return Object.values(form.value).every((value) => value && value.toString().trim() !== '');
+});
+
 // Form state
 const isLoading = ref(false);
 const errors = ref({});
 
-// Computed
-const isFormValid = computed(() => {
-    return (
-        form.value.nombre &&
-        form.value.apellido &&
-        form.value.email &&
-        form.value.password &&
-        form.value.password_confirmation &&
-        form.value.dni &&
-        form.value.telefono &&
-        form.value.password === form.value.password_confirmation &&
-        Object.keys(errors.value).length === 0
-    );
-});
-
-// Validation methods
-const validateDNI = () => {
-    const dni = form.value.dni;
-    if (dni && !/^\d{8}$/.test(dni)) {
-        errors.value.dni = 'El DNI debe tener 8 dígitos';
-    } else {
-        delete errors.value.dni;
-    }
-};
-
-const validatePhone = () => {
-    const phone = form.value.telefono;
-    if (phone && !/^\d{9}$/.test(phone)) {
-        errors.value.telefono = 'El teléfono debe tener 9 dígitos';
-    } else {
-        delete errors.value.telefono;
-    }
-};
-
-const validateForm = () => {
-    errors.value = {};
-
-    // Validar campos requeridos
-    if (!form.value.nombre) errors.value.nombre = 'El nombre es requerido';
-    if (!form.value.apellido) errors.value.apellido = 'El apellido es requerido';
-    if (!form.value.email) errors.value.email = 'El email es requerido';
-    if (!form.value.password) errors.value.password = 'La contraseña es requerida';
-    if (!form.value.password_confirmation) errors.value.password_confirmation = 'Confirma tu contraseña';
-    if (!form.value.dni) errors.value.dni = 'El DNI es requerido';
-    if (!form.value.telefono) errors.value.telefono = 'El teléfono es requerido';
-
-    // Validar email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (form.value.email && !emailRegex.test(form.value.email)) {
-        errors.value.email = 'Ingresa un email válido';
-    }
-
-    // Validar contraseñas
-    if (form.value.password && form.value.password.length < 6) {
-        errors.value.password = 'La contraseña debe tener al menos 6 caracteres';
-    }
-
-    if (form.value.password !== form.value.password_confirmation) {
-        errors.value.password_confirmation = 'Las contraseñas no coinciden';
-    }
-
-    // Validar DNI
-    if (form.value.dni && !/^\d{8}$/.test(form.value.dni)) {
-        errors.value.dni = 'El DNI debe tener 8 dígitos';
-    }
-
-    // Validar teléfono
-    if (form.value.telefono && !/^\d{9}$/.test(form.value.telefono)) {
-        errors.value.telefono = 'El teléfono debe tener 9 dígitos';
-    }
-
-    return Object.keys(errors.value).length === 0;
-};
-
 // Submit handler
 const handleSubmit = async () => {
     errors.value = {};
-
-    if (!validateForm()) {
-        toast.add({
-            severity: 'warn',
-            summary: 'Formulario incompleto',
-            detail: 'Por favor corrige los errores en el formulario',
-            life: 3000
-        });
-        return;
-    }
-
     isLoading.value = true;
 
     const success = await clienteStore.registerCliente(form.value);
 
     if (success) {
-        // 👇 Login automático
         const loginSuccess = await authStore.handleLogin(form.value.email, form.value.password);
 
         if (loginSuccess) {
@@ -133,7 +47,7 @@ const handleSubmit = async () => {
                 life: 3000
             });
 
-            router.push({ name: 'clienteDashboard' }); // 👈 redirige al dashboard del cliente
+            router.push({ name: 'clienteDashboard' });
         } else {
             toast.add({
                 severity: 'error',
@@ -145,7 +59,6 @@ const handleSubmit = async () => {
             router.push({ name: 'login' });
         }
     } else {
-        // Mostrar errores de validación
         errors.value = clienteStore.errors;
 
         toast.add({
@@ -191,7 +104,7 @@ const handleSubmit = async () => {
                                     root: { class: 'border-2 border-gray-200 hover:border-blue-400 focus:border-blue-500 transition-colors rounded-lg' }
                                 }"
                             />
-                            <small v-if="errors.nombre" class="text-red-500 mt-1 block">{{ errors.nombre }}</small>
+                            <small v-if="errors.nombre" class="text-red-500 mt-1 block">{{ errors.nombre[0] }}</small>
                         </div>
 
                         <div>
@@ -208,7 +121,7 @@ const handleSubmit = async () => {
                                     root: { class: 'border-2 border-gray-200 hover:border-blue-400 focus:border-blue-500 transition-colors rounded-lg' }
                                 }"
                             />
-                            <small v-if="errors.apellido" class="text-red-500 mt-1 block">{{ errors.apellido }}</small>
+                            <small v-if="errors.apellido" class="text-red-500 mt-1 block">{{ errors.apellido[0] }}</small>
                         </div>
                     </div>
 
@@ -228,7 +141,7 @@ const handleSubmit = async () => {
                                 root: { class: 'border-2 border-gray-200 hover:border-blue-400 focus:border-blue-500 transition-colors rounded-lg' }
                             }"
                         />
-                        <small v-if="errors.email" class="text-red-500 mt-1 block">{{ errors.email }}</small>
+                        <small v-if="errors.email" class="text-red-500 mt-1 block">{{ errors.email[0] }}</small>
                     </div>
 
                     <!-- DNI y Teléfono -->
@@ -247,9 +160,8 @@ const handleSubmit = async () => {
                                 :pt="{
                                     root: { class: 'border-2 border-gray-200 hover:border-blue-400 focus:border-blue-500 transition-colors rounded-lg' }
                                 }"
-                                @input="validateDNI"
                             />
-                            <small v-if="errors.dni" class="text-red-500 mt-1 block">{{ errors.dni }}</small>
+                            <small v-if="errors.dni" class="text-red-500 mt-1 block">{{ errors.dni[0] }}</small>
                         </div>
 
                         <div>
@@ -266,9 +178,8 @@ const handleSubmit = async () => {
                                 :pt="{
                                     root: { class: 'border-2 border-gray-200 hover:border-blue-400 focus:border-blue-500 transition-colors rounded-lg' }
                                 }"
-                                @input="validatePhone"
                             />
-                            <small v-if="errors.telefono" class="text-red-500 mt-1 block">{{ errors.telefono }}</small>
+                            <small v-if="errors.telefono" class="text-red-500 mt-1 block">{{ errors.telefono[0] }}</small>
                         </div>
                     </div>
 
@@ -279,21 +190,19 @@ const handleSubmit = async () => {
                                 <i class="pi pi-lock mr-2 text-blue-500"></i>
                                 Contraseña
                             </label>
-                            <div class="relative">
-                                <Password
-                                    v-model="form.password"
-                                    placeholder="Crea una contraseña segura"
-                                    :feedback="true"
-                                    toggleMask
-                                    class="w-full"
-                                    :class="{ 'p-invalid': errors.password }"
-                                    :pt="{
-                                        root: { class: 'w-full' },
-                                        input: { class: 'w-full border-2 border-gray-200 hover:border-blue-400 focus:border-blue-500 transition-colors rounded-lg' }
-                                    }"
-                                />
-                            </div>
-                            <small v-if="errors.password" class="text-red-500 mt-1 block">{{ errors.password }}</small>
+                            <Password
+                                v-model="form.password"
+                                placeholder="Crea una contraseña segura"
+                                :feedback="true"
+                                toggleMask
+                                class="w-full"
+                                :class="{ 'p-invalid': errors.password }"
+                                :pt="{
+                                    root: { class: 'w-full' },
+                                    input: { class: 'w-full border-2 border-gray-200 hover:border-blue-400 focus:border-blue-500 transition-colors rounded-lg' }
+                                }"
+                            />
+                            <small v-if="errors.password" class="text-red-500 mt-1 block">{{ errors.password[0] }}</small>
                         </div>
 
                         <div>
@@ -301,21 +210,19 @@ const handleSubmit = async () => {
                                 <i class="pi pi-lock mr-2 text-blue-500"></i>
                                 Confirmar Contraseña
                             </label>
-                            <div class="relative">
-                                <Password
-                                    v-model="form.password_confirmation"
-                                    placeholder="Repite tu contraseña"
-                                    :feedback="false"
-                                    toggleMask
-                                    class="w-full"
-                                    :class="{ 'p-invalid': errors.password_confirmation }"
-                                    :pt="{
-                                        root: { class: 'w-full' },
-                                        input: { class: 'w-full border-2 border-gray-200 hover:border-blue-400 focus:border-blue-500 transition-colors rounded-lg' }
-                                    }"
-                                />
-                            </div>
-                            <small v-if="errors.password_confirmation" class="text-red-500 block">{{ errors.password_confirmation }}</small>
+                            <Password
+                                v-model="form.password_confirmation"
+                                placeholder="Repite tu contraseña"
+                                :feedback="false"
+                                toggleMask
+                                class="w-full"
+                                :class="{ 'p-invalid': errors.password_confirmation }"
+                                :pt="{
+                                    root: { class: 'w-full' },
+                                    input: { class: 'w-full border-2 border-gray-200 hover:border-blue-400 focus:border-blue-500 transition-colors rounded-lg' }
+                                }"
+                            />
+                            <small v-if="errors.password_confirmation" class="text-red-500 mt-1 block">{{ errors.password_confirmation[0] }}</small>
                         </div>
                     </div>
 
@@ -323,10 +230,10 @@ const handleSubmit = async () => {
                     <Button
                         type="submit"
                         :loading="isLoading"
-                        :disabled="!isFormValid"
+                        :disabled="!isFormComplete || isLoading"
                         class="w-full py-4 text-lg font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                         :style="{
-                            background: isFormValid ? 'linear-gradient(to right, #3b82f6, #8b5cf6)' : '#9ca3af',
+                            background: isFormComplete ? 'linear-gradient(to right, #3b82f6, #8b5cf6)' : '#9ca3af',
                             color: 'white',
                             border: 'none',
                             minHeight: '56px'

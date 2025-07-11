@@ -25,5 +25,7 @@ export const deleteServicio = async (id) => {
 };
 
 export const obtenerHorasDisponibles = async (data) => {
-    return await apiClient.post('/citas/horas-disponibles', data);
+    return await apiClient.get('/citas/horas-disponibles', {
+        params: data
+    });
 };

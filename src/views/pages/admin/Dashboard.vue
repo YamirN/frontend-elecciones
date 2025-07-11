@@ -2,14 +2,15 @@
 import { useDashboardStore } from '@/stores/dashboardStore';
 import { computed, onMounted, ref } from 'vue';
 
-import router from '@/router';
 import Avatar from 'primevue/avatar';
 import Button from 'primevue/button';
 import Card from 'primevue/card';
 import Chart from 'primevue/chart';
+import { useRouter } from 'vue-router';
 
 const dashboardStore = useDashboardStore();
 const dashboardData = computed(() => dashboardStore.dashboardData);
+const router = useRouter();
 
 const loadingReservations = ref(false);
 
@@ -86,7 +87,7 @@ const formatDate = (date) => {
 };
 
 const goToReservasList = () => {
-    router.push({ path: '/admin/citas' });
+    router.push('/admin/citas');
 };
 </script>
 
@@ -101,7 +102,7 @@ const goToReservasList = () => {
                     <template #content>
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-blue-500 text-sm font-medium">Servicios Vendidos</p>
+                                <p class="text-blue-500 text-sm font-medium">Servicios Atendidos</p>
                                 <p class="text-3xl font-bold">
                                     {{ dashboardData.kpis_totales.totalServiciosVendidos ?? 0 }}
                                 </p>

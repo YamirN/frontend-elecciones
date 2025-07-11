@@ -74,7 +74,7 @@ const abrirDialogoAsignar = async (cita) => {
     trabajadorSeleccionado.value = null;
 
     try {
-        await citaStore.cargarTrabajadoresDisponibles(cita.fecha, cita.hora, cita.id);
+        await citaStore.cargarTrabajadoresDisponibles(cita.fecha, cita.hora, cita.id, cita.servicio.id);
     } catch (error) {
         console.error('Error al cargar trabajadores:', error);
     }

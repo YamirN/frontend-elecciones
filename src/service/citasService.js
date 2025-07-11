@@ -27,12 +27,13 @@ export const asignarTrabajador = async (citaId, trabajadorId) => {
     return response.data;
 };
 
-export const obtenerTrabajadoresDisponibles = async (fecha, hora, citaId = null) => {
-    const fechaFormateada = formatFechaBackend(fecha); // <-- formato "2025-07-10"
+export const obtenerTrabajadoresDisponibles = async (fecha, hora, citaId = null, servicioId) => {
+    const fechaFormateada = formatFechaBackend(fecha); // formato "2025-07-10"
 
     const params = {
         fecha: fechaFormateada,
-        hora
+        hora,
+        servicio_id: servicioId // <-- ¡aquí!
     };
 
     if (citaId) {

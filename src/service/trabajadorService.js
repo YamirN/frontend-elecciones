@@ -5,7 +5,7 @@ export const indexTrabajador = async () => {
 };
 
 export const storeTrabajador = async (data) => {
-    return await apiClient.post('/trabajadores', data, {
+    return await apiClient.post('/trabajadores/register', data, {
         headers: {
             'Content-Type': 'multipart/form-data'
         }
