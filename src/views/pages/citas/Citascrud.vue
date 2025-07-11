@@ -155,7 +155,14 @@ onMounted(async () => {
             <!-- Toolbar -->
 
             <!-- Tabla de citas -->
-            <DataTable :value="loadingCitas ? skeletonRows : citas" :paginator="true" :rows="10" :filters="filters" :globalFilterFields="['servicio.nombre', 'estado', 'cliente.nombre', 'cliente.apellido']" tableStyle="min-width: 40rem">
+            <DataTable
+                :value="loadingCitas ? skeletonRows : citas"
+                :paginator="true"
+                :rows="10"
+                :filters="filters"
+                :globalFilterFields="['servicio.nombre', 'estado', 'cliente.nombre', 'cliente.apellido', 'fecha', 'trabajador.nombre', 'trabajador.apellido']"
+                tableStyle="min-width: 40rem"
+            >
                 <template #header>
                     <div class="flex flex-wrap gap-2 items-center justify-between">
                         <h4 class="m-0">Administrar Citas</h4>
@@ -195,7 +202,7 @@ onMounted(async () => {
                 </Column>
 
                 <Column header="Duración">
-                    <template #body="slotProps"> {{ formatDuration(slotProps.data.servicio?.duracion) }} min </template>
+                    <template #body="slotProps"> {{ formatDuration(slotProps.data.servicio?.duracion) }} </template>
                 </Column>
 
                 <Column header="Cliente">
@@ -313,10 +320,10 @@ onMounted(async () => {
         <Dialog v-model:visible="showEstadoDialog" modal header="Cambiar Estado" :style="{ width: '400px' }">
             <div class="space-y-4 p-2">
                 <!-- Estado actual -->
-                <div v-if="reservaSeleccionada?.estado" class="p-3 bg-gray-50 rounded border">
+                <div v-if="citaSeleccionada?.estado" class="p-3 bg-gray-50 rounded border">
                     <div class="flex items-center justify-between">
                         <span class="text-sm font-medium text-gray-700">Estado actual:</span>
-                        <Tag :value="reservaSeleccionada.estado" :severity="getStatusSeverity(reservaSeleccionada.estado)" />
+                        <Tag :value="citaSeleccionada.estado" :severity="getStatusSeverity(citaSeleccionada.estado)" />
                     </div>
                 </div>
 

@@ -15,6 +15,21 @@ const toggleMenu = () => {
     isMenuOpen.value = !isMenuOpen.value;
 };
 
+const goToPerfil = () => {
+    if (!user.value?.rol) return;
+
+    switch (user.value.rol) {
+        case 'administrador':
+            router.push('/admin/perfil');
+            break;
+        case 'trabajador':
+            router.push('/trabajador/perfil');
+            break;
+        default:
+            router.push('/');
+    }
+};
+
 const logout = async () => {
     await authStore.handleLogout();
     authStore.$reset();
@@ -55,8 +70,7 @@ const logout = async () => {
                                 <!-- Aumenté el ancho del menú a w-64 y los bordes a rounded-lg -->
                                 <div class="py-2" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
                                     <!-- Opción de Configurar perfil -->
-                                    <a href="#" class="block px-4 py-2 text-lg text-gray-700 hover:bg-gray-100" role="menuitem">
-                                        <!-- Aumenté padding y tamaño de texto -->
+                                    <a @click.prevent="goToPerfil" href="#" class="block px-4 py-2 text-lg text-gray-700 hover:bg-gray-100" role="menuitem">
                                         <span class="pi pi-cog mr-2"></span>
                                         Configurar perfil
                                     </a>

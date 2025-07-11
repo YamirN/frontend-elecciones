@@ -7,7 +7,6 @@ import { isToday } from 'date-fns';
 import { storeToRefs } from 'pinia';
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
-import Tag from 'primevue/tag';
 import { useToast } from 'primevue/usetoast';
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
@@ -51,6 +50,9 @@ const filteredHours = computed(() => {
         return minutosHora > ahora;
     });
 });
+
+const aceptaTerminos = ref(false);
+const showTerminosDialog = ref(false);
 
 const parseFecha = (fechaStr, horaStr) => {
     const [dia, mes, anio] = fechaStr.split('-');
@@ -340,17 +342,23 @@ watch(
 
                 <TabPanel value="1">
                     <div class="bg-white rounded-lg shadow p-6 mb-8">
-                        <div class="flex justify-between items-center mb-8">
-                            <h2 class="text-3xl font-bold text-gray-800">Mis Reservas</h2>
-                            <Button label="Ver Todas" outlined @click="goToMyBookings" />
-                        </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             <div v-for="booking in citasCliente" :key="booking.id" class="bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg transition-shadow duration-300">
                                 <div class="p-4">
                                     <!-- Título y estado -->
                                     <div class="flex justify-between items-start mb-3">
                                         <h3 class="font-semibold text-gray-800">{{ booking.servicio.nombre }}</h3>
-                                        <Tag :value="booking.estado" :severity="getStatusSeverity(booking.estado)" class="text-xs" />
+                                        <span
+                                            class="px-3 py-1 rounded-full text-xs font-medium text-white"
+                                            :class="{
+                                                'bg-blue-500': booking.estado?.toLowerCase() === 'pendiente',
+                                                'bg-green-500': booking.estado?.toLowerCase() === 'atendida',
+                                                'bg-red-500': booking.estado?.toLowerCase() === 'cancelada' || booking.estado?.toLowerCase() === 'cliente_ausente',
+                                                'bg-gray-500': !booking.estado
+                                            }"
+                                        >
+                                            {{ booking.estado }}
+                                        </span>
                                     </div>
                                     <!-- Fecha, hora y trabajador -->
                                     <div class="space-y-2 text-sm text-gray-600 mb-4">
@@ -567,6 +575,18 @@ watch(
                 </div>
             </div>
 
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded mb-4">
+                <p class="text-sm text-yellow-700">
+                    Antes de confirmar tu reserva, debes aceptar nuestros
+                    <button @click="showTerminosDialog = true" class="text-blue-600 underline hover:text-blue-800 font-semibold">Términos y Condiciones</button>, los cuales incluyen una política de no cancelación ni reembolso.
+                </p>
+            </div>
+
+            <div class="flex items-center space-x-2 mb-4">
+                <Checkbox v-model:checked="aceptaTerminos" binary inputId="terminos" />
+                <label for="terminos" class="text-sm text-gray-700">Acepto los términos y condiciones</label>
+            </div>
+
             <template #footer>
                 <div class="flex justify-between items-center">
                     <Button label="Cancelar" text class="text-gray-500 hover:text-gray-700" @click="showBookingDialog = false">
@@ -576,8 +596,8 @@ watch(
                     </Button>
 
                     <Button
-                        :label="isFormComplete ? '✨ Confirmar mi Reserva' : 'Completa los datos'"
-                        :disabled="!isFormComplete"
+                        :label="isFormComplete && aceptaTerminos ? '✨ Confirmar mi Reserva' : 'Completa los datos y acepta los términos'"
+                        :disabled="!isFormComplete || !aceptaTerminos"
                         class="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-semibold px-6 py-2 rounded-lg transition-all duration-200 transform hover:scale-105"
                         @click="confirmBooking"
                     >
@@ -587,6 +607,17 @@ watch(
                     </Button>
                 </div>
             </template>
+        </Dialog>
+
+        <Dialog v-model:visible="showTerminosDialog" modal header="Términos y Condiciones" :style="{ width: '700px' }">
+            <div class="space-y-4 text-gray-700 text-sm leading-relaxed max-h-[400px] overflow-y-auto">
+                <p><strong>1. Confirmación de Citas:</strong> Una vez confirmada, no podrás modificar, reprogramar ni cancelar tu reserva.</p>
+                <p><strong>2. Política de Reembolso:</strong> Todas las reservas son finales. No se aceptan reembolsos, salvo por causas imputables al spa.</p>
+                <p><strong>3. Puntualidad:</strong> Se recomienda llegar con al menos 10 minutos de anticipación.</p>
+                <p><strong>4. Modificaciones por el Spa:</strong> En casos excepcionales, DejavuSpa se reserva el derecho de reprogramar citas por razones operativas.</p>
+                <p><strong>5. Contacto:</strong> Para consultas puedes escribirnos al WhatsApp o correo indicado en la sección de contacto.</p>
+                <p class="italic text-blue-600">Gracias por elegir DejavuSpa. Tu bienestar es nuestra prioridad.</p>
+            </div>
         </Dialog>
     </div>
 </template>

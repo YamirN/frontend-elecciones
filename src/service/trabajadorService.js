@@ -23,3 +23,7 @@ export const updateTrabajador = async (id, data) => {
 export const deleteTrabajador = async (id) => {
     return await apiClient.delete(`/trabajadores/${id}`);
 };
+
+export const updatePerfil = async (datos) => {
+    return apiClient.patch('/trabajador/perfil', datos);
+};

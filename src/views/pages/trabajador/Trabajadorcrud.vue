@@ -51,8 +51,7 @@ const initialValues = ref({
     descripcion: '',
     telefono: '',
     horario_inicio: '',
-    hora_fin: '',
-    foto: null
+    hora_fin: ''
 });
 
 // 🧼 Reset del formulario
@@ -66,7 +65,7 @@ const resetForm = () => {
         telefono: '',
         horario_inicio: '',
         hora_fin: '',
-        foto: null
+        estado: 'activo'
     };
     errors.value = {};
 };
@@ -93,7 +92,7 @@ const openEdit = (trabajador) => {
         telefono: trabajador.telefono,
         horario_inicio: timeStringToDate(trabajador.horario_inicio),
         hora_fin: timeStringToDate(trabajador.hora_fin),
-        foto: null,
+        estado: trabajador.user.estado,
         password: '' // opcional para editar
     };
 
@@ -103,6 +102,10 @@ const openEdit = (trabajador) => {
 // 📤 Guardar (crear o actualizar)
 const onFormSubmit = async () => {
     const formData = new FormData();
+
+    if (initialValues.value.horario_inicio) {
+        formData.append('horario_inicio', formatTimeHHMM(initialValues.value.horario_inicio));
+    }
 
     formData.append('horario_inicio', formatTimeHHMM(initialValues.value.horario_inicio));
     formData.append('hora_fin', formatTimeHHMM(initialValues.value.hora_fin));
@@ -195,6 +198,12 @@ onMounted(async () => {
                     </template>
                 </Column>
 
+                <Column field="estado" header="Estado">
+                    <template #body="{ data }">
+                        <Tag :value="data.user.estado" :severity="data.user.estado === 'activo' ? 'success' : 'danger'" />
+                    </template>
+                </Column>
+
                 <Column header="Acciones" style="min-width: 12rem">
                     <template #body="slotProps">
                         <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="openEdit(slotProps.data)" />
@@ -265,6 +274,15 @@ onMounted(async () => {
                     <InputLabel for="hora_fin" value="Horario de fin" />
                     <Calendar v-model="initialValues.hora_fin" timeOnly hourFormat="24" placeholder="Fin (HH:MM)" showIcon iconDisplay="input" class="w-full" />
                     <InputError class="mt-2" :message="errors.hora_fin?.join(', ')" />
+                </div>
+
+                <div v-if="isEditMode">
+                    <InputLabel for="estado" value="Estado" />
+                    <select id="estado" v-model="initialValues.estado" class="w-full p-2 border rounded">
+                        <option value="activo">Activo</option>
+                        <option value="inactivo">Inactivo</option>
+                    </select>
+                    <InputError class="mt-2" :message="errors.estado?.join(', ')" />
                 </div>
 
                 <!-- Botones -->

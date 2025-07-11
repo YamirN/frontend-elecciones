@@ -4,7 +4,7 @@ import InputLabel from '@/components/InputLabel.vue';
 import { useClienteStore } from '@/stores/clienteStore';
 import { storeToRefs } from 'pinia';
 import { useToast } from 'primevue/usetoast';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 
 // States y Stores
 
@@ -23,8 +23,8 @@ const initialValues = ref({
     nombre: '',
     apellido: '',
     email: '',
-    dni: '',
     estado: 'activo',
+    dni: '',
     telefono: ''
 });
 
@@ -38,7 +38,7 @@ const openEdit = (cliente) => {
         nombre: cliente.user?.nombre || '',
         apellido: cliente.user?.apellido || '',
         email: cliente.user?.email || '',
-        estado: cliente.user?.estado || 'activo',
+        estado: cliente.user.estado,
         dni: cliente.dni,
         telefono: cliente.telefono
     };
@@ -49,6 +49,12 @@ const openEdit = (cliente) => {
 // 📤 Guardar (crear o actualizar)
 const onFormSubmit = async () => {
     const payload = { ...initialValues.value };
+    console.log('Payload enviado:', payload);
+
+    if (!isEditMode.value) {
+        // No enviar estado si es creación
+        delete payload.estado;
+    }
 
     const exito = isEditMode.value ? await clienteStore.actualizarCliente(payload, selectedCliente.value.id) : await clienteStore.crearCliente(payload);
 
@@ -87,6 +93,13 @@ const deleteCliente = async () => {
 onMounted(async () => {
     await clienteStore.ListaCliente();
 });
+
+watch(
+    () => initialValues.value.estado,
+    (nuevo) => {
+        console.log('Estado cambiado a:', nuevo);
+    }
+);
 </script>
 
 <template>

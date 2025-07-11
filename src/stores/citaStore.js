@@ -1,4 +1,4 @@
-import { asignarTrabajador, cambiarEstadoCita, crearCitaTemporal, indexCita, listarCitasPorCliente, obtenerTrabajadoresDisponibles } from '@/service/citasService';
+import { asignarTrabajador, cambiarEstadoCita, crearCitaTemporal, historialCitasAtendidas, indexCita, listarCitasPorCliente, obtenerTrabajadoresDisponibles, resumenDelDia } from '@/service/citasService';
 import { obtenerHorasDisponibles } from '@/service/servicioService';
 import { defineStore } from 'pinia';
 
@@ -9,6 +9,16 @@ export const useCitaStore = defineStore('cita', {
         availableHours: [],
         trabajadoresDisponibles: [],
         availableTrabajadores: [],
+        resumenHoy: {
+            estadisticas: {
+                atendidas_hoy: {},
+                pendientes_hoy: {},
+                total_hoy: {}
+            },
+            proximas_citas: []
+        },
+        historialCitas: [],
+        historialMeta: {},
         loadingTrabajadores: false,
         citaTemporal: null,
         error: null,
@@ -96,6 +106,31 @@ export const useCitaStore = defineStore('cita', {
             } catch (error) {
                 console.error('Error al cambiar estado de la cita:', error);
                 throw error; // propagar para que lo manejes en el componente
+            }
+        },
+        async fetchResumenDelDia() {
+            this.loading = true;
+            try {
+                const data = await resumenDelDia();
+                this.resumenHoy = data;
+            } catch (error) {
+                console.error('Error al cargar resumen del día:', error);
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async fetchHistorialCitas(page = 1, perPage = 5) {
+            this.loading = true;
+            try {
+                const response = await historialCitasAtendidas({ page, per_page: perPage });
+                this.historialCitas = response.data;
+                this.historialMeta = response.meta;
+                this.historialLinks = response.links;
+            } catch (error) {
+                console.error('Error al cargar historial de citas:', error);
+            } finally {
+                this.loading = false;
             }
         }
     }

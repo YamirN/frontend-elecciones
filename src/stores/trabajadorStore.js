@@ -1,4 +1,4 @@
-import { deleteTrabajador, indexTrabajador, storeTrabajador, updateTrabajador } from '@/service/trabajadorService';
+import { deleteTrabajador, indexTrabajador, storeTrabajador, updatePerfil, updateTrabajador } from '@/service/trabajadorService';
 import { defineStore } from 'pinia';
 
 export const useTrabajadorStore = defineStore('trabajador', {
@@ -22,8 +22,8 @@ export const useTrabajadorStore = defineStore('trabajador', {
         async crearTrabajador(formData) {
             this.errors = {};
             try {
-                await storeTrabajador(formData);
-                return true;
+                const response = await storeTrabajador(formData);
+                return response.data;
             } catch (error) {
                 if (error.response?.status === 422) {
                     this.errors = error.response.data.errors;
@@ -54,6 +54,26 @@ export const useTrabajadorStore = defineStore('trabajador', {
             } catch (error) {
                 console.error('Error al eliminar trabajador:', error);
                 return false;
+            }
+        },
+        async actualizarPerfil(datos) {
+            this.loading = true;
+            this.error = null;
+            try {
+                const response = await updatePerfil(datos);
+                this.trabajadores = response.data.data.user; // actualiza el usuario en el estado
+                return {
+                    success: true,
+                    message: response.data.message
+                };
+            } catch (err) {
+                this.error = err.response?.data?.message || 'Error al actualizar perfil';
+                return {
+                    success: false,
+                    message: this.error
+                };
+            } finally {
+                this.loading = false;
             }
         }
     }

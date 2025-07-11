@@ -59,6 +59,11 @@ const routes = [
                 path: 'citas',
                 name: 'citas',
                 component: () => import('@/views/pages/citas/Citascrud.vue')
+            },
+            {
+                path: 'perfil',
+                name: 'perfilAdministrador',
+                component: () => import('@/views/pages/admin/Perfil.vue')
             }
         ]
     },
@@ -71,6 +76,33 @@ const routes = [
                 path: 'home',
                 name: 'clienteDashboard',
                 component: () => import('@/views/pages/cliente/HomeCliente.vue')
+            },
+            {
+                path: 'perfil',
+                name: 'perfilCliente',
+                component: () => import('@/views/pages/cliente/Profile.vue')
+            }
+        ]
+    },
+    {
+        path: '/trabajador',
+        component: () => import('@/layout/AppLayout.vue'),
+        meta: { requiresAuth: true, roles: ['trabajador'] },
+        children: [
+            {
+                path: 'dashboard',
+                name: 'trabajadorDashboard',
+                component: () => import('@/views/pages/trabajador/Dashboard.vue')
+            },
+            {
+                path: 'perfil',
+                name: 'perfilTrabajador',
+                component: () => import('@/views/pages/trabajador/Perfil.vue')
+            },
+            {
+                path: 'citas',
+                name: 'citasTrabajador',
+                component: () => import('@/views/pages/trabajador/Citas.vue')
             }
         ]
     }

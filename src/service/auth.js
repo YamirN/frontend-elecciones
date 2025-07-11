@@ -15,3 +15,7 @@ export const me = async () => {
 export const refreshToken = async () => {
     return await apiClient.post('/refresh'); // Asume que devuelve { token: '...' }
 };
+
+export const updatePerfil = async (datos) => {
+    return apiClient.patch('/usuario/perfil', datos);
+};

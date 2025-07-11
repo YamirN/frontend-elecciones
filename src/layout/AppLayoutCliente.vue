@@ -15,7 +15,7 @@ const items = [
     {
         label: 'Mi Perfil',
         icon: 'pi pi-user',
-        command: () => router.push({ name: 'perfil' }) // ajusta según tu ruta
+        command: () => router.push({ name: 'perfilCliente' }) // ajusta según tu ruta
     },
 
     {
@@ -58,7 +58,7 @@ const toggleMenu = (event) => {
                     <!-- Usuario -->
                     <div class="flex items-center space-x-4">
                         <!-- Dropdown -->
-                        <div class="flex items-center space-x-4">
+                        <div v-if="user" class="flex items-center space-x-4">
                             <div class="flex items-center space-x-3 bg-gray-50 rounded-full px-4 py-2 hover:bg-gray-100 transition-colors duration-200">
                                 <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
                                     {{ user.nombre.charAt(0).toUpperCase() }}

@@ -50,3 +50,13 @@ export function cambiarEstadoCita(citaId, estado) {
         estado: estado
     });
 }
+
+export const resumenDelDia = async () => {
+    const response = await apiClient.get('/resumen');
+    return response.data;
+};
+
+export const historialCitasAtendidas = async (params = {}) => {
+    const response = await apiClient.get('/historial', { params });
+    return response.data;
+};

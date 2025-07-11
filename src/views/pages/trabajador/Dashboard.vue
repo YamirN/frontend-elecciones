@@ -1,200 +1,532 @@
 <script setup>
-import { useLayout } from '@/layout/composables/layout';
-import { ref } from 'vue';
-const { getPrimary, getSurface, isDarkTheme } = useLayout();
-const chartOptions = ref(null);
-const totalVotantes = ref(0);
-const votantesQueVotaron = ref(0);
-const votantesPendientes = ref(0);
-// const resultados = ref({});
-// const estadisticas = ref({});
-// const chartData = ref({});
+import { useAuthStore } from '@/stores/auth';
+import { useCitaStore } from '@/stores/citaStore';
+import { storeToRefs } from 'pinia';
+import { onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 
-// const estats = [
-//     {
-//         titulo: 'Número total de votantes',
-//         valor: totalVotantes,
-//         icono: 'pi pi-users',
-//         bg: 'bg-blue-100 dark:bg-blue-400/10',
-//         color: '#3B82F6'
-//     },
-//     {
-//         titulo: 'Votos emitidos',
-//         valor: votantesQueVotaron,
-//         icono: 'pi pi-check-circle',
-//         bg: 'bg-green-100 dark:bg-green-400/10',
-//         color: '#10B981'
-//     },
-//     {
-//         titulo: 'Faltan votar',
-//         valor: votantesPendientes,
-//         icono: 'pi pi-user-minus',
-//         bg: 'bg-red-100 dark:bg-red-400/10',
-//         color: '#EF4444'
-//     }
-// ];
+// Composables
+const router = useRouter();
+const authStore = useAuthStore();
+const citaStore = useCitaStore();
 
-// const fetchResultados = async () => {
-//     try {
-//         const data = await obtenerResultados(); // Llama a la API
-//         resultados.value = data.resultados; // Asigna solo los resultados de los candidatos
-//         totalVotantes.value = data.estadisticas.totalVotantes;
-//         votantesQueVotaron.value = data.estadisticas.votantesQueVotaron;
-//         votantesPendientes.value = data.estadisticas.votantesPendientes; // Asigna solo las estadísticas de votantes
-//         setChartData(data.resultados);
-//     } catch (error) {
-//         console.error('Error al actualizar los resultados:', error);
-//     }
-// };
+const { resumenHoy } = storeToRefs(citaStore);
+const { user } = storeToRefs(authStore);
 
-// const setChartData = (resultados) => {
-//     const documentStyle = getComputedStyle(document.documentElement);
+// Métodos
+const getGreetingMessage = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Que tengas un excelente día de trabajo';
+    if (hour < 18) return 'Esperamos que tu tarde sea productiva';
+    if (hour < 23) return 'Que tengas una buena noche de descanso';
+};
 
-//     if (!resultados || typeof resultados !== 'object' || Object.keys(resultados).length === 0) {
-//         console.warn('No se encontraron resultados válidos.');
-//         chartData.value = {
-//             labels: [],
-//             datasets: [
-//                 {
-//                     type: 'bar',
-//                     label: 'Votos',
-//                     backgroundColor: documentStyle.getPropertyValue('--p-primary-500'),
-//                     data: [],
-//                     barThickness: 32
-//                 }
-//             ]
-//         };
-//         return;
-//     }
+const formatDate = (date) => {
+    return new Intl.DateTimeFormat('es-ES', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    }).format(date);
+};
 
-//     // Mapea los datos de la respuesta
-//     const candidateFullNames = Object.values(resultados).map((c) => c.nombre || 'Nombre no disponible');
-//     const cantidadVotos = Object.values(resultados).map((c) => c.votos || 0);
+const formatTime = (hora) => {
+    return hora?.slice(0, 5) || '—';
+};
 
-//     chartData.value = {
-//         labels: candidateFullNames,
-//         datasets: [
-//             {
-//                 type: 'bar',
-//                 label: 'Votos',
-//                 backgroundColor: documentStyle.getPropertyValue('--p-primary-500'),
-//                 data: cantidadVotos,
-//                 barThickness: 32
-//             }
-//         ]
-//     };
-// };
+const getStatusSeverity = (status) => {
+    const severities = {
+        pendiente: 'warning',
+        atendida: 'success',
+        ausente: 'danger'
+    };
+    return severities[status] || 'info';
+};
 
-// function setChartOptions() {
-//     const documentStyle = getComputedStyle(document.documentElement);
-//     const borderColor = documentStyle.getPropertyValue('--surface-border');
-//     const textMutedColor = documentStyle.getPropertyValue('--text-color-secondary');
+const goToAllAppointments = () => {
+    router.push('/trabajador/citas');
+};
 
-//     return {
-//         maintainAspectRatio: false,
-//         aspectRatio: 0.8,
-//         scales: {
-//             x: {
-//                 stacked: true,
-//                 ticks: {
-//                     color: textMutedColor
-//                 },
-//                 grid: {
-//                     color: 'transparent',
-//                     borderColor: 'transparent'
-//                 }
-//             },
-//             y: {
-//                 stacked: true,
-//                 ticks: {
-//                     color: textMutedColor
-//                 },
-//                 grid: {
-//                     color: borderColor,
-//                     borderColor: 'transparent',
-//                     drawTicks: false
-//                 }
-//             }
-//         }
-//     };
-// }
-
-// const getImageUrl = (foto) => {
-//     if (!foto) {
-//         return '/path/to/default/image.png';
-//     }
-//     return `${import.meta.env.VITE_APP_API_URL}/storage/${foto}`;
-// };
-
-// onMounted(() => {
-//     echo.channel('votos').listen('NuevoVoto', (event) => {
-//         setChartData(event.resultados.resultados);
-//         resultados.value = event.resultados.resultados;
-
-//         totalVotantes.value = event.resultados.estadisticas.totalVotantes;
-//         votantesQueVotaron.value = event.resultados.estadisticas.votantesQueVotaron;
-//         votantesPendientes.value = event.resultados.estadisticas.votantesPendientes;
-//     });
-
-//     fetchResultados();
-//     getImageUrl();
-// });
-
-// watch([getPrimary, getSurface, isDarkTheme], () => {
-//     chartOptions.value = setChartOptions();
-// });
+// Lifecycle
+onMounted(async () => {
+    await citaStore.fetchResumenDelDia();
+});
 </script>
 
 <template>
-    <div class="grid grid-cols-12 gap-6 xl:gap-8">
-        <!-- Estadísticas -->
-        <div v-for="card in estats" :key="card.titulo" class="col-span-12 sm:col-span-6 xl:col-span-4">
-            <div class="bg-white dark:bg-gray-800 shadow rounded-xl p-5 flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 font-semibold mb-2">
-                        {{ card.titulo }}
-                    </p>
-                    <p class="text-2xl font-bold text-gray-800 dark:text-white">
-                        {{ card.valor }}
-                    </p>
+    <div class="trabajador-dashboard">
+        <!-- Contenido del dashboard -->
+        <div class="dashboard-content">
+            <div class="container">
+                <!-- Bienvenida personalizada -->
+                <div class="welcome-section">
+                    <Card class="welcome-card">
+                        <template #content>
+                            <div class="welcome-content">
+                                <div v-if="user" class="welcome-text">
+                                    <h1 class="welcome-title">¡Bienvenido, {{ user.nombre }}!</h1>
+                                    <p class="welcome-subtitle">
+                                        {{ getGreetingMessage() }}
+                                    </p>
+                                    <p class="current-date">
+                                        <i class="pi pi-calendar mr-2"></i>
+                                        {{ formatDate(new Date()) }}
+                                    </p>
+                                </div>
+                                <div class="welcome-icon">
+                                    <i class="pi pi-sun text-6xl text-yellow-400"></i>
+                                </div>
+                            </div>
+                        </template>
+                    </Card>
                 </div>
-                <div class="flex items-center justify-center w-12 h-12 rounded-full" :class="card.bg">
-                    <i :class="card.icono" class="text-xl" :style="{ color: card.color }"></i>
-                </div>
-            </div>
-        </div>
 
-        <!-- Candidatos -->
-        <div class="col-span-12 xl:col-span-5">
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-                <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Candidatos - Porcentajes</h2>
-                <div class="space-y-5">
-                    <div v-for="candidato in resultados" :key="candidato.id" class="flex items-center space-x-5 p-4 rounded-lg bg-gray-50 dark:bg-gray-700 hover:shadow transition">
-                        <img :src="getImageUrl(candidato.foto)" class="w-20 h-20 rounded-full object-cover" />
-                        <div class="flex-1">
-                            <p class="text-sm text-indigo-500 font-semibold uppercase">Candidato</p>
-                            <h3 class="text-lg font-medium text-gray-700 dark:text-white">{{ candidato.nombre }}</h3>
-                            <div class="mt-2">
-                                <div class="flex items-center gap-3">
-                                    <span class="text-indigo-600 font-bold text-xl">{{ candidato.porcentaje }}%</span>
-                                    <div class="w-full h-2.5 bg-gray-300 rounded-full overflow-hidden">
-                                        <div class="h-full bg-indigo-600" :style="{ width: `${candidato.porcentaje}%` }"></div>
+                <!-- Estadísticas del día -->
+                <div v-if="resumenHoy.estadisticas" class="stats-section">
+                    <div class="stats-grid">
+                        <!-- Citas atendidas hoy -->
+                        <Card class="stat-card">
+                            <template #content>
+                                <div class="stat-content">
+                                    <div class="stat-icon completed">
+                                        <i class="pi pi-check-circle"></i>
+                                    </div>
+                                    <div class="stat-info">
+                                        <h3 class="stat-number">{{ resumenHoy.estadisticas.atendidas_hoy ?? 0 }}</h3>
+                                        <p class="stat-label">Citas atendidas hoy</p>
                                     </div>
                                 </div>
-                                <p class="text-xs text-gray-500 mt-1">Porcentaje de votos</p>
-                            </div>
-                        </div>
+                            </template>
+                        </Card>
+
+                        <!-- Citas pendientes hoy -->
+                        <Card class="stat-card">
+                            <template #content>
+                                <div class="stat-content">
+                                    <div class="stat-icon pending">
+                                        <i class="pi pi-clock"></i>
+                                    </div>
+                                    <div class="stat-info">
+                                        <h3 class="stat-number">{{ resumenHoy.estadisticas.pendientes_hoy ?? 0 }}</h3>
+                                        <p class="stat-label">Citas pendientes hoy</p>
+                                    </div>
+                                </div>
+                            </template>
+                        </Card>
+
+                        <!-- Total de citas hoy -->
+                        <Card class="stat-card">
+                            <template #content>
+                                <div class="stat-content">
+                                    <div class="stat-icon total">
+                                        <i class="pi pi-calendar-plus"></i>
+                                    </div>
+                                    <div class="stat-info">
+                                        <h3 class="stat-number">{{ resumenHoy.estadisticas.total_hoy ?? 0 }}</h3>
+                                        <p class="stat-label">Total citas hoy</p>
+                                    </div>
+                                </div>
+                            </template>
+                        </Card>
                     </div>
+                </div>
+
+                <!-- Próximas citas del día -->
+                <div class="appointments-section">
+                    <Card class="appointments-card">
+                        <template #title>
+                            <div class="section-header">
+                                <h2 class="section-title">
+                                    <i class="pi pi-calendar mr-2"></i>
+                                    Próximas citas de hoy
+                                </h2>
+                                <Button label="Ver todas" icon="pi pi-external-link" class="p-button-text" @click="goToAllAppointments" />
+                            </div>
+                        </template>
+
+                        <template #content>
+                            <div v-if="resumenHoy.proximas_citas.length > 0" class="appointments-list">
+                                <div v-for="cita in resumenHoy.proximas_citas" :key="cita.id" class="appointment-item">
+                                    <div class="appointment-time">
+                                        <div class="time-display">
+                                            {{ formatTime(cita.hora) }}
+                                        </div>
+                                        <span
+                                            class="status-tag px-3 py-1 rounded-full text-sm font-semibold capitalize"
+                                            :class="{
+                                                'bg-blue-100 text-blue-700': cita.estado?.toLowerCase() === 'pendiente',
+                                                'bg-green-100 text-green-700': cita.estado?.toLowerCase() === 'atendida',
+                                                'bg-red-100 text-red-700': ['cancelada', 'cliente_ausente'].includes(cita.estado?.toLowerCase()),
+                                                'bg-gray-100 text-gray-700': !cita.estado
+                                            }"
+                                        >
+                                            {{ cita.estado }}
+                                        </span>
+                                    </div>
+
+                                    <div class="appointment-details">
+                                        <h4 class="client-name">{{ cita.cliente }}</h4>
+                                        <p class="service-name">
+                                            <i class="pi pi-tag mr-1"></i>
+                                            {{ cita.servicio }}
+                                        </p>
+                                        <p class="service-type">
+                                            <i class="pi pi-info-circle mr-1"></i>
+                                            {{ cita.es_de_pack ? 'Pack de servicios' : 'Servicio individual' }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div v-else class="no-appointments">
+                                <i class="pi pi-calendar-times text-4xl text-gray-400 mb-3"></i>
+                                <p class="no-appointments-text">No tienes citas programadas para hoy</p>
+                                <p class="no-appointments-subtitle">¡Disfruta tu día libre!</p>
+                            </div>
+                        </template>
+                    </Card>
                 </div>
             </div>
         </div>
 
-        <!-- Gráfico -->
-        <div class="col-span-12 xl:col-span-7">
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-                <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Cantidad de votos por candidato</h2>
-                <Chart type="bar" :data="chartData" :options="chartOptions" class="h-100" />
-            </div>
-        </div>
+        <!-- Toast para notificaciones -->
+        <Toast />
     </div>
 </template>
+
+<style scoped>
+.trabajador-dashboard {
+    min-height: 100vh;
+    background-color: #f8fafc;
+}
+
+/* Barra de navegación */
+.navbar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 70px;
+}
+
+.nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: white;
+}
+
+.brand-text {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.nav-menu {
+    display: flex;
+    gap: 2rem;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.nav-item.active {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.nav-user {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: white;
+}
+
+.user-name {
+    font-weight: 500;
+}
+
+/* Contenido del dashboard */
+.dashboard-content {
+    padding: 2rem 0;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* Sección de bienvenida */
+.welcome-section {
+    margin-bottom: 2rem;
+}
+
+.welcome-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.welcome-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+}
+
+.welcome-title {
+    font-size: 2.25rem;
+    font-weight: 700;
+    margin: 0 0 0.75rem 0;
+    color: #ffffff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-subtitle {
+    font-size: 1.1rem;
+    margin: 0 0 1rem 0;
+    opacity: 0.9;
+    color: #ffffff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.current-date {
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+    opacity: 0.8;
+    margin: 0;
+    color: #ffffff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-icon {
+    display: flex;
+    align-items: center;
+}
+
+/* Sección de estadísticas */
+.stats-section {
+    margin-bottom: 2rem;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.stat-card {
+    transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.stat-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem;
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+}
+
+.stat-icon.completed {
+    background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.stat-icon.pending {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.stat-icon.total {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+    color: #1f2937;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin: 0;
+}
+
+/* Sección de citas */
+.appointments-section {
+    margin-bottom: 2rem;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    margin: 0;
+    color: #1f2937;
+}
+
+.appointments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.appointment-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: white;
+    transition: all 0.2s ease;
+}
+
+.appointment-item:hover {
+    border-color: #d1d5db;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.appointment-time {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 80px;
+}
+
+.time-display {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.appointment-details {
+    flex: 1;
+}
+
+.client-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem 0;
+    color: #1f2937;
+}
+
+.service-name,
+.service-type {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin: 0.25rem 0;
+}
+
+.no-appointments {
+    text-align: center;
+    padding: 3rem 1rem;
+}
+
+.no-appointments-text {
+    font-size: 1.1rem;
+    color: #6b7280;
+    margin: 0 0 0.5rem 0;
+}
+
+.no-appointments-subtitle {
+    font-size: 0.9rem;
+    color: #9ca3af;
+    margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .nav-container {
+        flex-direction: column;
+        height: auto;
+        padding: 1rem;
+        gap: 1rem;
+    }
+
+    .nav-menu {
+        gap: 1rem;
+    }
+
+    .nav-item span {
+        display: none;
+    }
+
+    .welcome-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+
+    .welcome-icon {
+        order: -1;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .appointment-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .appointment-time {
+        flex-direction: row;
+        min-width: auto;
+    }
+}
+</style>

@@ -1,4 +1,4 @@
-import { login, logout, me, refreshToken } from '@/service/auth';
+import { login, logout, me, refreshToken, updatePerfil } from '@/service/auth';
 import { defineStore } from 'pinia';
 
 export const useAuthStore = defineStore('auth', {
@@ -90,6 +90,26 @@ export const useAuthStore = defineStore('auth', {
             this.loading = false;
             this.error = null;
             this.$reset();
+        },
+        async actualizarPerfil(datos) {
+            this.loading = true;
+            this.error = null;
+            try {
+                const response = await updatePerfil(datos);
+                this.user = response.data.data.user; // actualiza el usuario en el estado
+                return {
+                    success: true,
+                    message: response.data.message
+                };
+            } catch (err) {
+                this.error = err.response?.data?.message || 'Error al actualizar perfil';
+                return {
+                    success: false,
+                    message: this.error
+                };
+            } finally {
+                this.loading = false;
+            }
         }
     }
 });

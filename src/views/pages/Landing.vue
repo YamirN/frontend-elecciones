@@ -15,7 +15,7 @@ const router = useRouter();
 
 const reporteStore = useReporteStore();
 const { topServicios, loading } = storeToRefs(reporteStore);
-
+const dialogVisible = ref(false);
 // Hero slides data
 const heroSlides = ref([
     {
@@ -52,6 +52,14 @@ const scrollToContact = () => {
     document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
 };
 
+const scrollToToHome = () => {
+    document.getElementById('home')?.scrollIntoView({ behavior: 'smooth' });
+};
+
+const scrollToToterminos = () => {
+    document.getElementById('terminos')?.scrollIntoView({ behavior: 'smooth' });
+};
+
 const goToLogin = () => {
     // Redirect to login page
     router.push('/login');
@@ -67,17 +75,10 @@ const goToServices = () => {
     router.push('/servicio');
 };
 
-const goToBooking = () => {
-    // Check if user is logged in, if not redirect to login
-    // For now, just redirect to login
-    window.location.href = '/login';
-};
-
 const openSocial = (platform) => {
     const urls = {
-        facebook: 'https://facebook.com/dejavuspa',
-        instagram: 'https://instagram.com/dejavuspa',
-        twitter: 'https://twitter.com/dejavuspa'
+        facebook: 'https://www.facebook.com/DEJAVUSPA.CHIM',
+        instagram: 'https://www.instagram.com/dejavu.spa.chimbote'
     };
     window.open(urls[platform], '_blank');
 };
@@ -97,32 +98,35 @@ onMounted(async () => {
 <template>
     <div class="min-h-screen bg-gradient-to-b from-blue-50 to-white">
         <!-- Header Navigation -->
-        <!-- Header Navigation -->
-        <header class="bg-white shadow-lg sticky top-0 z-50">
-            <div class="container mx-auto px-4 py-3">
+        <header class="bg-white/95 backdrop-blur shadow-md sticky top-0 z-50">
+            <div class="container mx-auto px-6 py-4">
                 <div class="flex justify-between items-center">
-                    <div class="flex items-center space-x-2">
-                        <img :src="spaImage" alt="Logo" class="h-10 w-auto ring-2 ring-white/20" />
-                        <h1 class="text-2xl font-bold text-gray-800">DejavuSpa</h1>
+                    <!-- Logo + Nombre -->
+                    <div class="flex items-center space-x-3">
+                        <img :src="spaImage" alt="Logo" class="h-10 w-auto rounded-full ring-2 ring-blue-100 shadow-sm" />
+                        <h1 class="text-2xl font-extrabold text-gray-800 tracking-tight">Dejavu<span class="text-blue-600">Spa</span></h1>
                     </div>
 
+                    <!-- Navegación -->
                     <nav class="hidden md:flex space-x-6">
-                        <Button label="Inicio" text class="text-gray-700 hover:text-blue-600" @click="goToHome" />
-                        <Button label="Servicios" text class="text-blue-600 font-semibold" />
-                        <Button label="Galería" text class="text-gray-700 hover:text-blue-600" />
-                        <Button label="Contacto" text class="text-gray-700 hover:text-blue-600" />
+                        <button @click="scrollToToHome" class="text-blue-600 font-semibold hover:text-blue-700 transition duration-200">Inicio</button>
+                        <button @click="scrollToServices" class="text-blue-600 font-semibold hover:text-blue-700 transition duration-200">Servicios</button>
+                        <button @click="scrollToToterminos" class="text-blue-600 font-semibold hover:text-blue-700 transition duration-200">Términos</button>
+
+                        <button @click="scrollToContact" class="text-blue-600 font-semibold hover:text-blue-700 transition duration-200">Contacto</button>
                     </nav>
 
+                    <!-- Botones de acción -->
                     <div class="flex space-x-2">
-                        <Button label="Iniciar Sesión" outlined size="small" @click="goToLogin" />
-                        <Button label="Registrarse" size="small" @click="goToRegister" />
+                        <Button label="Iniciar Sesión" outlined size="small" @click="goToLogin" class="!border-blue-600 !text-blue-600 hover:!bg-blue-50 transition duration-200" />
+                        <Button label="Registrarse" size="small" @click="goToRegister" class="!bg-blue-600 !border-blue-600 hover:!bg-blue-700 transition duration-200" />
                     </div>
                 </div>
             </div>
         </header>
 
         <!-- Hero Section with Carousel -->
-        <section class="relative">
+        <section id="home" class="relative">
             <Carousel :value="heroSlides" :numVisible="1" :numScroll="1" :autoplayInterval="5000" :showNavigators="true" :showIndicators="true" class="hero-carousel">
                 <template #item="slotProps">
                     <div class="relative h-96 md:h-[500px] overflow-hidden">
@@ -176,7 +180,7 @@ onMounted(async () => {
                                 <i class="pi pi-calendar text-4xl text-green-600 mb-4"></i>
                                 <h3 class="text-xl font-semibold mb-3">Reservar Ahora</h3>
                                 <p class="text-gray-600 mb-4">Agenda tu cita y comienza tu viaje hacia el bienestar</p>
-                                <Button label="Hacer Reserva" severity="success" class="w-full" @click="goToBooking" />
+                                <Button label="Hacer Reserva" severity="success" class="w-full" @click="goToLogin" />
                             </div>
                         </template>
                     </Card>
@@ -195,7 +199,6 @@ onMounted(async () => {
             </div>
         </section>
 
-        <!-- Services Preview -->
         <!-- Services Preview -->
         <section id="services" class="py-16 px-4">
             <div class="container mx-auto">
@@ -219,7 +222,7 @@ onMounted(async () => {
 
                             <div class="flex justify-between items-center">
                                 <span class="text-sm text-gray-500">{{ formatDuration(service.duracion) }}</span>
-                                <Button label="Reservar" size="small" @click="goToBooking(service.id)" />
+                                <Button label="Reservar" size="small" @click="goToLogin(service.id)" />
                             </div>
                         </div>
                     </section>
@@ -270,7 +273,7 @@ onMounted(async () => {
                                 <div class="flex space-x-4">
                                     <Button icon="pi pi-facebook" rounded outlined @click="openSocial('facebook')" />
                                     <Button icon="pi pi-instagram" rounded outlined @click="openSocial('instagram')" />
-                                    <Button icon="pi pi-twitter" rounded outlined @click="openSocial('twitter')" />
+
                                     <Button icon="pi pi-whatsapp" rounded outlined severity="success" @click="openWhatsApp" />
                                 </div>
                                 <div class="mt-6">
@@ -284,8 +287,36 @@ onMounted(async () => {
             </div>
         </section>
 
+        <!-- Términos y Condiciones - al final del landing -->
+        <section id="terminos" class="py-16 px-4 bg-white border-t border-gray-200">
+            <div class="container mx-auto max-w-4xl text-center">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">Términos y Condiciones</h2>
+                <p class="text-gray-600 text-sm leading-relaxed mb-6">
+                    Al confirmar una cita en DejavuSpa, aceptas que no será posible cancelarla ni reprogramarla bajo ninguna circunstancia. Recomendamos revisar cuidadosamente los detalles antes de confirmar.
+                    <br />
+                    Asimismo, no se realizarán reembolsos por citas reservadas, conforme a nuestra política de no reembolso.
+                </p>
+                <Button label="Leer términos completos" @click="dialogVisible = true" outlined class="text-sm" />
+            </div>
+        </section>
+
         <!-- WhatsApp Floating Button -->
     </div>
+
+    <Dialog v-model:visible="dialogVisible" modal header="Términos y Condiciones" class="max-w-3xl">
+        <div class="space-y-4 text-gray-700 text-sm leading-relaxed">
+            <p>Al utilizar nuestros servicios, usted acepta los siguientes términos y condiciones establecidos por <strong>DejavuSpa</strong>:</p>
+            <ul class="list-disc pl-5 space-y-2">
+                <li>No se permiten cancelaciones ni reprogramaciones de citas una vez confirmadas.</li>
+                <li>El pago realizado no será reembolsado en ningún caso.</li>
+                <li>El cliente debe presentarse con puntualidad; la inasistencia se considera como servicio recibido.</li>
+                <li>Los servicios están sujetos a disponibilidad, y nos reservamos el derecho de modificar horarios según necesidad.</li>
+                <li>Las promociones o descuentos no son acumulables, salvo indicación expresa.</li>
+                <li>El cliente declara estar en condiciones físicas aptas para recibir los tratamientos.</li>
+            </ul>
+            <p>Para cualquier duda o reclamo, puedes contactarnos a <a href="mailto:info@dejavuspa.com" class="text-blue-600 underline">info@dejavuspa.com</a>.</p>
+        </div>
+    </Dialog>
 </template>
 
 <style scoped>
