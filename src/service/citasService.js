@@ -20,6 +20,16 @@ export const listarCitasPorCliente = async () => {
     return apiClient.get('/citas/clientes');
 };
 
+export const StoreCita = async (formData) => {
+    try {
+        const { data } = await apiClient.post('/citas', formData);
+        return data;
+    } catch (error) {
+        console.error('Error al crear cita:', error);
+        throw error?.response?.data || error;
+    }
+};
+
 export const asignarTrabajador = async (citaId, trabajadorId) => {
     const response = await apiClient.patch(`/citas/${citaId}/asignar-trabajador`, {
         trabajador_id: trabajadorId

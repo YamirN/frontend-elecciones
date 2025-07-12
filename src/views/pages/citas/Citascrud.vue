@@ -1,26 +1,53 @@
 <script setup>
 import { formatFechaBackend } from '@/service/utils/formatFechaBackend';
 import { useCitaStore } from '@/stores/citaStore';
+import { useClienteStore } from '@/stores/clienteStore';
+import { useServicioStore } from '@/stores/servicioStore';
 import { storeToRefs } from 'pinia';
 import { useToast } from 'primevue';
-import { onMounted, ref } from 'vue';
+
+import { computed, onMounted, reactive, ref, watch } from 'vue';
 
 // States y Stores
 
 const citaStore = useCitaStore();
-const { citas, loading: loadingCitas, trabajadoresDisponibles, loadingTrabajadores } = storeToRefs(citaStore);
+const clienteStore = useClienteStore();
+const servicioStore = useServicioStore();
+
+const { clientes } = storeToRefs(clienteStore);
+const { servicios } = storeToRefs(servicioStore);
+const { citas, loading: loadingCitas, trabajadoresDisponibles, loadingTrabajadores, errors } = storeToRefs(citaStore);
 
 // const selectedServicio = ref(null);
+const hoy = ref(new Date());
+
 const filters = ref({ global: { value: '' } });
 const skeletonRows = Array.from({ length: 8 }, () => ({}));
 const toast = useToast();
-
+const showFormDialog = ref(false);
 const showAsignarDialog = ref(false);
 const citaSeleccionada = ref(null);
 const trabajadorSeleccionado = ref('');
 const showEstadoDialog = ref(false);
 const citaParaCambioEstado = ref(null);
 const nuevoEstado = ref(null);
+const horasDisponibles = computed(() => citaStore.availableHours);
+
+const initialValues = reactive({
+    cliente_id: '',
+    servicio_id: '',
+    fecha: '',
+    hora: '',
+    metodo_pago: ''
+});
+
+const resetForm = () => {
+    initialValues.cliente_id = '';
+    initialValues.servicio_id = '';
+    initialValues.fecha = '';
+    initialValues.hora = '';
+    initialValues.metodo_pago = '';
+};
 
 const getStatusColor = (status) => {
     switch (status) {
@@ -52,6 +79,13 @@ const getStatusSeverity = (status) => {
     }
 };
 
+const clientesConNombre = computed(() =>
+    clientes.value.map((cliente) => ({
+        ...cliente,
+        nombre_completo: cliente.user ? `${cliente.user.nombre} ${cliente.user.apellido}` : 'Usuario sin nombre'
+    }))
+);
+
 // Metodo para verificar si la cita es del pasado
 const noPuedeAsignarse = (cita) => {
     const fechaISO = formatFechaBackend(cita.fecha); // Asegura el formato correcto
@@ -78,6 +112,12 @@ const abrirDialogoAsignar = async (cita) => {
     } catch (error) {
         console.error('Error al cargar trabajadores:', error);
     }
+};
+
+const openNew = async () => {
+    if (!clientes.value.length) await clienteStore.ListaCliente();
+    resetForm();
+    showFormDialog.value = true;
 };
 
 const asignarTrabajador = async () => {
@@ -137,6 +177,44 @@ const cambiarEstado = async () => {
         });
     }
 };
+const formatTimeHHMM = (value) => {
+    if (typeof value === 'string') return value;
+    if (value instanceof Date) {
+        const h = String(value.getHours()).padStart(2, '0');
+        const m = String(value.getMinutes()).padStart(2, '0');
+        return `${h}:${m}`;
+    }
+    return '';
+};
+const onFormSubmit = async () => {
+    const payload = {
+        cliente_id: initialValues.cliente_id,
+        servicio_id: initialValues.servicio_id,
+        fecha: formatFechaBackend(initialValues.fecha),
+        hora: formatTimeHHMM(initialValues.hora),
+        metodo_pago: initialValues.metodo_pago
+    };
+
+    const exito = await citaStore.crearCita(payload);
+
+    if (exito) {
+        showFormDialog.value = false; // 🔒 Cierra el diálogo
+        toast.add({
+            severity: 'success',
+            summary: 'Cita creada',
+            detail: 'Cita registrada correctamente',
+            life: 3000
+        });
+        await citaStore.ListaCita(); // 🔄 Recarga la lista si es necesario
+    } else {
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'No se pudo registrar la cita',
+            life: 3000
+        });
+    }
+};
 
 const formatDuration = (min) => {
     const h = Math.floor(min / 60);
@@ -146,13 +224,29 @@ const formatDuration = (min) => {
 
 onMounted(async () => {
     await citaStore.ListaCita();
+    await servicioStore.ListaServicio();
 });
+
+watch(
+    () => [initialValues.fecha, initialValues.cliente_id, initialValues.servicio_id],
+    async ([fecha, cliente_id, servicio_id]) => {
+        if (fecha && cliente_id && servicio_id) {
+            const fechaFormateada = formatFechaBackend(fecha);
+            await citaStore.cargarHorasDisponibles({ fecha: fechaFormateada, cliente_id, servicio_id });
+        }
+    }
+);
 </script>
 
 <template>
     <div>
         <div class="card">
             <!-- Toolbar -->
+            <Toolbar class="mb-6">
+                <template #start>
+                    <Button label="Agregar Cita" icon="pi pi-plus-circle" severity="secondary" class="mr-2" @click="openNew" :disabled="loadingCitas" />
+                </template>
+            </Toolbar>
 
             <!-- Tabla de citas -->
             <DataTable
@@ -355,6 +449,80 @@ onMounted(async () => {
                 <Button label="Cancelar" icon="pi pi-times" text @click="showEstadoDialog = false" />
                 <Button label="Guardar" icon="pi pi-check" @click="cambiarEstado" :disabled="!nuevoEstado" />
             </template>
+        </Dialog>
+
+        <Dialog v-model:visible="showFormDialog" modal header="Crear Cita" :style="{ width: '30rem' }">
+            <form @submit.prevent="onFormSubmit" class="flex flex-col gap-5 px-4">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">Nueva Cita</h2>
+
+                <!-- Cliente -->
+                <div>
+                    <InputLabel for="cliente_id" value="Cliente" />
+
+                    <Select id="cliente_id" v-model="initialValues.cliente_id" :options="clientesConNombre" optionLabel="nombre_completo" optionValue="id" filter placeholder="Selecciona un cliente" class="w-full" />
+                </div>
+
+                <!-- Servicio -->
+                <div>
+                    <InputLabel for="servicio_id" value="Servicio" />
+                    <Select id="servicio_id" v-model="initialValues.servicio_id" :options="servicios" optionLabel="nombre" optionValue="id" filter placeholder="Selecciona un servicio" class="w-full" />
+                </div>
+
+                <!-- Fecha -->
+                <div>
+                    <InputLabel for="fecha" value="Fecha" />
+                    <DatePicker id="fecha" v-model="initialValues.fecha" :minDate="hoy" showIcon dateFormat="yy-mm-dd" placeholder="Selecciona una fecha" class="w-full" />
+                </div>
+
+                <!-- Hora -->
+                <!-- Hora -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="pi pi-clock mr-1"></i>
+                        Hora disponible
+                    </label>
+                    <Select
+                        v-model="initialValues.hora"
+                        :options="horasDisponibles"
+                        placeholder="Selecciona una hora"
+                        class="w-full"
+                        :pt="{
+                            root: { class: 'border-2 border-blue-200 hover:border-blue-400 transition-colors' },
+                            input: { class: 'text-gray-700 font-medium' }
+                        }"
+                    >
+                        <!-- Vista de cada opción -->
+                        <template #option="slotProps">
+                            <div class="flex items-center justify-between p-2 hover:bg-blue-50 rounded">
+                                <span class="font-medium">{{ slotProps.option }}</span>
+                                <i class="pi pi-clock text-blue-500"></i>
+                            </div>
+                        </template>
+
+                        <!-- Si no hay horas -->
+                        <template #empty>
+                            <div class="p-2 text-gray-500 text-center">No hay horarios disponibles</div>
+                        </template>
+                    </Select>
+                </div>
+
+                <!-- Método de Pago -->
+                <div>
+                    <InputLabel for="metodo_pago" value="Método de Pago" />
+                    <select id="metodo_pago" v-model="initialValues.metodo_pago" class="w-full p-2 border rounded">
+                        <option disabled value="">Selecciona una opción</option>
+                        <option value="yape">Yape</option>
+                        <option value="plin">Plin</option>
+                        <option value="visa">Visa</option>
+                    </select>
+                </div>
+
+                <!-- Botones -->
+                <div class="flex justify-end gap-2 mt-2">
+                    <Button label="Cancelar" icon="pi pi-times" text type="button" @click="showFormDialog = false" />
+                    <Button label="Guardar" icon="pi pi-check" text type="submit" />
+                </div>
+            </form>
         </Dialog>
     </div>
 </template>

@@ -1,4 +1,12 @@
 export function formatFechaBackend(fecha) {
+    if (fecha instanceof Date && !isNaN(fecha.getTime())) {
+        // Si es un objeto Date válido
+        const year = fecha.getFullYear();
+        const month = String(fecha.getMonth() + 1).padStart(2, '0'); // meses son 0-indexados
+        const day = String(fecha.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
     if (typeof fecha === 'string') {
         if (fecha.includes('/')) {
             // Formato: "dd/mm/yyyy"

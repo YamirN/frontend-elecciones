@@ -1,4 +1,4 @@
-import { asignarTrabajador, cambiarEstadoCita, crearCitaTemporal, historialCitasAtendidas, indexCita, listarCitasPorCliente, obtenerTrabajadoresDisponibles, resumenDelDia } from '@/service/citasService';
+import { asignarTrabajador, cambiarEstadoCita, crearCitaTemporal, historialCitasAtendidas, indexCita, listarCitasPorCliente, obtenerTrabajadoresDisponibles, resumenDelDia, StoreCita } from '@/service/citasService';
 import { obtenerHorasDisponibles } from '@/service/servicioService';
 import { defineStore } from 'pinia';
 
@@ -46,6 +46,18 @@ export const useCitaStore = defineStore('cita', {
                 return false;
             } finally {
                 this.loading = false;
+            }
+        },
+        async crearCita(payload) {
+            try {
+                const citaCreada = await StoreCita(payload);
+                this.errors = null;
+                this.citas.push(citaCreada);
+
+                return true;
+            } catch (error) {
+                this.errors = error?.errors || { general: 'Error al crear cita' };
+                return false;
             }
         },
         async ListaCita() {

@@ -32,7 +32,7 @@ const fullModel = {
             label: 'Administrar',
             items: [
                 { label: 'Servicios', icon: 'pi pi-fw pi-link', to: '/admin/servicios' },
-                { label: 'Paquetes', icon: 'pi pi-fw pi-box', to: '/admin/packs' },
+                // { label: 'Paquetes', icon: 'pi pi-fw pi-box', to: '/admin/packs' },
                 { label: 'Citas', icon: 'pi pi-calendar-minus', to: '/admin/citas' }
             ]
         }
