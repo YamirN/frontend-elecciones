@@ -111,8 +111,6 @@ onMounted(async () => {
                     <nav class="hidden md:flex space-x-6">
                         <Button label="Inicio" text class="text-gray-700 hover:text-blue-600" @click="goToHome" />
                         <Button label="Servicios" text class="text-blue-600 font-semibold" />
-                        <Button label="Galería" text class="text-gray-700 hover:text-blue-600" />
-                        <Button label="Contacto" text class="text-gray-700 hover:text-blue-600" />
                     </nav>
 
                     <div class="flex space-x-2">
