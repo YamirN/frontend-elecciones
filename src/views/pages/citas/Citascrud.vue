@@ -3,9 +3,9 @@ import { formatFechaBackend } from '@/service/utils/formatFechaBackend';
 import { useCitaStore } from '@/stores/citaStore';
 import { useClienteStore } from '@/stores/clienteStore';
 import { useServicioStore } from '@/stores/servicioStore';
+import { isToday } from 'date-fns';
 import { storeToRefs } from 'pinia';
 import { useToast } from 'primevue';
-
 import { computed, onMounted, reactive, ref, watch } from 'vue';
 
 // States y Stores
@@ -31,7 +31,25 @@ const trabajadorSeleccionado = ref('');
 const showEstadoDialog = ref(false);
 const citaParaCambioEstado = ref(null);
 const nuevoEstado = ref(null);
-const horasDisponibles = computed(() => citaStore.availableHours);
+
+const filteredHours = computed(() => {
+    const fecha = initialValues.fecha;
+    if (!fecha) return citaStore.availableHours;
+
+    const fechaSeleccionada = new Date(fecha);
+    if (!isToday(fechaSeleccionada)) {
+        return citaStore.availableHours;
+    }
+
+    const ahora = new Date();
+    const minutosActuales = ahora.getHours() * 60 + ahora.getMinutes();
+
+    return citaStore.availableHours.filter((horaStr) => {
+        const [h, m] = horaStr.split(':').map(Number);
+        const minutosHora = h * 60 + m;
+        return minutosHora > minutosActuales;
+    });
+});
 
 const initialValues = reactive({
     cliente_id: '',
@@ -475,7 +493,6 @@ watch(
                 </div>
 
                 <!-- Hora -->
-                <!-- Hora -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">
                         <i class="pi pi-clock mr-1"></i>
@@ -483,7 +500,7 @@ watch(
                     </label>
                     <Select
                         v-model="initialValues.hora"
-                        :options="horasDisponibles"
+                        :options="filteredHours"
                         placeholder="Selecciona una hora"
                         class="w-full"
                         :pt="{
