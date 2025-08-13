@@ -1,6 +1,6 @@
 import AppLayout from '@/layout/AppLayout.vue';
-import { useAuthStore } from '@/stores/auth'; // Ajusta según tu estructura
-import { useAppStore } from '@/stores/useAppStore'; // Ajusta según tu estructura
+import { useAuthStore } from '@/stores/auth';
+import { useAppStore } from '@/stores/useAppStore';
 import { createRouter, createWebHistory } from 'vue-router';
 const routes = [
     {
@@ -10,9 +10,9 @@ const routes = [
         component: () => import('@/views/pages/Landing.vue')
     },
     {
-        path: '/login',
-        name: 'login',
-        component: () => import('@/views/pages/estudiante/Login.vue')
+        path: '/estudiantes/login',
+        name: 'loginvotante',
+        component: () => import('@/views/pages/auth/LoginElecciones.vue')
     },
     {
         path: '/registrar',
@@ -34,75 +34,57 @@ const routes = [
                 name: 'dashboard',
                 component: () => import('@/views/pages/admin/Dashboard.vue')
             },
-
             {
-                path: 'servicios',
-                name: 'servicios',
-                component: () => import('@/views/pages/servicio/Serviciocrud.vue')
+                path: 'usuarios',
+                name: 'usuarios',
+                component: () => import('@/views/pages/user/Usercrud.vue')
             },
             {
-                path: 'packs',
-                name: 'packs',
-                component: () => import('@/views/pages/admin/Packscrud.vue')
+                path: 'roles',
+                name: 'roles',
+                component: () => import('@/views/pages/user/Roles.vue')
             },
             {
-                path: 'clientes',
-                name: 'clientes',
-                component: () => import('@/views/pages/cliente/ClienteCrud.vue')
+                path: 'estudiantes',
+                name: 'estudiantes',
+                component: () => import('@/views/pages/user/Estudiantecrud.vue')
             },
             {
-                path: 'trabajadores',
-                name: 'trabajadores',
-                component: () => import('@/views/pages/trabajador/Trabajadorcrud.vue')
+                path: 'candidatos',
+                name: 'candidatos',
+                component: () => import('@/views/pages/user/Candidatecrud.vue')
             },
             {
-                path: 'citas',
-                name: 'citas',
-                component: () => import('@/views/pages/citas/Citascrud.vue')
+                path: 'mesas',
+                name: 'mesas',
+                component: () => import('@/views/pages/elections/mesacrud.vue')
             },
             {
-                path: 'perfil',
-                name: 'perfilAdministrador',
-                component: () => import('@/views/pages/admin/Perfil.vue')
+                path: 'elecciones',
+                name: 'elecciones',
+                component: () => import('@/views/pages/admin/Elecciones.vue')
+            },
+            {
+                path: 'partidos',
+                name: 'partidos',
+                component: () => import('@/views/pages/admin/Partidos.vue')
             }
         ]
     },
     {
-        path: '/cliente',
-        component: () => import('@/layout/AppLayoutCliente.vue'),
-        meta: { requiresAuth: true, roles: ['cliente'] },
+        path: '/estudiante',
+
+        meta: { requiresAuth: true, roles: ['estudiante'] },
         children: [
             {
                 path: 'home',
-                name: 'clienteDashboard',
-                component: () => import('@/views/pages/cliente/HomeCliente.vue')
+                name: 'estudiante',
+                component: () => import('@/views/pages/elections/Vote.vue')
             },
             {
-                path: 'perfil',
-                name: 'perfilCliente',
-                component: () => import('@/views/pages/cliente/Profile.vue')
-            }
-        ]
-    },
-    {
-        path: '/trabajador',
-        component: () => import('@/layout/AppLayout.vue'),
-        meta: { requiresAuth: true, roles: ['trabajador'] },
-        children: [
-            {
-                path: 'dashboard',
-                name: 'trabajadorDashboard',
-                component: () => import('@/views/pages/trabajador/Dashboard.vue')
-            },
-            {
-                path: 'perfil',
-                name: 'perfilTrabajador',
-                component: () => import('@/views/pages/trabajador/Perfil.vue')
-            },
-            {
-                path: 'citas',
-                name: 'citasTrabajador',
-                component: () => import('@/views/pages/trabajador/Citas.vue')
+                path: 'votar',
+                name: 'votar',
+                component: () => import('@/views/pages/elections/Vote.vue')
             }
         ]
     }
@@ -139,10 +121,8 @@ router.beforeEach(async (to, from, next) => {
         switch (role) {
             case 'administrador':
                 return next({ name: 'dashboard' });
-            case 'cliente':
-                return next({ name: 'clienteDashboard' });
-            case 'trabajador':
-                return next({ name: 'trabajadorDashboard' });
+            case 'estudiante':
+                return next({ name: 'votar' });
             default:
                 return next('/');
         }

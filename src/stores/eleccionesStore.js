@@ -1,4 +1,4 @@
-import { indexEleccion } from '@/service/eleccionesService';
+import { cambiarEstadoEleccion, createEleccion, destroyEleccion, indexEleccion } from '@/service/eleccionesService';
 import { defineStore } from 'pinia';
 
 export const useEleccionStore = defineStore('eleccion', {
@@ -22,44 +22,40 @@ export const useEleccionStore = defineStore('eleccion', {
             } finally {
                 this.loading = false;
             }
+        },
+        async crearEleccion(data) {
+            try {
+                const response = await createEleccion(data);
+                this.elecciones.push(response.data);
+                return response.data;
+            } catch (error) {
+                this.errors = error.response?.data?.errors || {};
+                throw error;
+            }
+        },
+        async cambiarEstado(id, nuevoEstado) {
+            try {
+                const response = await cambiarEstadoEleccion(id, nuevoEstado);
+                const index = this.elecciones.findIndex((e) => e.id === id);
+                if (index !== -1) {
+                    this.elecciones[index].estado = nuevoEstado;
+                }
+                return response.data;
+            } catch (error) {
+                console.error('Error al cambiar estado:', error);
+                throw error;
+            }
+        },
+
+        async eliminarEleccion(id) {
+            try {
+                await destroyEleccion(id);
+                this.elecciones = this.elecciones.filter((e) => e.id !== id);
+                return true;
+            } catch (error) {
+                console.error('Error al eliminar elección:', error);
+                throw error;
+            }
         }
-
-        // async crearCandidato(form) {
-        //     try {
-        //         form.fecha_postulacion = formatDateForCreateUsers(form.fecha_postulacion);
-        //         const response = await createCandidate(form);
-
-        //         if (response.data.success) {
-        //             await this.ObtenerCandidatos();
-        //             return true;
-        //         }
-        //     } catch (error) {
-        //         if (error.response && error.response.data && error.response.data.errors) {
-        //             this.errors = error.response.data.errors; // Guardar los errores por cada campo
-        //         } else {
-        //             this.errors = { general: ['Error al crear el candidato'] }; // Error genérico si no hay detalles
-        //         }
-        //         console.error('Error creando candidato:', error);
-        //         return false;
-        //     }
-        // }
-        // async actualizarCandidato(form) {
-        //     try {
-        //         if (form.fecha_postulacion) {
-        //             const formattedDate = formatDateForApi(form.fecha_postulacion);
-        //             if (formattedDate) {
-        //                 form.fecha_postulacion = formattedDate;
-        //             }
-        //         }
-
-        //         await updateCandidate(form);
-        //         await this.ObtenerCandidatos();
-        //         return { success: true, message: 'Candidato actualizado' };
-        //     } catch (error) {
-        //         this.errors = error.response?.data?.errors || {};
-        //         console.error('Error actualizando candidato:', error);
-        //         return { success: false, error: this.errors };
-        //     }
-        // }
     }
 });

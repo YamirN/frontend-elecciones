@@ -15,25 +15,32 @@ const fullModel = {
             label: 'Inicio',
             items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-chart-bar', to: '/admin/dashboard' }]
         },
+
         {
             label: 'Usuarios',
             items: [
                 {
                     label: 'Gestionar Usuarios',
-                    icon: 'pi pi-fw pi-user-edit',
+                    icon: 'pi pi-fw pi-user',
                     items: [
-                        { label: 'Clientes', icon: 'pi pi-fw pi-user', to: '/admin/clientes' },
-                        { label: 'Trabajadores', icon: 'pi pi-fw pi-briefcase', to: '/admin/trabajadores' }
+                        { label: 'Administradores', icon: 'pi pi-fw pi-user', to: '/admin/usuarios' },
+                        { label: 'Estudiantes', icon: 'pi pi-fw pi-user', to: '/admin/estudiantes' }
                     ]
+                },
+                {
+                    label: 'Roles',
+                    icon: 'pi pi-fw pi-user-edit',
+                    to: '/admin/roles'
                 }
             ]
         },
         {
             label: 'Administrar',
             items: [
-                { label: 'Servicios', icon: 'pi pi-fw pi-link', to: '/admin/servicios' },
-                // { label: 'Paquetes', icon: 'pi pi-fw pi-box', to: '/admin/packs' },
-                { label: 'Citas', icon: 'pi pi-calendar-minus', to: '/admin/citas' }
+                { label: 'Elecciones', icon: 'pi pi-fw pi-bookmark-fill', to: '/admin/elecciones' },
+                { label: 'Listas', icon: 'pi pi-fw pi-flag-fill', to: '/admin/partidos' },
+                { label: 'Mesas', icon: 'pi pi-fw pi-table', to: '/admin/mesas' }
+                // { label: 'Citas', icon: 'pi pi-calendar-minus', to: '/admin/citas' }
             ]
         }
     ],

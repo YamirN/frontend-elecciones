@@ -6,18 +6,18 @@ import { useRouter } from 'vue-router';
 
 const authStore = useAuthStore();
 const dni = ref('');
+const password = ref('');
 const errors = computed(() => authStore.errors);
 const showHelp = ref(false);
 const router = useRouter();
+const showPassword = ref(false);
 
-const handleLoginVotante = async (dni) => {
-    const isAuthenticated = await authStore.handleLogin(dni);
+const handleLoginVotante = async () => {
+    const isAuthenticated = await authStore.handleLoginVotante(dni.value, password.value);
     if (isAuthenticated) {
-        router.push({ name: 'vote' });
+        router.push({ name: 'votar' });
     }
 };
-
-
 </script>
 
 <template>
@@ -28,62 +28,85 @@ const handleLoginVotante = async (dni) => {
             <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">Acceso de Votante</h1>
 
             <div class="mb-6 text-center">
-                <img src="\src\assets\img\insignia_cover.png" alt="Urna electoral"
-                    class="w-40 h-30 mx-auto mb-8 animate-bounce" loading="lazy">
-                <p class="text-sm text-gray-600">Introduce tu DNI para acceder al sistema de votación</p>
+                <img src="\src\assets\img\insignia_cover.png" alt="Urna electoral" class="w-40 h-30 mx-auto mb-8 animate-bounce" loading="lazy" />
+                <p class="text-sm text-gray-600">Introduce tu DNI y contraseña para acceder al sistema de votación</p>
             </div>
 
-            <form @submit.prevent="handleLoginVotante(dni)" class="space-y-6">
+            <form @submit.prevent="handleLoginVotante(dni, password)" class="space-y-6">
+                <!-- Campo DNI -->
                 <div>
-                    <label for="dni" class="block text-sm font-medium text-gray-700 mb-1">
-                        DNI
-                    </label>
+                    <label for="dni" class="block text-sm font-medium text-gray-700 mb-1">DNI</label>
                     <div class="relative">
-                        <input id="dni" v-model="dni" type="text" required placeholder="Ej: 32569456"
+                        <input
+                            id="dni"
+                            v-model="dni"
+                            type="text"
+                            required
+                            placeholder="Ej: 32569456"
+                            maxlength="8"
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 ease-in-out"
-                            :class="{ 'border-red-500 focus:ring-red-500 focus:border-red-500': errors }" />
-
+                            :class="{ 'border-red-500 focus:ring-red-500 focus:border-red-500': errors }"
+                        />
                         <Transition name="fade">
                             <i class="pi pi-user absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
                         </Transition>
                     </div>
-                    <Transition name="fade">
-                        <div v-if="errors" class="mt-4 p-4 bg-red-100 border-l-4 border-red-500 rounded-md">
-                            <div class="flex">
-                                <div class="flex-shrink-0">
-                                    <i class="pi pi-exclamation-circle  text-red-400" />
-                                </div>
-                                <div class="ml-3">
-                                    <p class="text-sm text-red-700">
-                                        {{ errors }}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </Transition>
-
                 </div>
 
-                <button type="submit"
-                    class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg font-semibold transition duration-300 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transform hover:scale-105 flex items-center justify-center">
-                    <span>Acceder</span>
+                <!-- Campo Contraseña -->
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+                    <div class="relative">
+                        <input
+                            id="password"
+                            v-model="password"
+                            :type="showPassword ? 'text' : 'password'"
+                            required
+                            placeholder="Ingresa tu contraseña"
+                            class="w-full px-4 py-2 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 ease-in-out"
+                            :class="{ 'border-red-500 focus:ring-red-500 focus:border-red-500': errors }"
+                        />
+                        <button type="button" @click="showPassword = !showPassword" class="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600 focus:outline-none">
+                            <i :class="showPassword ? 'pi pi-eye-slash' : 'pi pi-eye'" class="h-5 w-5" />
+                        </button>
+                    </div>
+                </div>
 
+                <!-- Mensaje de error -->
+                <Transition name="fade">
+                    <div v-if="errors" class="mt-4 p-4 bg-red-100 border-l-4 border-red-500 rounded-md">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="pi pi-exclamation-circle text-red-400" />
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-red-700">{{ errors }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </Transition>
+
+                <!-- Botón de acceso -->
+                <button
+                    type="submit"
+                    class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg font-semibold transition duration-300 ease-in-out hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transform hover:scale-105 flex items-center justify-center"
+                >
+                    <span>Acceder</span>
                     <i class="pi pi-arrow-right ml-2 h-3 w-5"></i>
                 </button>
             </form>
 
+            <!-- Ayuda -->
             <div class="mt-6 text-center">
-                <button @click="showHelp = !showHelp" class="text-blue-600 hover:underline focus:outline-none">
-                    ¿Necesitas ayuda?
-                </button>
+                <button @click="showHelp = !showHelp" class="text-blue-600 hover:underline focus:outline-none">¿Necesitas ayuda?</button>
             </div>
 
             <Transition name="slide-fade">
                 <div v-if="showHelp" class="mt-4 p-4 bg-blue-50 rounded-lg">
                     <h2 class="font-semibold mb-2">Información de ayuda:</h2>
                     <ul class="list-disc list-inside text-sm text-gray-700 space-y-1">
-                        <li>Asegúrate de introducir tu DNI correctamente.</li>
-                        <li>El DNI debe tener 8 números seguidos de una letra.</li>
+                        <li>Asegúrate de introducir tu DNI correctamente (8 dígitos).</li>
+                        <li>Usa la contraseña proporcionada por la institución.</li>
                         <li>Si tienes problemas, contacta con el administrador.</li>
                     </ul>
                 </div>
@@ -119,7 +142,6 @@ const handleLoginVotante = async (dni) => {
 }
 
 @keyframes bounce {
-
     0%,
     100% {
         transform: translateY(-10%);

@@ -1,7 +1,12 @@
 <script setup>
 import { createUser, deleteUserById, fetchUsers, updateUser } from '@/service/userService';
+import { useUsuarioStore } from '@/stores/usuarioStore';
+import { storeToRefs } from 'pinia';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
+
+const usuarioStore = useUsuarioStore();
+const { usuarios, loading: loadingUsuarios } = storeToRefs(usuarioStore);
 
 const toast = useToast();
 const users = ref([]);
@@ -107,7 +112,9 @@ const handleSave = () => {
     }
 };
 
-onMounted(fetchUsersList);
+onMounted(() => {
+    usuarioStore.obtenerUsuarios();
+});
 </script>
 
 <template>
@@ -119,15 +126,19 @@ onMounted(fetchUsersList);
                 </template>
 
                 <template #end>
-                    <Button label="Export" icon="pi pi-upload" severity="secondary" @click="exportCSV($event)"
-                        disabled />
+                    <Button label="Export" icon="pi pi-upload" severity="secondary" @click="exportCSV($event)" disabled />
                 </template>
             </Toolbar>
 
-            <DataTable :value="users" :paginator="true" :rows="8" :filters="filters"
+            <DataTable
+                :value="usuarios"
+                :paginator="true"
+                :rows="8"
+                :filters="filters"
                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                 tableStyle="min-width: 40rem"
-                currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} usuarios">
+                currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} usuarios"
+            >
                 <template #header>
                     <div class="flex flex-wrap gap-2 items-center justify-between">
                         <h4 class="m-0">Lista de Usuarios</h4>
@@ -140,12 +151,43 @@ onMounted(fetchUsersList);
                     </div>
                 </template>
 
-                <Column field="name" header="Name" sortable style="width: 50%"></Column>
+                <Column header="Nombre " style="width: 30%">
+                    <template #body="slotProps">
+                        <Skeleton v-if="loadingUsuarios" height="1rem" width="80%"></Skeleton>
+                        <span v-else>{{ slotProps.data.nombre }} {{ slotProps.data.apellido }}</span>
+                    </template>
+                </Column>
 
+                <Column header="Rol " style="width: 30%">
+                    <template #body="slotProps">
+                        <Skeleton v-if="loadingUsuarios" height="1rem" width="80%"></Skeleton>
+                        <span v-else>{{ slotProps.data.roles.length ? slotProps.data.roles[0].name : 'Sin rol' }}</span>
+                    </template>
+                </Column>
+                <Column header="Estado " style="width: 30%">
+                    <template #body="slotProps">
+                        <Skeleton v-if="loadingUsuarios" height="1rem" width="80%"></Skeleton>
 
+                        <Tag :value="slotProps.data.estado" :severity="slotProps.data.estado === 'activo' ? 'success' : 'danger'" class="mt-1" />
+                    </template>
+                </Column>
+                <Column header="Acciones" style="min-width: 16rem">
+                    <template #body="slotProps">
+                        <template v-if="loadingUsuarios">
+                            <Skeleton shape="circle" size="2rem" class="mr-2" />
+                            <Skeleton shape="circle" size="2rem" class="mr-2" />
+                            <Skeleton shape="circle" size="2rem" />
+                        </template>
+                        <template v-else>
+                            <Button icon="pi pi-eye" outlined rounded class="mr-2" severity="info" @click="verEstudiante(slotProps.data)" />
+                            <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="openEdit(slotProps.data)" />
+                            <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteUser(slotProps.data)" />
+                        </template>
+                    </template>
+                </Column>
             </DataTable>
         </div>
 
-
+        
     </div>
 </template>

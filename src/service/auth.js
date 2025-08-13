@@ -1,7 +1,7 @@
 import apiClient from './axios';
 
-export const login = async (email, password) => {
-    return await apiClient.post('/login', { email, password });
+export const login = async (nombre_usuario, password) => {
+    return await apiClient.post('/login', { nombre_usuario, password });
 };
 
 export const logout = async () => {
@@ -18,4 +18,8 @@ export const refreshToken = async () => {
 
 export const updatePerfil = async (datos) => {
     return apiClient.patch('/usuario/perfil', datos);
+};
+
+export const loginVotante = async (dni, password) => {
+    return await apiClient.post('/estudiantes/login', { dni, password });
 };

@@ -1,4 +1,4 @@
-import { login, logout, me, refreshToken, updatePerfil } from '@/service/auth';
+import { login, loginVotante, logout, me, refreshToken, updatePerfil } from '@/service/auth';
 import { defineStore } from 'pinia';
 
 export const useAuthStore = defineStore('auth', {
@@ -14,12 +14,12 @@ export const useAuthStore = defineStore('auth', {
         nombreCompleto: (state) => (state.user ? `${state.user.nombre} ${state.user.apellido}` : '')
     },
     actions: {
-        async handleLogin(email, password) {
+        async handleLoginAdmin(nombre_usuario, password) {
             this.loading = true;
             this.error = null;
 
             try {
-                const response = await login(email, password);
+                const response = await login(nombre_usuario, password);
 
                 if (response.data.success) {
                     await this.fetchUser(); // importante: obtiene el usuario autenticado
@@ -30,6 +30,25 @@ export const useAuthStore = defineStore('auth', {
                 return false;
             } catch (err) {
                 this.error = err.response?.data?.message || 'Error al iniciar sesión';
+                return false;
+            } finally {
+                this.loading = false;
+            }
+        },
+        async handleLoginVotante(dni, password) {
+            this.loading = true;
+            this.error = null;
+            try {
+                const response = await loginVotante(dni, password);
+                if (response.data.success && response.data.token) {
+                    this.token = response.data.token;
+                    await this.fetchUser();
+                    return true;
+                }
+                this.error = 'Credenciales inválidas';
+                return false;
+            } catch (err) {
+                this.error = err.response?.data?.message || 'Error en login votante.';
                 return false;
             } finally {
                 this.loading = false;

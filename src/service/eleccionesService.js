@@ -4,9 +4,16 @@ export const indexEleccion = async () => {
     return apiClient.get('/elecciones');
 };
 
-// // metodos a corregir
-export const createCandidate = async (data) => {
-    return await apiClient.post('/candidatos', data);
+export const createEleccion = async (data) => {
+    return await apiClient.post('/elecciones', data);
+};
+
+export const cambiarEstadoEleccion = async (id, estado) => {
+    return await apiClient.patch(`/elecciones/${id}/estado`, { estado });
+};
+
+export const destroyEleccion = async (id) => {
+    return await apiClient.delete(`/elecciones/${id}`);
 };
 
 // export const deleteCandidateById = async (candidateId) => {

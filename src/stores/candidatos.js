@@ -1,5 +1,4 @@
-import { createCandidate, fetchCandidate, indexPorEleccion } from '@/service/candidateService';
-import { formatDateForCreateUsers } from '@/service/utils/dateUtil';
+import { asignarCandidatos, obtenerCandidatos } from '@/service/candidateService';
 import { defineStore } from 'pinia';
 
 export const useCandidatoStore = defineStore('candidato', {
@@ -11,22 +10,12 @@ export const useCandidatoStore = defineStore('candidato', {
     }),
 
     actions: {
-        async ObtenerCandidatos() {
-            try {
-                const response = await fetchCandidate();
-                this.candidatos = response.data;
-                console.log('Candidatos cargados:', this.candidatos);
-            } catch (error) {
-                this.errors = 'Error al cargar los candidatos';
-                console.error('Error loading candidatos:', error);
-            }
-        },
-        async ListaCandidatosPorEleccion(eleccionId) {
+        async ListaCandidatosPorPartido(partidoId) {
             this.loading = true;
             this.error = null;
             try {
-                const response = await indexPorEleccion(eleccionId);
-                this.candidatos = response.data;
+                const response = await obtenerCandidatos(partidoId);
+                this.candidatos = response.data.data;
             } catch (error) {
                 this.error = error.response?.data?.message || 'Error al cargar candidatos';
                 this.candidatos = [];
@@ -34,47 +23,28 @@ export const useCandidatoStore = defineStore('candidato', {
                 this.loading = false;
             }
         },
-        async crearCandidato(form) {
+        async asignarCandidatos(partidoId, eleccionId, candidatos) {
+            this.loading = true;
+            this.error = null;
             try {
-                form.fecha_postulacion = formatDateForCreateUsers(form.fecha_postulacion);
-                const response = await createCandidate(form);
-
-                if (response.data.success) {
-                    await this.ObtenerCandidatos();
-                    return true;
-                }
+                const payload = {
+                    partido_id: partidoId,
+                    eleccion_id: eleccionId,
+                    candidatos
+                };
+                await asignarCandidatos(payload);
             } catch (error) {
-                if (error.response && error.response.data && error.response.data.errors) {
-                    this.errors = error.response.data.errors; // Guardar los errores por cada campo
-                } else {
-                    this.errors = { general: ['Error al crear el candidato'] }; // Error genérico si no hay detalles
-                }
-                console.error('Error creando candidato:', error);
-                return false;
+                this.error = error.response?.data?.message || 'Error al asignar candidatos';
+                throw error; // para que el componente pueda atraparlo
+            } finally {
+                this.loading = false;
             }
         },
+
         reset() {
             this.candidatos = [];
             this.errors = null;
             this.loading = false;
         }
-        // async actualizarCandidato(form) {
-        //     try {
-        //         if (form.fecha_postulacion) {
-        //             const formattedDate = formatDateForApi(form.fecha_postulacion);
-        //             if (formattedDate) {
-        //                 form.fecha_postulacion = formattedDate;
-        //             }
-        //         }
-
-        //         await updateCandidate(form);
-        //         await this.ObtenerCandidatos();
-        //         return { success: true, message: 'Candidato actualizado' };
-        //     } catch (error) {
-        //         this.errors = error.response?.data?.errors || {};
-        //         console.error('Error actualizando candidato:', error);
-        //         return { success: false, error: this.errors };
-        //     }
-        // }
     }
 });

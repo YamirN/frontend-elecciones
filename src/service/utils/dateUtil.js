@@ -8,7 +8,6 @@ export const formatDateInList = (date) => {
     return `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
 };
 
-
 export const formatDateForCreateUsers = (date) => {
     if (!date) return null; // Manejo de fechas inválidas
     const formattedDate = new Date(date).toISOString().slice(0, 19).replace('T', ' ');
@@ -16,25 +15,37 @@ export const formatDateForCreateUsers = (date) => {
 };
 
 export const formatDateForApi = (date) => {
-    if (!date) return null; // Maneja el caso de fechas no definidas
+    if (!date) return null;
 
-    if (date instanceof Date) {
+    // Si es Date
+    if (date instanceof Date && !isNaN(date.getTime())) {
         const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0'); // Los meses empiezan en 0
+        const month = String(date.getMonth() + 1).padStart(2, '0');
         const day = String(date.getDate()).padStart(2, '0');
         return `${year}-${month}-${day}`;
-    } else if (typeof date === 'string') {
-        const parts = date.split('/'); // Separa la cadena en partes
-        if (parts.length === 3) {
-            const [day, month, year] = parts;
-            return `${year}-${month}-${day}`; // Retorna en el formato adecuado
-        } else {
-
-            return null; // Retorna null si el formato es incorrecto
-        }
-    } else {
-
-        return null; // Retorna null si el tipo no es soportado
     }
-};
 
+    // yyyy-MM-dd → dejar igual
+    if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        return date;
+    }
+
+    // yyyy-MM-ddTHH:mm:ss → recortar
+    if (/^\d{4}-\d{2}-\d{2}T/.test(date)) {
+        return date.substring(0, 10);
+    }
+
+    // dd-MM-yyyy → convertir a yyyy-MM-dd
+    if (/^\d{2}-\d{2}-\d{4}$/.test(date)) {
+        const [day, month, year] = date.split('-');
+        return `${year}-${month}-${day}`;
+    }
+
+    // dd/MM/yyyy → convertir a yyyy-MM-dd
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(date)) {
+        const [day, month, year] = date.split('/');
+        return `${year}-${month}-${day}`;
+    }
+
+    return null;
+};

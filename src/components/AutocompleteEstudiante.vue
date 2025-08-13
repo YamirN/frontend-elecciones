@@ -1,5 +1,6 @@
 <script setup>
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
+const isFocused = ref(false);
 
 const props = defineProps({
     modelValue: Object,
@@ -22,7 +23,14 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['update:modelValue', 'search']);
+const onFocus = () => {
+    isFocused.value = true;
+    showSuggestions.value = true;
+};
 
+const onBlur = () => {
+    isFocused.value = false;
+};
 const searchText = ref('');
 const showSuggestions = ref(false);
 const wrapperRef = ref(null);
@@ -53,6 +61,18 @@ watch(
     { immediate: true }
 );
 
+// 🔄 Abrir dropdown al cambiar sugerencias
+watch(
+    () => props.suggestions,
+    (newSuggestions) => {
+        if (isFocused.value && newSuggestions && newSuggestions.length > 0) {
+            showSuggestions.value = true;
+        } else {
+            showSuggestions.value = false;
+        }
+    }
+);
+
 // 🔒 Cerrar dropdown al hacer clic fuera
 const handleClickOutside = (e) => {
     if (!wrapperRef.value?.contains(e.target)) {
@@ -66,7 +86,7 @@ onBeforeUnmount(() => document.removeEventListener('click', handleClickOutside))
 
 <template>
     <div class="relative" ref="wrapperRef">
-        <input type="text" class="w-full border rounded px-3 py-2" :placeholder="placeholder" :value="searchText" @input="onInput" @focus="showSuggestions = true" />
+        <input type="text" class="w-full border rounded px-3 py-2" :placeholder="placeholder" :value="searchText" @input="onInput" @focus="onFocus" @blur="onBlur" />
 
         <!-- Sugerencias -->
         <ul v-if="showSuggestions" class="absolute z-10 bg-white border rounded w-full mt-1 max-h-60 overflow-auto shadow-lg">

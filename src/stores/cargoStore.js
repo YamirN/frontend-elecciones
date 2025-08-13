@@ -14,7 +14,6 @@ export const useCargoStore = defineStore('cargo', {
             try {
                 const response = await indexCargo();
                 this.cargos = response.data;
-                console.log('cargos cargados:', this.cargos);
             } catch (error) {
                 this.errors = 'Error al cargar los Cargos';
                 console.error('Error loading Cargos:', error);

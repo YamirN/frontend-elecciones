@@ -1,22 +1,36 @@
-import { createMesa, deleteMesa, fetchMesas } from '@/service/mesaSufragioService';
+import { asignarAulas, createMesa, deleteMesa, fetchMesaAsignacion, fetchMesas } from '@/service/mesaSufragioService';
 import { defineStore } from 'pinia';
 
 export const useMesaSufragioStore = defineStore('mesaSufragio', {
     state: () => ({
         mesas: [],
         error: null,
-        errors: {}
+        errors: {},
+        loading: false,
+        mesaSeleccionada: null,
+        aulasDisponibles: [],
+        aulasSinAsignarTotal: []
     }),
 
     actions: {
-        async getMesas() {
-
+        async ListarMesas(eleccionId) {
+            this.loading = true;
+            this.error = null;
             try {
-                const response = await fetchMesas();
-                this.mesas = response.data;
+                const response = await fetchMesas(eleccionId);
+                this.mesas = response.data.data;
             } catch (error) {
-                this.error = error.response?.data?.message || 'Error al cargar las mesas.';
+                this.error = error.response?.data?.message || 'Error al cargar mesas';
+                this.mesas = [];
+            } finally {
+                this.loading = false;
             }
+        },
+
+        reset() {
+            this.mesas = [];
+            this.error = null;
+            this.loading = false;
         },
 
         async addMesa(form) {
@@ -37,11 +51,36 @@ export const useMesaSufragioStore = defineStore('mesaSufragio', {
                 await this.getMesas(); // Recargar mesas después de eliminar
                 return true; // Operación exitosa
             } catch (error) {
-
                 this.error = error.response?.data?.message || 'Error al eliminar la mesa.';
                 return false; // Fallo
             }
         },
 
-    },
+        async asignarAulasAMesa(mesaId, aulas) {
+            this.loading = true;
+            this.errors = {};
+
+            try {
+                const response = await asignarAulas(mesaId, aulas);
+                // Opcional: actualizar la mesa en el store
+                const updatedMesa = response.data.data;
+                const index = this.mesas.findIndex((m) => m.id === updatedMesa.id);
+                if (index !== -1) {
+                    this.mesas[index] = updatedMesa;
+                }
+                return true;
+            } catch (error) {
+                this.errors = error.response?.data?.errors || {};
+                return false;
+            } finally {
+                this.loading = false;
+            }
+        },
+        async cargarMesaParaAsignacion(mesaId) {
+            const response = await fetchMesaAsignacion(mesaId);
+            this.mesaSeleccionada = response.data.mesa;
+            this.aulasDisponibles = response.data.aulas_disponibles;
+            this.aulasSinAsignarTotal = response.data.aulas_sin_asignar_total;
+        }
+    }
 });

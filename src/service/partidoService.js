@@ -1,39 +1,30 @@
 import apiClient from './axios';
 
-export const indexPartido = async () => {
-    return apiClient.get('/partidos');
+export const getEleccionConPartidos = async () => {
+    return apiClient.get('/elecciones/partidos-activos');
 };
 
-// export const indexPorEleccion = async (eleccionId) => {
-//     return apiClient.get(`/candidatos/eleccion/${eleccionId}`);
-// };
+export const ObtenerPorEleccion = async (eleccionId) => {
+    return apiClient.get(`/elecciones/${eleccionId}/partidos`);
+};
 
-// // metodos a corregir
-// export const createCandidate = async (data) => {
-//     return await apiClient.post('/api/candidatos', data, {
-//         headers: {
-//             'Content-Type': 'multipart/form-data' // Esto es importante para enviar archivos
-//         }
-//     });
-// };
+export const createPartido = async (data) => {
+    return apiClient.post('/partidos', data, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    });
+};
 
-// export const deleteCandidateById = async (candidateId) => {
-//     try {
-//         const response = await apiClient.delete(`/api/candidatos/${candidateId}`);
-//         return response.data;
-//     } catch (error) {
-//         console.error('Error en la API al eliminar el candidato:', error);
-//         throw error;
-//     }
-// };
+export const updatePartido = async (id, data) => {
+    data.append('_method', 'PUT'); // necesario para Laravel si envías archivos
+    return apiClient.post(`/partidos/${id}`, data, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    });
+};
 
-// export const updateCandidate = async (candidateData) => {
-//     try {
-//         const response = await apiClient.put(`/api/candidatos/${candidateData.id}`, candidateData);
-
-//         return response.data;
-//     } catch (error) {
-//         console.error('Error al actualizar el candidato:', error);
-//         throw error;
-//     }
-// };
+export const destroyPartido = async (id) => {
+    return await apiClient.delete(`/partidos/${id}`);
+};

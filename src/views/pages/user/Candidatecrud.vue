@@ -157,7 +157,7 @@ const onBuscarEstudiante = (query) => {
 onMounted(async () => {
     candidatoStore.reset();
 
-    await Promise.all([eleccionStore.ListaEleccion(), cargoStore.ListaCargo(), partidoStore.ListaPartido()]);
+    await Promise.all([eleccionStore.ListaEleccion(), cargoStore.ListaCargo(), partidoStore.fetchEleccionConPartidos()]);
 });
 
 // 🎯 Filtro de candidatos
@@ -296,19 +296,6 @@ watch(eleccionSeleccionada, async (id) => {
                 </div>
 
                 <div>
-                    <InputLabel for="partido_politico_id" value="Partido Político" />
-                    <select name="partido_politico_id" class="w-full p-2 border rounded">
-                        <option value="">Seleccione un partido</option>
-                        <option v-for="partido in partidos" :key="partido.id" :value="partido.id">
-                            {{ partido.nombre_partido }}
-                        </option>
-                    </select>
-                    <Message v-if="$form.partido_politico_id?.invalid" severity="error">
-                        {{ $form.partido_politico_id.error.message }}
-                    </Message>
-                </div>
-
-                <div>
                     <InputLabel for="cargo_id" value="Cargo" />
                     <select name="cargo_id" class="w-full p-2 border rounded">
                         <option value="">Seleccione un cargo</option>
@@ -318,19 +305,6 @@ watch(eleccionSeleccionada, async (id) => {
                     </select>
                     <Message v-if="$form.cargo_id?.invalid" severity="error">
                         {{ $form.cargo_id.error.message }}
-                    </Message>
-                </div>
-
-                <div>
-                    <InputLabel for="eleccion_id" value="Elección" />
-                    <select name="eleccion_id" class="w-full p-2 border rounded">
-                        <option value="">Seleccione una elección</option>
-                        <option v-for="eleccion in elecciones" :key="eleccion.id" :value="eleccion.id">
-                            {{ eleccion.nombre }}
-                        </option>
-                    </select>
-                    <Message v-if="$form.eleccion_id?.invalid" severity="error">
-                        {{ $form.eleccion_id.error.message }}
                     </Message>
                 </div>
 
