@@ -300,16 +300,16 @@ watch(eleccionSeleccionada, async (id) => {
 
                         <template v-else>
                             <!-- ver candidatos -->
-                            <Button icon="pi pi-eye" outlined rounded class="mr-2" @click="verCandidatos(slotProps.data)" />
+                            <Button icon="pi pi-eye" outlined rounded class="mr-2" severity="info" @click="verCandidatos(slotProps.data)" v-tooltip.top="'Ver candidatos'" />
 
                             <!-- asignar candidatos -->
                             <Button icon="pi pi-user-plus" outlined rounded class="mr-2" severity="success" @click="openAsignarCandidatos(slotProps.data)" v-tooltip.top="'Asignar candidatos'" />
 
                             <!-- editar -->
-                            <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="openEdit(slotProps.data)" />
+                            <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="openEdit(slotProps.data)" v-tooltip.top="'Editar partido'" />
 
                             <!-- eliminar -->
-                            <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeletePartido(slotProps.data)" />
+                            <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeletePartido(slotProps.data)" v-tooltip.top="'Eliminar partido'" />
                         </template>
                     </template>
                 </Column>

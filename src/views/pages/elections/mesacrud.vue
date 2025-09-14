@@ -10,7 +10,7 @@ const mesaStore = useMesaSufragioStore();
 const eleccionStore = useEleccionStore();
 
 const { elecciones, loading: loadingElecciones } = storeToRefs(eleccionStore);
-const { mesas, loading: loadingMesas, aulasDisponibles, mesaSeleccionada, aulasSinAsignarTotal } = storeToRefs(mesaStore);
+const { mesas, loading: loadingMesas, aulasDisponibles, mesaSeleccionada, loadingExport } = storeToRefs(mesaStore);
 
 const eleccionSeleccionada = ref('');
 const toast = useToast();
@@ -95,6 +95,9 @@ const handleSave = async () => {
     }
 };
 
+const descargarZip = (mesaId) => {
+    mesaStore.exportarZipDeMesa(mesaId);
+};
 // logica asignar
 
 const aulasSeleccionadas = ref([]);
@@ -309,10 +312,26 @@ watch(mesaSeleccionada, (nueva) => {
                             <Skeleton shape="circle" size="2rem" class="mr-2" />
                             <Skeleton shape="circle" size="2rem" />
                         </template>
+
                         <template v-else>
-                            <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="editMesa(slotProps.data)" />
-                            <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteMesa(slotProps.data)" />
-                            <Button icon="pi pi-users" label="Asignar aulas" @click="abrirDialogoAsignar(slotProps.data)" />
+                            <!-- asignar aulas -->
+                            <Button icon="pi pi-book" outlined rounded class="mr-2" severity="info" @click="abrirDialogoAsignar(slotProps.data)" v-tooltip.top="'Asignar aulas'" />
+                            <Button
+                                icon="pi pi-download"
+                                :loading="mesaStore.loadingExportByMesa[slotProps.data.id]"
+                                outlined
+                                rounded
+                                severity="success"
+                                class="mr-2"
+                                :disabled="!slotProps.data.estudiantes_count || slotProps.data.estudiantes_count === 0 || mesaStore.loadingExportByMesa[slotProps.data.id]"
+                                @click="descargarZip(Number(slotProps.data.id))"
+                                v-tooltip.top="'Descargar padron por mesas'"
+                            />
+                            <!-- editar -->
+                            <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="editMesa(slotProps.data)" v-tooltip.top="'Editar mesa'" />
+
+                            <!-- eliminar -->
+                            <Button icon="pi pi-trash" outlined rounded severity="danger" class="mr-2" @click="confirmDeleteMesa(slotProps.data)" v-tooltip.top="'Eliminar mesa'" />
                         </template>
                     </template>
                 </Column>
@@ -370,17 +389,22 @@ watch(mesaSeleccionada, (nueva) => {
             </template>
         </Dialog>
 
-        <Dialog v-model:visible="asignarDialogVisible" header="Asignar aulas" modal>
+        <Dialog v-model:visible="asignarDialogVisible" header="Asignar aulas" modal class="p-4 rounded-lg shadow-lg max-w-3xl w-full">
             <template #default>
                 <div v-if="aulasDisponibles.length">
-                    <div v-for="aula in aulasDisponibles" :key="aula.nombre">
-                        <input type="checkbox" :checked="isAulaAsignada(aula.nombre)" @change="toggleAula(aula, $event)" />
-                        {{ aula.nombre }}
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                        <div v-for="aula in aulasDisponibles" :key="aula.nombre" class="flex items-center gap-2 p-2 border rounded hover:bg-gray-50 transition">
+                            <input type="checkbox" :checked="isAulaAsignada(aula.nombre)" @change="toggleAula(aula, $event)" class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                            <span class="text-gray-700 font-medium">{{ aula.nombre }}</span>
+                        </div>
                     </div>
 
-                    <Button label="Guardar" icon="pi pi-check" @click="guardarAsignacion" />
+                    <div class="flex justify-end mt-4">
+                        <Button label="Guardar" icon="pi pi-check" class="bg-blue-600 hover:bg-blue-700 text-white" @click="guardarAsignacion" />
+                    </div>
                 </div>
-                <div v-else>
+
+                <div v-else class="text-center py-6 text-gray-500">
                     <p>No hay aulas disponibles para asignar.</p>
                 </div>
             </template>

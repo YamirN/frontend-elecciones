@@ -44,6 +44,7 @@ const showFormDialog = ref(false);
 const isEditMode = ref(false);
 const showDeleteDialog = ref(false);
 const selectedEstudiante = ref(null);
+const confirmText = ref('');
 
 // filtros
 
@@ -197,7 +198,13 @@ const SeccionOptions = ref([
     { label: 'E', value: 'E' },
     { label: 'F', value: 'F' },
     { label: 'G', value: 'G' },
-    { label: 'H', value: 'H' }
+    { label: 'H', value: 'H' },
+    { label: 'I', value: 'I' },
+    { label: 'J', value: 'J' },
+    { label: 'K', value: 'K' },
+    { label: 'L', value: 'L' },
+    { label: 'M', value: 'M' },
+    { label: 'N', value: 'N' }
 ]);
 
 const optionsEstado = [
@@ -327,6 +334,8 @@ const eliminarVotantes = async () => {
     } else {
         console.error(estudianteStore.error || 'Error al eliminar los votantes.');
     }
+    confirmText.value = '';
+    deleteConfirmVisible.value = false;
 };
 
 const deleteEstudiante = async () => {
@@ -652,14 +661,22 @@ watch(() => form.value, validateSelection, { deep: true });
     <!-- Toast para mensajes -->
     <Toast />
     <!-- Diálogo de confirmación -->
-    <Dialog v-model:visible="deleteConfirmVisible" modal header="Confirmar eliminación" :style="{ width: '350px' }">
-        <div class="flex align-items-center justify-content-center">
-            <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-            <span>¿Está seguro de que desea eliminar todos los registros de estudiantes?</span>
+    <Dialog v-model:visible="deleteConfirmVisible" modal :style="{ width: '400px' }" :closable="false">
+        <div class="px-6 py-4">
+            <div class="flex flex-col items-center text-center space-y-4">
+                <i class="pi pi-exclamation-triangle text-red-500" style="font-size: 3rem"></i>
+                <h2 class="text-xl font-bold text-gray-800">Confirmar eliminación</h2>
+                <p class="text-gray-600">Esta acción eliminará <strong>todos los registros de estudiantes</strong>. Para continuar, escribe <span class="font-semibold text-red-500">ELIMINAR</span> en el campo.</p>
+
+                <InputText v-model="confirmText" placeholder="Escribe ELIMINAR para confirmar" class="w-full" />
+            </div>
         </div>
+
         <template #footer>
-            <Button label="No" icon="pi pi-times" @click="deleteConfirmVisible = false" class="p-button-text" />
-            <Button label="Sí" icon="pi pi-check" @click="eliminarVotantes" severity="danger" autofocus />
+            <div class="flex justify-end gap-3 px-6 py-3 border-t">
+                <Button label="Cancelar" icon="pi pi-times" text class="p-button-secondary" @click="deleteConfirmVisible = false" />
+                <Button label="Eliminar" icon="pi pi-trash" severity="danger" :disabled="confirmText !== 'ELIMINAR'" @click="eliminarVotantes" />
+            </div>
         </template>
     </Dialog>
 

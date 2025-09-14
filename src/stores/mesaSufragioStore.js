@@ -1,4 +1,5 @@
-import { asignarAulas, createMesa, deleteMesa, fetchMesaAsignacion, fetchMesas } from '@/service/mesaSufragioService';
+import { asignarAulas, createMesa, deleteMesa, exportarZip, fetchMesaAsignacion, fetchMesas } from '@/service/mesaSufragioService';
+import { downloadFile } from '@/service/utils/downloadFile';
 import { defineStore } from 'pinia';
 
 export const useMesaSufragioStore = defineStore('mesaSufragio', {
@@ -9,7 +10,9 @@ export const useMesaSufragioStore = defineStore('mesaSufragio', {
         loading: false,
         mesaSeleccionada: null,
         aulasDisponibles: [],
-        aulasSinAsignarTotal: []
+        aulasSinAsignarTotal: [],
+        loadingExportByMesa: {},
+        errorExport: null
     }),
 
     actions: {
@@ -81,6 +84,22 @@ export const useMesaSufragioStore = defineStore('mesaSufragio', {
             this.mesaSeleccionada = response.data.mesa;
             this.aulasDisponibles = response.data.aulas_disponibles;
             this.aulasSinAsignarTotal = response.data.aulas_sin_asignar_total;
+        },
+        async exportarZipDeMesa(mesaId) {
+            this.loadingExportByMesa[mesaId] = true;
+            this.errorExport = null;
+
+            try {
+                const blob = await exportarZip(mesaId);
+                downloadFile(blob, `mesas_${mesaId}.zip`);
+            } catch (err) {
+                this.errorExport = err.response?.data?.message || 'Error al exportar ZIP';
+                console.error(this.errorExport);
+            } finally {
+                setTimeout(() => {
+                    this.loadingExportByMesa[mesaId] = false;
+                }, 500);
+            }
         }
     }
 });

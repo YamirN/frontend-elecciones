@@ -20,14 +20,15 @@ const routes = [
         component: () => import('@/views/pages/cliente/Register.vue')
     },
     {
-        path: '/servicio',
-        name: 'servicio',
-        component: () => import('@/views/pages/servicio/Servicio.vue')
+        path: '/auth/access',
+        name: 'accessDenied',
+        component: () => import('@/views/pages/auth/Access.vue')
     },
+
     {
         path: '/admin',
         component: AppLayout,
-        meta: { requiresAuth: true, roles: ['administrador'] },
+        meta: { requiresAuth: true, roles: ['!estudiante'] },
         children: [
             {
                 path: 'dashboard',
@@ -37,37 +38,56 @@ const routes = [
             {
                 path: 'usuarios',
                 name: 'usuarios',
-                component: () => import('@/views/pages/user/Usercrud.vue')
+                component: () => import('@/views/pages/user/Usercrud.vue'),
+                meta: { requiresAuth: true, section: 'admin', permission: 'ver usuarios' }
             },
             {
                 path: 'roles',
                 name: 'roles',
-                component: () => import('@/views/pages/user/Roles.vue')
+                component: () => import('@/views/pages/user/Roles.vue'),
+                meta: { requiresAuth: true, permission: 'ver roles' }
             },
             {
                 path: 'estudiantes',
                 name: 'estudiantes',
-                component: () => import('@/views/pages/user/Estudiantecrud.vue')
+                component: () => import('@/views/pages/user/Estudiantecrud.vue'),
+                meta: { requiresAuth: true, permission: 'ver estudiantes' }
             },
             {
                 path: 'candidatos',
                 name: 'candidatos',
-                component: () => import('@/views/pages/user/Candidatecrud.vue')
+                component: () => import('@/views/pages/user/Candidatecrud.vue'),
+                meta: { requiresAuth: true, permission: 'ver candidatos' }
             },
             {
                 path: 'mesas',
                 name: 'mesas',
-                component: () => import('@/views/pages/elections/mesacrud.vue')
+                component: () => import('@/views/pages/elections/mesacrud.vue'),
+                meta: { requiresAuth: true, permission: 'ver mesas' }
             },
             {
                 path: 'elecciones',
                 name: 'elecciones',
-                component: () => import('@/views/pages/admin/Elecciones.vue')
+                component: () => import('@/views/pages/admin/Elecciones.vue'),
+                meta: { requiresAuth: true, permission: 'ver eleccion' }
             },
             {
                 path: 'partidos',
                 name: 'partidos',
-                component: () => import('@/views/pages/admin/Partidos.vue')
+                component: () => import('@/views/pages/admin/Partidos.vue'),
+                meta: { requiresAuth: true, permission: 'ver partidos' }
+            },
+            {
+                path: 'eventos',
+                name: 'eventos',
+                component: () => import('@/views/pages/admin/Eventos.vue'),
+                meta: { requiresAuth: true, permission: 'ver eventos' }
+            },
+            {
+                path: 'eventos-votar',
+                name: 'eventos-votar',
+                component: () => import('@/views/pages/admin/EventosVotar.vue'),
+                meta: { requiresAuth: true, permission: 'ver eventos votar' }
             }
         ]
     },
@@ -100,45 +120,44 @@ router.beforeEach(async (to, from, next) => {
     const app = useAppStore();
     app.startLoading();
 
-    const requiresAuth = to.meta.requiresAuth;
-    const allowedRoles = to.meta.roles || [];
-
-    // 👉 Siempre intenta autenticar al usuario si no está definido aún
-    if (!authStore.user) {
+    // 👉 Si la ruta requiere autenticación y aún no hay user, intenta cargarlo
+    if (to.meta.requiresAuth && !authStore.user) {
         try {
             await authStore.fetchUser();
         } catch {
-            if (requiresAuth) {
-                return next({ name: 'login' });
-            }
+            return next({ name: 'login' });
         }
     }
 
     const role = authStore.user?.rol;
 
-    // 👉 Si el usuario ya está autenticado e intenta acceder a login o registrar, redirige al dashboard
+    // 👉 Si ya está autenticado e intenta ir a login o registrar
     if (['login', 'registrar'].includes(to.name) && authStore.user) {
-        switch (role) {
-            case 'administrador':
-                return next({ name: 'dashboard' });
-            case 'estudiante':
-                return next({ name: 'votar' });
-            default:
-                return next('/');
+        if (role === 'estudiante') {
+            return next({ name: 'votar' });
         }
+        return next({ name: 'dashboard' });
     }
 
-    // 👉 Si la ruta requiere auth y el usuario no está autenticado
-    if (requiresAuth && !authStore.user) {
+    // 👉 Si la ruta requiere auth y no está autenticado
+    if (to.meta.requiresAuth && !authStore.user) {
         return next({ name: 'login' });
     }
 
-    // 👉 Si hay restricciones de rol y el usuario no pertenece al rol permitido
-    if (requiresAuth && allowedRoles.length > 0 && !allowedRoles.includes(role)) {
-        return next({ name: 'login' }); // o una ruta de "403"
+    // 👉 Reglas de secciones (según tu lógica de negocio)
+    if (role === 'estudiante' && to.meta.section === 'admin') {
+        return next({ name: 'loginvotante' });
     }
 
-    // ✅ Todo en orden
+    if (role !== 'estudiante' && to.meta.section === 'votante') {
+        return next({ name: 'login' });
+    }
+
+    // 👉 Validación de permisos con Spatie
+    if (to.meta.permission && !authStore.can(to.meta.permission)) {
+        return next({ name: 'accessDenied' }); // o 403.vue
+    }
+
     return next();
 });
 

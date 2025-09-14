@@ -1,13 +1,24 @@
 <script setup>
+import { useAuthStore } from '@/stores/auth';
 import { usePartidoStore } from '@/stores/partidoStore';
+import { useVotacionStore } from '@/stores/votarStore';
 import { storeToRefs } from 'pinia';
 import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 // Estado de la interfaz
+const baseLogoUrl = import.meta.env.VITE_STORAGE_URL + '/';
 
 const partidoStore = usePartidoStore();
+const votoStore = useVotacionStore();
+const authStore = useAuthStore();
+
+const { user } = storeToRefs(authStore);
+const { cargando } = storeToRefs(votoStore);
 const { loading, eleccion, partidos, electionDetails, electionActive } = storeToRefs(partidoStore);
 
+const router = useRouter();
+const loggingOut = ref(false);
 const selectedParty = ref(null);
 const selectedVoteType = ref(null);
 const message = ref('');
@@ -34,21 +45,53 @@ const confirmVote = () => {
     showConfirmationDialog.value = true;
 };
 
+const startLogoutCountdown = () => {
+    loggingOut.value = true;
+    countdown.value = 3;
+
+    const interval = setInterval(() => {
+        countdown.value -= 1;
+        if (countdown.value <= 0) {
+            clearInterval(interval);
+            handleLogout();
+        }
+    }, 1000);
+};
+
 const submitVote = async () => {
     try {
         const tipoVoto = selectedVoteType.value || 'valido';
         const partidoId = selectedParty.value?.id || null;
 
         await votoStore.registrarVoto({
-            partido_politico_id: partidoId,
+            partido_id: partidoId,
             tipo_voto: tipoVoto
         });
 
+        // Cerrar el diálogo de confirmación
         showConfirmationDialog.value = false;
+
+        // Mostrar mensaje de voto registrado
         hasVotedSuccessfully.value = true;
+
+        // Iniciar logout con contador
+        startLogoutCountdown();
     } catch (error) {
         message.value = 'Ocurrió un error al registrar tu voto.';
         messageType.value = 'error';
+    }
+};
+
+const countdown = ref(3);
+const handleLogout = async () => {
+    try {
+        await authStore.handleLogout(); // destruye token en la cookie
+    } catch (_) {
+        /* no importa el error */
+    } finally {
+        loggingOut.value = false;
+        hasVotedSuccessfully.value = false;
+        router.push('/estudiantes/login');
     }
 };
 
@@ -60,6 +103,12 @@ const goToLogin = () => {
 // Al montar el componente, iniciar el flujo
 onMounted(async () => {
     await partidoStore.fetchEleccionConPartidos();
+
+    // Preprocesar partidos para agregar logoUrl
+    partidos.value = partidos.value.map((p) => ({
+        ...p,
+        logoUrl: p.logo ? `${import.meta.env.VITE_STORAGE_URL}/${p.logo}` : '/default-logo.png' // ruta a tu logo por defecto
+    }));
 });
 </script>
 
@@ -93,15 +142,20 @@ onMounted(async () => {
                     </div>
                     <p class="text-lg text-gray-600 mb-4">
                         Periodo de votación:
-                        <span class="font-semibold text-gray-700">{{ electionDetails.startDate }}</span> -
-                        <span class="font-semibold text-gray-700">{{ electionDetails.endDate }}</span>
+                        <span class="font-semibold text-gray-700">{{ electionDetails.startDate }}</span>
                     </p>
+                    <p class="text-xl font-semibold mb-6">
+                        <span class="text-blue-700">Hola, </span>
+                        <span class="text-gray-900">{{ user.nombre }} {{ user.apellido }}</span>
+                    </p>
+
                     <p class="text-xl text-blue-700 font-semibold mb-6">Por favor, elige una lista para votar o selecciona la opción de voto nulo/blanco.</p>
                     <p v-if="message" :class="messageType === 'error' ? 'text-red-500' : 'text-green-500'" class="mt-4 text-lg font-medium">
                         {{ message }}
                     </p>
                 </div>
 
+                <!-- Partidos -->
                 <!-- Partidos -->
                 <div
                     v-for="(partido, index) in partidos"
@@ -115,11 +169,14 @@ onMounted(async () => {
                 >
                     <div class="flex items-center flex-grow">
                         <span class="text-3xl font-bold text-gray-900 mr-6 w-12 text-center">{{ index + 1 }}</span>
-                        <img :src="partido.logo || 'https://via.placeholder.com/64x64?text=Sin+Logo'" :alt="`Logo de ${partido.nombre_partido}`" class="w-16 h-16 object-contain mr-6" />
+
+                        <!-- Logo del partido actual -->
+                        <img :src="partido.logo ? baseLogoUrl + partido.logo : '/default-logo.png'" alt="Logo del partido" class="h-16 w-16 object-contain mr-4" />
                         <div>
                             <h3 class="text-xl font-bold text-gray-900 m-0">{{ partido.nombre_partido }}</h3>
                         </div>
                     </div>
+
                     <div class="flex-shrink-0">
                         <button
                             @click.stop="selectParty(partido)"
@@ -172,15 +229,20 @@ onMounted(async () => {
                 </div>
             </div>
 
-            <!-- Voto Registrado con Éxito -->
-            <div v-else class="text-center py-8 fade-in-up">
+            <!-- Mensaje de voto registrado -->
+            <div v-if="hasVotedSuccessfully" class="text-center py-8 fade-in-up">
+                <!-- Mensaje de voto registrado -->
                 <i class="pi pi-star-fill text-5xl text-yellow-500 mb-4 animate-bounce"></i>
                 <h2 class="text-3xl font-bold text-900 mb-3">¡Voto Registrado con Éxito!</h2>
                 <p class="text-lg text-600 mb-5">Gracias por participar en las elecciones estudiantiles.</p>
-                <button @click="goToLogin" class="bg-blue-600 text-white py-3 px-6 rounded-lg text-lg font-semibold shadow-md hover:bg-blue-700 transition-colors duration-300 flex items-center justify-center mx-auto">
-                    <i class="pi pi-home mr-3"></i>
-                    Volver al Inicio
-                </button>
+
+                <!-- Animación de cerrando sesión -->
+                <div v-if="loggingOut" class="mt-6">
+                    <i class="pi pi-spin pi-power-off text-5xl text-red-500 mb-4 animate-spin"></i>
+                    <h2 class="text-3xl font-bold text-900 mb-3">Cerrando sesión...</h2>
+                    <p class="text-lg text-600 mb-5">Espere un momento mientras se cierra su sesión.</p>
+                    <p class="text-xl font-semibold">Redirigiendo en {{ countdown }}s</p>
+                </div>
             </div>
         </div>
 
@@ -198,7 +260,7 @@ onMounted(async () => {
 
                 <!-- Solo si hay un partido seleccionado -->
                 <div v-if="selectedParty" class="border p-4 mb-5 text-center rounded-lg border-gray-200">
-                    <img :src="selectedParty.logo || 'https://via.placeholder.com/96?text=Logo'" :alt="`Logo de ${selectedParty.nombre_partido}`" class="w-24 h-24 object-contain mx-auto mb-3" />
+                    <img :src="selectedParty.logo ? baseLogoUrl + selectedParty.logo : '/default-logo.png'" :alt="`Logo de ${selectedParty.nombre_partido}`" class="w-24 h-24 object-contain mx-auto mb-3" />
                     <h3 class="text-2xl font-bold text-gray-900 mb-1">
                         {{ selectedParty.nombre_partido }}
                     </h3>
@@ -227,6 +289,20 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+.fade-in-up {
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 /* Estilos PrimeVue-like reutilizados y adaptados */
 .min-h-screen {
     min-height: 100vh;

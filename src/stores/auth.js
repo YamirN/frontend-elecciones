@@ -129,6 +129,13 @@ export const useAuthStore = defineStore('auth', {
             } finally {
                 this.loading = false;
             }
+        },
+        hasRole(role) {
+            return this.user?.rol === role;
+        },
+
+        can(permission) {
+            return this.user?.permisos?.includes(permission);
         }
     }
 });

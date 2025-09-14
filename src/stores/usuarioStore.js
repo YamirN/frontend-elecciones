@@ -19,10 +19,13 @@ export const useUsuarioStore = defineStore('usuarios', {
             const response = await ListaRoles();
             this.roles = response.data.data;
         },
+
         async obtenerPermisos() {
             const response = await ListaPermisos();
             this.permisos = response.data.permissions;
+            return response.data;
         },
+
         async asignarPermisos(roleId, permisos) {
             this.loading = true;
             this.errors = null;
@@ -43,14 +46,14 @@ export const useUsuarioStore = defineStore('usuarios', {
         },
         async crearUsuario(data) {
             this.loading = true;
-            this.errors = null;
+            this.errors = {};
 
             try {
                 const response = await CreateUsuario(data);
                 await this.obtenerUsuarios();
                 return response.data;
             } catch (error) {
-                this.errors = error.response?.data || error;
+                this.errors = error.response?.data?.errors || {};
                 throw error;
             } finally {
                 this.loading = false;

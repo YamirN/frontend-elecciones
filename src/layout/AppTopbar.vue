@@ -44,7 +44,7 @@ const logout = async () => {
                 <i class="pi pi-bars"></i>
             </button>
 
-            <span class="text-gray-700 text-lg font-semibold tracking-wide ml-2 hidden md:inline-block"> DejavuSpa </span>
+            <span class="text-gray-700 text-lg font-semibold tracking-wide ml-2 hidden md:inline-block"> </span>
         </div>
         <div class="layout-topbar-actions">
             <div class="layout-topbar-menu hidden lg:block">

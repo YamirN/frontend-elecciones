@@ -28,3 +28,10 @@ export const obtenerAulasDisponibles = async (mesaId) => {
     const { data } = await apiClient.get(`/mesas/${mesaId}/aulas-disponibles`);
     return data;
 };
+
+export const exportarZip = async (mesaId) => {
+    const response = await apiClient.get(`/mesas/${mesaId}/pdf`, {
+        responseType: 'blob'
+    });
+    return response.data; // <-- devolvemos solo el blob
+};

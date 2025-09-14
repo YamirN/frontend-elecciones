@@ -17,7 +17,7 @@ export const AsignarPermisos = (roleId, data) => {
 };
 
 export const CreateUsuario = (data) => {
-    return apiClient.post('/usuarios', data);
+    return apiClient.post('/register', data);
 };
 
 export const UpdateUsuario = (id, data) => {

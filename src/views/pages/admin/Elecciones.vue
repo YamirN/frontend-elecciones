@@ -1,5 +1,6 @@
 <script setup>
 import { formatDateForApi } from '@/service/utils/dateUtil';
+import { useAuthStore } from '@/stores/auth';
 import { useEleccionStore } from '@/stores/eleccionesStore';
 import { storeToRefs } from 'pinia';
 import { useToast } from 'primevue/usetoast';
@@ -7,7 +8,7 @@ import { onMounted, ref } from 'vue';
 
 // States y Stores
 const eleccionStore = useEleccionStore();
-
+const authStore = useAuthStore();
 const { elecciones, loading: loadingElecciones } = storeToRefs(eleccionStore);
 const selectedEleccion = ref(null);
 const isEditMode = ref(false);
@@ -170,62 +171,91 @@ onMounted(async () => {
                 </template>
             </Toolbar>
 
-            <DataTable :value="elecciones" :paginator="true" :rows="8" :filters="filters" :globalFilterFields="['nombre', 'estado']" tableStyle="min-width: 40rem" currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} usuarios">
+            <DataTable
+                :value="elecciones"
+                :paginator="true"
+                :rows="8"
+                :filters="filters"
+                :globalFilterFields="['nombre', 'estado']"
+                dataKey="id"
+                stripedRows
+                responsiveLayout="scroll"
+                currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} elecciones"
+                class="rounded-2xl shadow-sm border border-gray-200"
+            >
+                <!-- CABECERA -->
                 <template #header>
-                    <div class="flex flex-wrap gap-2 items-center justify-between">
-                        <h4 class="m-0">Administrar Elecciones</h4>
-                        <IconField>
+                    <div class="flex flex-wrap gap-3 items-center justify-between p-3 bg-gray-50 rounded-t-2xl">
+                        <h3 class="text-lg font-semibold text-gray-700 flex items-center gap-2"><i class="pi pi-cog text-blue-500"></i> Administrar Elecciones</h3>
+
+                        <IconField class="w-full md:w-64">
                             <InputIcon>
-                                <i class="pi pi-search" />
+                                <i class="pi pi-search text-gray-400" />
                             </InputIcon>
-                            <InputText v-model="filters['global'].value" placeholder="Buscar..." />
+                            <InputText v-model="filters['global'].value" placeholder="Buscar elecciones..." class="w-full rounded-lg" />
                         </IconField>
                     </div>
                 </template>
 
-                <!-- Columna 1: Nombre -->
-                <Column header="Nombre Eleccion" style="width: 30%">
+                <!-- COLUMNA: Nombre -->
+                <Column header="Nombre" style="width: 30%">
                     <template #body="slotProps">
-                        <Skeleton v-if="loadingElecciones" height="1rem" width="80%"></Skeleton>
-
-                        <span v-else>{{ slotProps.data.nombre }}</span>
+                        <Skeleton v-if="loadingElecciones" height="1rem" width="80%" />
+                        <span v-else class="font-medium text-gray-800">{{ slotProps.data.nombre }}</span>
                     </template>
                 </Column>
 
+                <!-- COLUMNA: Fecha Inicio -->
                 <Column header="Fecha Inicio" style="width: 20%">
                     <template #body="slotProps">
                         <Skeleton v-if="loadingElecciones" height="1rem" width="60%" />
-                        <span v-else>{{ slotProps.data.fecha_inicio }}</span>
+                        <span v-else class="text-gray-600">{{ slotProps.data.fecha_inicio }}</span>
                     </template>
                 </Column>
 
+                <!-- COLUMNA: Estado -->
                 <Column header="Estado" style="width: 20%">
                     <template #body="slotProps">
                         <Skeleton v-if="loadingElecciones" height="1rem" width="60%" />
-                        <span v-else>{{ slotProps.data.estado }}</span>
+                        <span
+                            v-else
+                            :class="[
+                                'px-3 py-1 text-sm font-semibold rounded-md',
+                                slotProps.data.estado === 'en_proceso' ? 'bg-green-100 text-green-700' : slotProps.data.estado === 'pendiente' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-200 text-gray-700'
+                            ]"
+                        >
+                            {{ slotProps.data.estado }}
+                        </span>
                     </template>
                 </Column>
 
-                <Column header="Total de votos" style="width: 25%">
+                <!-- COLUMNA: Total Votos -->
+                <Column header="Total de Votos" style="width: 20%">
                     <template #body="slotProps">
                         <Skeleton v-if="loadingElecciones" height="1rem" width="50%" />
-                        <span v-else>{{ slotProps.data.total_votos }}</span>
+                        <span v-else class="text-gray-800">{{ slotProps.data.total_votos }}</span>
                     </template>
                 </Column>
 
-                <!-- Acciones -->
-                <Column header="Acciones" style="min-width: 14rem">
+                <Column header="Acciones" style="min-width: 16rem" bodyClass="flex gap-2">
                     <template #body="slotProps">
                         <template v-if="loadingElecciones">
                             <Skeleton shape="circle" size="2rem" class="mr-2" />
                             <Skeleton shape="circle" size="2rem" />
                         </template>
                         <template v-else>
-                            <!-- Botón para avanzar el estado -->
-                            <Button :icon="getEstadoIcon(slotProps.data.estado)" :label="getEstadoLabel(slotProps.data.estado)" class="mr-2" @click="cambiarEstado(slotProps.data)" :disabled="slotProps.data.estado === 'finalizada'" severity="info" />
+                            <!-- Botón cambiar estado -->
+                            <Button
+                                :icon="getEstadoIcon(slotProps.data.estado)"
+                                :label="getEstadoLabel(slotProps.data.estado)"
+                                class="p-button-sm"
+                                :disabled="slotProps.data.estado === 'finalizada'"
+                                @click="cambiarEstado(slotProps.data)"
+                                severity="info"
+                            />
 
                             <!-- Botón eliminar -->
-                            <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteEleccion(slotProps.data)" />
+                            <Button v-if="authStore.can('eliminar eleccion')" icon="pi pi-trash" label="Eliminar" class="p-button-sm" @click="confirmDeleteEleccion(slotProps.data)" severity="danger" />
                         </template>
                     </template>
                 </Column>

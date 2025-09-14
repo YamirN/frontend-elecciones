@@ -1,23 +1,17 @@
 import Echo from 'laravel-echo';
-// Importa `pusher-js` como un módulo ES
 import Pusher from 'pusher-js';
 
-// Asigna Pusher globalmente
 window.Pusher = Pusher;
 
 const echo = new Echo({
     broadcaster: 'pusher',
-    key: 'c71bbb99156889c0a715',
-    // wsHost: 'api.coordinacionbondy.com',
-    // wsPort: 6001,
-    // wssPort: 6001,
-    cluster: 'us2',
+    key: import.meta.env.VITE_PUSHER_APP_KEY, // tu key
+    cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER, // tu cluster
+
     forceTLS: true,
-    disableStats: true,
-    // enabledTransports: ['ws', 'wss'],
-
+    wssPort: 443,
+    enabledTransports: ['ws', 'wss']
 });
-
-
+window.echo = echo;
 
 export default echo;

@@ -1,9 +1,10 @@
-import { cambiarEstadoEleccion, createEleccion, destroyEleccion, indexEleccion } from '@/service/eleccionesService';
+import { cambiarEstadoEleccion, createEleccion, destroyEleccion, getMetricas, indexEleccion } from '@/service/eleccionesService';
 import { defineStore } from 'pinia';
 
 export const useEleccionStore = defineStore('eleccion', {
     state: () => ({
         elecciones: [],
+        metricas: {},
         error: null,
         loading: false,
         errors: {}
@@ -55,6 +56,21 @@ export const useEleccionStore = defineStore('eleccion', {
             } catch (error) {
                 console.error('Error al eliminar elección:', error);
                 throw error;
+            }
+        },
+
+        async obtenerMetricas(id) {
+            this.loading = true;
+            try {
+                const response = await getMetricas(id);
+                this.metricas = response.data;
+                return response.data;
+            } catch (error) {
+                console.error('Error al obtener métricas:', error);
+                this.error = 'No se pudieron cargar las métricas';
+                throw error;
+            } finally {
+                this.loading = false;
             }
         }
     }

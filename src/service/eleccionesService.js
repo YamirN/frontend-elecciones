@@ -16,23 +16,6 @@ export const destroyEleccion = async (id) => {
     return await apiClient.delete(`/elecciones/${id}`);
 };
 
-// export const deleteCandidateById = async (candidateId) => {
-//     try {
-//         const response = await apiClient.delete(`/api/candidatos/${candidateId}`);
-//         return response.data;
-//     } catch (error) {
-//         console.error('Error en la API al eliminar el candidato:', error);
-//         throw error;
-//     }
-// };
-
-// export const updateCandidate = async (candidateData) => {
-//     try {
-//         const response = await apiClient.put(`/api/candidatos/${candidateData.id}`, candidateData);
-
-//         return response.data;
-//     } catch (error) {
-//         console.error('Error al actualizar el candidato:', error);
-//         throw error;
-//     }
-// };
+export const getMetricas = async (id) => {
+    return await apiClient.get(`/elecciones/${id}/metricas`);
+};
