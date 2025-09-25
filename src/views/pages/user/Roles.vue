@@ -1,4 +1,6 @@
 <script setup>
+import InputError from '@/components/InputError.vue';
+import InputLabel from '@/components/InputLabel.vue';
 import { useUsuarioStore } from '@/stores/usuarioStore';
 import { storeToRefs } from 'pinia';
 import { useToast } from 'primevue/usetoast';
@@ -8,18 +10,21 @@ const usuarioStore = useUsuarioStore();
 const { roles, permisos, errors } = storeToRefs(usuarioStore);
 
 const toast = useToast();
-const showViewDialog = ref(null);
-const showFormDialog = ref(null);
-const showPermisosDialog = ref(null);
+const showViewDialog = ref(false);
+const showFormDialog = ref(false);
+const showPermisosDialog = ref(false);
+const showDeleteDialog = ref(false);
+
 const filters = ref({ global: { value: '' } });
 
 const isEditMode = ref(false);
-const showDeleteDialog = ref(false);
+
 const selectedRol = ref(null);
 const permisosGlobales = ref([]);
 const permisosSeleccionados = ref([]);
 
 const form = ref({
+    id: null,
     name: ''
 });
 
@@ -27,16 +32,18 @@ const openNew = () => {
     isEditMode.value = false;
     errors.value = {};
     form.value = {
+        id: null,
         name: ''
     };
     showFormDialog.value = true;
 };
 
-const openEdit = (user) => {
+const openEdit = (rol) => {
     isEditMode.value = true;
+    selectedRol.value = rol; // ✅ aquí se guarda el rol seleccionado
     form.value = {
-        id: user.id,
-        name: user.name
+        id: rol.id,
+        name: rol.name
     };
     errors.value = {};
     showFormDialog.value = true;
@@ -102,6 +109,21 @@ const onFormSubmitRol = async () => {
     } catch (err) {
         console.error('Error al enviar:', err);
         errors.value = usuarioStore.errors;
+    }
+};
+
+const deleteRol = async () => {
+    const success = await usuarioStore.eliminarRol(selectedRol.value.id);
+    if (success) {
+        toast.add({
+            severity: 'success',
+            summary: 'Rol eliminado',
+            detail: 'Se eliminó correctamente',
+            life: 3000
+        });
+
+        showDeleteDialog.value = false;
+        selectedRol.value = null;
     }
 };
 
@@ -181,7 +203,7 @@ onMounted(() => {
         >
             <template #header>
                 <i class="pi pi-user-edit text-2xl text-blue-600"></i>
-                <span class="text-xl font-bold text-gray-800">Permisos del Rol {{ selectedRol.name }}</span>
+                <span class="text-xl font-bold text-gray-800"> Permisos del Rol {{ selectedRol?.name }} </span>
             </template>
 
             <div class="p-4 space-y-4">
@@ -227,13 +249,10 @@ onMounted(() => {
             <div class="px-4 py-4">
                 <h2 class="text-2xl font-bold text-gray-800 mb-2 text-center border-b pb-2">Detalles del Rol</h2>
 
-                <div class="grid grid-cols-1 md:grid-cols-1 gap-2">
-                    <!-- Nombre -->
-                    <div>
-                        <InputLabel for="nombre" value="Nombre" />
-                        <InputText class="mt-1 w-full" v-model="form.name" :invalid="!!errors.name" />
-                        <InputError class="mt-1" :message="errors.name ? errors.name.join(', ') : ''" />
-                    </div>
+                <div v-if="form">
+                    <InputLabel for="name" value="Nombre" />
+                    <InputText class="mt-1 w-full" v-model="form.name" :invalid="!!errors?.name" />
+                    <InputError class="mt-1" :message="errors?.name ? errors.name.join(', ') : ''" />
                 </div>
             </div>
 

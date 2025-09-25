@@ -14,6 +14,14 @@ export const buscarEstudiantesConFiltro = async (filtros, page = 1) => {
     });
 };
 
+export const fetchNombresEstudiantes = (q = '') => {
+    return apiClient.get('/estudiantes/buscar-nombre', { params: { q } });
+};
+
+export const deleteAllEstudiantes = async () => {
+    return apiClient.delete('/estudiantes/eliminar-todos');
+};
+
 export const createEstudiante = async (data) => {
     return apiClient.post('/estudiantes', data);
 };

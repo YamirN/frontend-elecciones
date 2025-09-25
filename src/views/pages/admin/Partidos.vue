@@ -6,7 +6,7 @@ import { useEstudianteStore } from '@/stores/estudianteStore';
 import { usePartidoStore } from '@/stores/partidoStore';
 import { storeToRefs } from 'pinia';
 import { useToast } from 'primevue/usetoast';
-import { onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 const baseLogoUrl = import.meta.env.VITE_STORAGE_URL + '/';
 
 // States y Stores
@@ -33,6 +33,7 @@ const mostrarModalCandidatos = ref(false);
 const showDeleteDialog = ref(false);
 const toast = useToast();
 const asignaciones = ref([]);
+const eleccionesPendientes = computed(() => elecciones.value.filter((e) => e.estado === 'pendiente'));
 
 const filters = ref({ global: { value: '' } });
 const skeletonRows = Array.from({ length: 8 }, () => ({}));
@@ -199,7 +200,7 @@ const onBuscarEstudiante = (query) => {
     timeout = setTimeout(() => {
         const term = query?.trim();
         if (term && term.length >= 3) {
-            estudianteStore.buscarPorNombre(term);
+            estudianteStore.cargarNombresEstudiantes(term);
         }
     }, 300);
 };
@@ -302,14 +303,38 @@ watch(eleccionSeleccionada, async (id) => {
                             <!-- ver candidatos -->
                             <Button icon="pi pi-eye" outlined rounded class="mr-2" severity="info" @click="verCandidatos(slotProps.data)" v-tooltip.top="'Ver candidatos'" />
 
-                            <!-- asignar candidatos -->
-                            <Button icon="pi pi-user-plus" outlined rounded class="mr-2" severity="success" @click="openAsignarCandidatos(slotProps.data)" v-tooltip.top="'Asignar candidatos'" />
+                            <Button
+                                icon="pi pi-user-plus"
+                                outlined
+                                rounded
+                                class="mr-2"
+                                severity="success"
+                                @click="openAsignarCandidatos(slotProps.data)"
+                                :disabled="['en_proceso', 'finalizada'].includes(slotProps.data.eleccion?.estado)"
+                                v-tooltip.top="['en_proceso', 'finalizada'].includes(slotProps.data.eleccion?.estado) ? 'No se puede asignar candidatos en una elección en proceso o finalizada' : 'Asignar candidatos'"
+                            />
 
                             <!-- editar -->
-                            <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="openEdit(slotProps.data)" v-tooltip.top="'Editar partido'" />
+                            <Button
+                                icon="pi pi-pencil"
+                                outlined
+                                rounded
+                                class="mr-2"
+                                @click="openEdit(slotProps.data)"
+                                :disabled="['en_proceso', 'finalizada'].includes(slotProps.data.eleccion?.estado)"
+                                v-tooltip.top="['en_proceso', 'finalizada'].includes(slotProps.data.eleccion?.estado) ? 'No se puede editar un partido en una elección en proceso o finalizada' : 'Editar partido'"
+                            />
 
                             <!-- eliminar -->
-                            <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeletePartido(slotProps.data)" v-tooltip.top="'Eliminar partido'" />
+                            <Button
+                                icon="pi pi-trash"
+                                outlined
+                                rounded
+                                severity="danger"
+                                @click="confirmDeletePartido(slotProps.data)"
+                                :disabled="['en_proceso', 'finalizada'].includes(slotProps.data.eleccion?.estado)"
+                                v-tooltip.top="['en_proceso', 'finalizada'].includes(slotProps.data.eleccion?.estado) ? 'No se puede eliminar un partido en una elección en proceso o finalizada' : 'Eliminar partido'"
+                            />
                         </template>
                     </template>
                 </Column>
@@ -321,7 +346,7 @@ watch(eleccionSeleccionada, async (id) => {
             <div class="mb-4">
                 <label for="nombre_partido" class="block font-medium mb-1">Nombre del Partido</label>
                 <input id="nombre_partido" type="text" v-model="initialValues.nombre_partido" class="w-full border border-gray-300 rounded px-3 py-2" />
-                <InputError :message="errors?.nombre_partido" />
+                <InputError :message="errors?.nombre_partido ? errors.nombre_partido[0] : ''" />
             </div>
 
             <div class="mb-4">
@@ -344,11 +369,11 @@ watch(eleccionSeleccionada, async (id) => {
                 <label for="eleccion" class="block font-medium mb-1">Elección</label>
                 <select id="eleccion" v-model="initialValues.eleccion_id" class="w-full p-2 border border-gray-300 rounded">
                     <option value="">Seleccione una elección</option>
-                    <option v-for="eleccion in elecciones" :key="eleccion.id" :value="eleccion.id">
+                    <option v-for="eleccion in eleccionesPendientes" :key="eleccion.id" :value="eleccion.id">
                         {{ eleccion.nombre }}
                     </option>
                 </select>
-                <InputError :message="errors?.eleccion_id?.[0]?.message" />
+                <InputError :message="errors?.eleccion_id ? errors.eleccion_id[0] : ''" />
             </div>
 
             <div class="flex justify-end gap-3 mt-6">
@@ -442,8 +467,8 @@ watch(eleccionSeleccionada, async (id) => {
                                         item.estudiante_id = val?.id ?? null;
                                     }
                                 "
-                                :suggestions="estudiantes"
-                                :loading="loadingEstudiantes"
+                                :suggestions="estudianteStore.nombresEstudiantes"
+                                :loading="estudianteStore.loadingNombres"
                                 @search="onBuscarEstudiante"
                                 placeholder="Buscar estudiante..."
                                 optionLabel="nombre"

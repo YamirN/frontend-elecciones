@@ -11,10 +11,19 @@ const errors = computed(() => authStore.errors);
 const showHelp = ref(false);
 const router = useRouter();
 const showPassword = ref(false);
+const showAlreadyVotedDialog = ref(false); // para el dialog de ya votó
 
+// Login del votante
 const handleLoginVotante = async () => {
-    const isAuthenticated = await authStore.handleLoginVotante(dni.value, password.value);
-    if (isAuthenticated) {
+    const success = await authStore.handleLoginVotante(dni.value, password.value);
+
+    if (!success) return;
+
+    if (authStore.yaVoto) {
+        // Mostrar el dialog directamente, sin tocar token
+        showAlreadyVotedDialog.value = true;
+    } else {
+        // Guardar token y redirigir
         router.push({ name: 'votar' });
     }
 };
@@ -32,7 +41,7 @@ const handleLoginVotante = async () => {
                 <p class="text-sm text-gray-600">Introduce tu DNI y contraseña para acceder al sistema de votación</p>
             </div>
 
-            <form @submit.prevent="handleLoginVotante(dni, password)" class="space-y-6">
+            <form @submit.prevent="handleLoginVotante" class="space-y-6">
                 <!-- Campo DNI -->
                 <div>
                     <label for="dni" class="block text-sm font-medium text-gray-700 mb-1">DNI</label>
@@ -114,6 +123,12 @@ const handleLoginVotante = async () => {
         </div>
         <Toast />
     </div>
+    <Dialog v-model:visible="showAlreadyVotedDialog" header="Ya has votado" modal closable>
+        <p>Tu voto ya fue registrado en esta elección. Gracias por participar.</p>
+        <template #footer>
+            <Button label="Cerrar" icon="pi pi-times" @click="showAlreadyVotedDialog = false" />
+        </template>
+    </Dialog>
 </template>
 
 <style scoped>

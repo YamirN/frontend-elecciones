@@ -165,10 +165,10 @@ onUnmounted(() => {
                     <span
                         class="px-2 py-1 text-sm font-semibold"
                         :class="{
-                            'bg-blue-100 text-blue-700': slotProps.data.accion === 'Creacion',
-                            'bg-yellow-100 text-yellow-700': slotProps.data.accion === 'Actualizacion',
-                            'bg-red-100 text-red-700': slotProps.data.accion === 'Eliminacion',
-                            'bg-gray-100 text-gray-700': !['Creacion', 'Actualizacion', 'Eliminacion'].includes(slotProps.data.accion)
+                            'bg-blue-100 text-blue-700': slotProps.data.accion === 'Crear',
+                            'bg-yellow-100 text-yellow-700': slotProps.data.accion === 'Actualizar',
+                            'bg-red-100 text-red-700': slotProps.data.accion === 'Eliminar',
+                            'bg-gray-100 text-gray-700': !['Crear', 'Actualizar', 'Eliminar'].includes(slotProps.data.accion)
                         }"
                     >
                         {{ slotProps.data.accion }}
@@ -204,10 +204,10 @@ onUnmounted(() => {
                         <span
                             class="ml-2 px-2 py-1 text-sm font-semibold"
                             :class="{
-                                'bg-blue-100 text-blue-700': logSeleccionado.accion === 'Creacion',
-                                'bg-yellow-100 text-yellow-700': logSeleccionado.accion === 'Actualizacion',
-                                'bg-red-100 text-red-700': logSeleccionado.accion === 'Eliminacion',
-                                'bg-gray-100 text-gray-700': !['Creacion', 'Actualizacion', 'Eliminacion'].includes(logSeleccionado.accion)
+                                'bg-blue-100 text-blue-700': logSeleccionado.accion === 'Crear',
+                                'bg-yellow-100 text-yellow-700': logSeleccionado.accion === 'Actualizar',
+                                'bg-red-100 text-red-700': logSeleccionado.accion === 'Eliminar',
+                                'bg-gray-100 text-gray-700': !['Crear', 'Actualizar', 'Eliminar'].includes(logSeleccionado.accion)
                             }"
                         >
                             {{ logSeleccionado.accion }}
@@ -240,9 +240,14 @@ onUnmounted(() => {
                     <div v-if="logSeleccionado.detalle">
                         <span class="font-semibold">Detalles:</span>
                         <div class="mt-2 bg-gray-50 p-3 rounded text-sm text-gray-600 space-y-2">
-                            <div v-for="(valor, clave) in logSeleccionado.detalle" :key="clave" class="flex justify-between border-b last:border-none pb-1">
+                            <div v-for="(valor, clave) in logSeleccionado.detalle" :key="clave" class="border-b last:border-none pb-1">
                                 <span class="font-medium text-gray-700">{{ clave }}:</span>
-                                <span class="text-gray-600">{{ valor }}</span>
+                                <span v-if="Array.isArray(valor)" class="ml-2">
+                                    <ul class="list-disc list-inside">
+                                        <li v-for="(item, i) in valor" :key="i">{{ item }}</li>
+                                    </ul>
+                                </span>
+                                <span v-else class="ml-2 text-gray-600">{{ valor }}</span>
                             </div>
                         </div>
                     </div>

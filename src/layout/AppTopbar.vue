@@ -31,9 +31,14 @@ const goToPerfil = () => {
 };
 
 const logout = async () => {
-    await authStore.handleLogout();
-    authStore.$reset();
-    router.replace({ name: 'login' });
+    try {
+        await authStore.handleLogout(); // 🔹 Limpia sesión en backend (si aplica)
+    } catch (error) {
+        console.error('Error al cerrar sesión:', error);
+    } finally {
+        authStore.$reset(); // 🔹 Limpia el store del usuario siempre
+        router.replace({ name: 'Inicio' }); // 🔹 Redirige a la raíz
+    }
 };
 </script>
 
@@ -70,10 +75,10 @@ const logout = async () => {
                                 <!-- Aumenté el ancho del menú a w-64 y los bordes a rounded-lg -->
                                 <div class="py-2" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
                                     <!-- Opción de Configurar perfil -->
-                                    <a @click.prevent="goToPerfil" href="#" class="block px-4 py-2 text-lg text-gray-700 hover:bg-gray-100" role="menuitem">
+                                    <!-- <a @click.prevent="goToPerfil" href="#" class="block px-4 py-2 text-lg text-gray-700 hover:bg-gray-100" role="menuitem">
                                         <span class="pi pi-cog mr-2"></span>
                                         Configurar perfil
-                                    </a>
+                                    </a> -->
                                     <!-- Opción de Cerrar sesión -->
                                     <a @click="logout" href="#" class="block px-4 py-2 text-lg text-gray-700 hover:bg-gray-100" role="menuitem">
                                         <span class="pi pi-sign-out mr-2"></span>

@@ -13,7 +13,7 @@ const partidoStore = usePartidoStore();
 const votoStore = useVotacionStore();
 const authStore = useAuthStore();
 
-const { user } = storeToRefs(authStore);
+const { user, yaVoto } = storeToRefs(authStore);
 const { cargando } = storeToRefs(votoStore);
 const { loading, eleccion, partidos, electionDetails, electionActive } = storeToRefs(partidoStore);
 
@@ -25,6 +25,7 @@ const message = ref('');
 const messageType = ref('success');
 const showConfirmationDialog = ref(false);
 const hasVotedSuccessfully = ref(false);
+const showAlreadyVotedDialog = ref(false);
 
 const selectParty = (partido) => {
     selectedParty.value = partido;
@@ -77,8 +78,14 @@ const submitVote = async () => {
         // Iniciar logout con contador
         startLogoutCountdown();
     } catch (error) {
-        message.value = 'Ocurrió un error al registrar tu voto.';
-        messageType.value = 'error';
+        // Si el backend dice que ya votó, mostramos el dialog especial
+        if (error.response?.data?.errors?.voto?.[0] === 'Ya has votado en esta elección.') {
+            showConfirmationDialog.value = false;
+            showAlreadyVotedDialog.value = true;
+        } else {
+            message.value = 'Ocurrió un error al registrar tu voto.';
+            messageType.value = 'error';
+        }
     }
 };
 
@@ -93,11 +100,6 @@ const handleLogout = async () => {
         hasVotedSuccessfully.value = false;
         router.push('/estudiantes/login');
     }
-};
-
-// Redirección falsa
-const goToLogin = () => {
-    window.location.href = '/auth/login'; // O usar router.push()
 };
 
 // Al montar el componente, iniciar el flujo
@@ -126,7 +128,7 @@ onMounted(async () => {
                 <i class="pi pi-exclamation-circle text-5xl text-orange-500 mb-4"></i>
                 <h2 class="text-3xl font-bold text-900 mb-3">No hay elecciones activas en este momento.</h2>
                 <p class="text-lg text-600 mb-5">Por favor, regresa más tarde o contacta a tu administrador.</p>
-                <button @click="goToLogin" class="p-button p-button-primary p-button-lg">
+                <button @click="handleLogout" class="p-button p-button-primary p-button-lg">
                     <i class="pi pi-sign-out mr-2"></i>
                     Regresar al Login
                 </button>
@@ -284,6 +286,18 @@ onMounted(async () => {
                     </button>
                 </div>
             </div>
+        </div>
+        <!-- Diálogo cuando ya votó -->
+    </div>
+    <div v-if="showAlreadyVotedDialog" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-lg mx-4 text-center">
+            <i class="pi pi-check-circle text-5xl text-green-600 mb-4"></i>
+            <h2 class="text-2xl font-bold text-gray-900 mb-3">Ya has votado</h2>
+            <p class="text-gray-700 mb-6">Tu voto ya fue registrado en esta elección. Gracias por participar.</p>
+            <button @click="handleLogout" class="bg-blue-600 text-white py-3 px-6 rounded-lg text-lg font-semibold hover:bg-blue-700 transition-colors duration-300 flex items-center justify-center mx-auto">
+                <i class="pi pi-sign-out mr-2"></i>
+                Regresar al Login
+            </button>
         </div>
     </div>
 </template>

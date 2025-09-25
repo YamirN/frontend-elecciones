@@ -1,4 +1,4 @@
-import { asignarAulas, createMesa, deleteMesa, exportarZip, fetchMesaAsignacion, fetchMesas } from '@/service/mesaSufragioService';
+import { asignarAulas, createMesa, deleteMesa, exportarZip, fetchMesaAsignacion, fetchMesas, obtenerHistorialAsignacion, updateMesa } from '@/service/mesaSufragioService';
 import { downloadFile } from '@/service/utils/downloadFile';
 import { defineStore } from 'pinia';
 
@@ -12,7 +12,9 @@ export const useMesaSufragioStore = defineStore('mesaSufragio', {
         aulasDisponibles: [],
         aulasSinAsignarTotal: [],
         loadingExportByMesa: {},
-        errorExport: null
+        errorExport: null,
+        historialAsignacion: [],
+        loadingHistorial: false
     }),
 
     actions: {
@@ -21,6 +23,7 @@ export const useMesaSufragioStore = defineStore('mesaSufragio', {
             this.error = null;
             try {
                 const response = await fetchMesas(eleccionId);
+
                 this.mesas = response.data.data;
             } catch (error) {
                 this.error = error.response?.data?.message || 'Error al cargar mesas';
@@ -35,24 +38,41 @@ export const useMesaSufragioStore = defineStore('mesaSufragio', {
             this.error = null;
             this.loading = false;
         },
-
         async addMesa(form) {
             try {
                 const response = await createMesa(form);
 
                 if (response.data) {
-                    await this.getMesas();
+                    await this.ListarMesas(form.eleccion_id);
                     return true;
                 }
             } catch (error) {
                 this.error = error.response?.data?.message || 'Error al crear la mesa.';
+                this.errors = error.response?.data?.errors || {};
+                return false;
             }
         },
-        async removeMesa(id) {
+
+        async actualizarMesa(id, form) {
             try {
-                await deleteMesa(id); // Llamar al servicio para eliminar
-                await this.getMesas(); // Recargar mesas después de eliminar
-                return true; // Operación exitosa
+                const response = await updateMesa(id, form);
+
+                if (response.data) {
+                    await this.ListarMesas(form.eleccion_id);
+                    return true;
+                }
+            } catch (error) {
+                this.error = error.response?.data?.message || 'Error al actualizar la mesa.';
+                this.errors = error.response?.data?.errors || {};
+                return false;
+            }
+        },
+
+        async removeMesa(id, eleccionId) {
+            try {
+                await deleteMesa(id);
+                await this.ListarMesas(eleccionId);
+                return true;
             } catch (error) {
                 this.error = error.response?.data?.message || 'Error al eliminar la mesa.';
                 return false; // Fallo
@@ -99,6 +119,17 @@ export const useMesaSufragioStore = defineStore('mesaSufragio', {
                 setTimeout(() => {
                     this.loadingExportByMesa[mesaId] = false;
                 }, 500);
+            }
+        },
+        async fetchHistorialAsignacion(mesaId) {
+            this.loadingHistorial = true;
+            try {
+                this.historialAsignacion = await obtenerHistorialAsignacion(mesaId);
+            } catch (error) {
+                console.error('Error al cargar historial de asignación:', error);
+                this.historialAsignacion = [];
+            } finally {
+                this.loadingHistorial = false;
             }
         }
     }

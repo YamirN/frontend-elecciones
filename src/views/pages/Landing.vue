@@ -73,811 +73,203 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="min-h-screen">
+    <div class="min-h-screen w-full">
         <!-- Navigation -->
-        <div class="surface-0 shadow-2 px-4 py-3 md:px-6 lg:px-8">
-            <div class="flex align-items-center justify-content-between">
-                <div class="flex align-items-center">
-                    <i class="pi pi-check-circle text-3xl text-primary mr-3"></i>
-                    <span class="text-2xl font-bold text-900">VotoEscolar</span>
-                </div>
-                <div class="hidden md:flex gap-4">
-                    <a href="#como-funciona" class="text-600 hover:text-primary cursor-pointer transition-colors transition-duration-150">¿Cómo funciona?</a>
-                    <a href="#seguridad" class="text-600 hover:text-primary cursor-pointer transition-colors transition-duration-150">Seguridad</a>
-                    <a href="#contacto" class="text-600 hover:text-primary cursor-pointer transition-colors transition-duration-150">Contacto</a>
+        <div class="bg-white shadow-lg w-full px-4 py-3 md:px-6 lg:px-8">
+            <div class="flex items-center justify-between w-full">
+                <div class="flex items-center">
+                    <svg class="w-8 h-8 text-blue-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                    </svg>
+                    <span class="text-2xl font-bold text-gray-900">VotoEscolar</span>
                 </div>
             </div>
         </div>
 
         <!-- Hero Section -->
-        <div class="surface-ground px-4 py-8 md:px-6 lg:px-8">
-            <div class="text-center">
-                <div class="mb-6">
-                    <i class="pi pi-users text-6xl text-primary mb-4"></i>
-                    <h1 class="text-6xl font-bold text-900 line-height-2 mb-4">Votaciones <span class="text-primary">Escolares</span></h1>
-                    <p class="text-xl text-600 line-height-3 mb-6 max-w-4xl mx-auto">Plataforma segura y transparente para las elecciones estudiantiles de tu institución educativa. Vota de manera digital, segura y confiable.</p>
+        <div class="bg-gray-50 w-full px-4 py-16 md:px-6 lg:px-8">
+            <div class="text-center w-full">
+                <div class="mb-8">
+                    <svg class="w-24 h-24 text-blue-600 mx-auto mb-6" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <h1 class="text-4xl md:text-6xl font-bold text-gray-900 leading-tight mb-6">Votaciones <span class="text-blue-600">Escolares</span></h1>
+                    <p class="text-lg md:text-xl text-gray-600 leading-relaxed mb-8 max-w-4xl mx-auto">Plataforma segura y transparente para las elecciones estudiantiles de tu institución educativa. Vota de manera digital, segura y confiable.</p>
                 </div>
 
                 <!-- Main Action Buttons -->
-                <div class="flex flex-column md:flex-row gap-4 justify-content-center align-items-center mb-8">
-                    <button
-                        @click="handleStudentLogin"
-                        class="p-button p-button-lg p-button-primary flex align-items-center gap-2 px-6 py-3 text-lg font-bold border-round shadow-3 hover:shadow-4 transition-all transition-duration-300"
-                        style="min-width: 200px"
-                    >
-                        <i class="pi pi-check-circle"></i>
+                <div class="flex flex-col md:flex-row gap-4 justify-center items-center mb-12">
+                    <button @click="handleStudentLogin" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-3 text-lg min-w-[200px]">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
                         <span>Votar Ahora</span>
                     </button>
-                    <button
-                        @click="showAdminDialog = true"
-                        class="p-button p-button-lg p-button-secondary flex align-items-center gap-2 px-6 py-3 text-lg font-bold border-round shadow-3 hover:shadow-4 transition-all transition-duration-300"
-                        style="min-width: 200px"
-                    >
-                        <i class="pi pi-shield"></i>
+                    <button @click="showAdminDialog = true" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-4 px-8 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-3 text-lg min-w-[200px]">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path
+                                fill-rule="evenodd"
+                                d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clip-rule="evenodd"
+                            />
+                        </svg>
                         <span>Acceso Administrador</span>
                     </button>
-                </div>
-
-                <!-- Trust Indicators -->
-                <div class="flex flex-wrap justify-content-center align-items-center gap-4 text-sm text-600 mb-8">
-                    <div class="flex align-items-center gap-2">
-                        <i class="pi pi-lock text-green-500"></i>
-                        <span>Votación 100% Segura</span>
-                    </div>
-                    <div class="flex align-items-center gap-2">
-                        <i class="pi pi-eye text-blue-500"></i>
-                        <span>Transparente</span>
-                    </div>
-                    <div class="flex align-items-center gap-2">
-                        <i class="pi pi-mobile text-purple-500"></i>
-                        <span>Acceso desde cualquier dispositivo</span>
-                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Features Cards -->
-        <div class="px-4 py-8 md:px-6 lg:px-8">
-            <div class="grid">
-                <div class="col-12 md:col-4 p-3">
-                    <div class="surface-card p-4 border-round shadow-2 h-full text-center hover:shadow-4 transition-all transition-duration-300">
-                        <div class="bg-green-100 inline-flex justify-content-center align-items-center border-circle mb-4" style="width: 80px; height: 80px">
-                            <i class="pi pi-lock text-3xl text-green-600"></i>
-                        </div>
-                        <h3 class="text-xl font-semibold text-900 mb-3">Máxima Seguridad</h3>
-                        <p class="text-600 line-height-3">Sistema de autenticación robusto con encriptación de datos que garantiza la integridad de cada voto emitido.</p>
+        <div class="w-full px-4 py-16 md:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
+                <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-center h-full">
+                    <div class="bg-green-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+                        </svg>
                     </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">Máxima Seguridad</h3>
+                    <p class="text-gray-600 leading-relaxed">Sistema de autenticación robusto con encriptación de datos que garantiza la integridad de cada voto emitido.</p>
                 </div>
-                <div class="col-12 md:col-4 p-3">
-                    <div class="surface-card p-4 border-round shadow-2 h-full text-center hover:shadow-4 transition-all transition-duration-300">
-                        <div class="bg-blue-100 inline-flex justify-content-center align-items-center border-circle mb-4" style="width: 80px; height: 80px">
-                            <i class="pi pi-eye text-3xl text-blue-600"></i>
-                        </div>
-                        <h3 class="text-xl font-semibold text-900 mb-3">Total Transparencia</h3>
-                        <p class="text-600 line-height-3">Resultados en tiempo real con auditoría completa del proceso electoral para garantizar la confianza.</p>
-                    </div>
-                </div>
-                <div class="col-12 md:col-4 p-3">
-                    <div class="surface-card p-4 border-round shadow-2 h-full text-center hover:shadow-4 transition-all transition-duration-300">
-                        <div class="bg-purple-100 inline-flex justify-content-center align-items-center border-circle mb-4" style="width: 80px; height: 80px">
-                            <i class="pi pi-mobile text-3xl text-purple-600"></i>
-                        </div>
-                        <h3 class="text-xl font-semibold text-900 mb-3">Fácil Acceso</h3>
-                        <p class="text-600 line-height-3">Interfaz intuitiva y responsive, accesible desde cualquier dispositivo móvil, tablet o computadora.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- How it Works -->
-        <div id="como-funciona" class="surface-section px-4 py-8 md:px-6 lg:px-8">
-            <div class="text-center mb-6">
-                <h2 class="text-4xl font-bold text-900 mb-3">¿Cómo Funciona?</h2>
-                <p class="text-xl text-600">Proceso simple y seguro en 3 pasos</p>
-            </div>
-
-            <div class="grid">
-                <div class="col-12 md:col-4 text-center p-4">
-                    <div class="bg-primary text-0 border-circle inline-flex justify-content-center align-items-center mb-4" style="width: 80px; height: 80px">
-                        <span class="text-3xl font-bold">1</span>
+                <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-center h-full">
+                    <div class="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                            <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                        </svg>
                     </div>
-                    <h3 class="text-xl font-semibold text-900 mb-3">Autenticación</h3>
-                    <p class="text-600 line-height-3">Los estudiantes ingresan con sus credenciales institucionales únicas y seguras.</p>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">Total Transparencia</h3>
+                    <p class="text-gray-600 leading-relaxed">Resultados en tiempo real con auditoría completa del proceso electoral para garantizar la confianza.</p>
                 </div>
-                <div class="col-12 md:col-4 text-center p-4">
-                    <div class="bg-green-500 text-0 border-circle inline-flex justify-content-center align-items-center mb-4" style="width: 80px; height: 80px">
-                        <span class="text-3xl font-bold">2</span>
+
+                <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-center h-full">
+                    <div class="bg-purple-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-8 h-8 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.489.804.804A1 1 0 0113 18H7a1 1 0 01-.707-1.707l.804-.804L7.22 15H5a2 2 0 01-2-2V5zm5.771 7H5V5h10v7H8.771z" clip-rule="evenodd" />
+                        </svg>
                     </div>
-                    <h3 class="text-xl font-semibold text-900 mb-3">Votación</h3>
-                    <p class="text-600 line-height-3">Selecciona tu candidato favorito de forma intuitiva y confirma tu voto de manera segura.</p>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">Fácil Acceso</h3>
+                    <p class="text-gray-600 leading-relaxed">Interfaz intuitiva y responsive, accesible desde cualquier dispositivo móvil, tablet o computadora.</p>
                 </div>
-                <div class="col-12 md:col-4 text-center p-4">
-                    <div class="bg-purple-500 text-0 border-circle inline-flex justify-content-center align-items-center mb-4" style="width: 80px; height: 80px">
-                        <span class="text-3xl font-bold">3</span>
-                    </div>
-                    <h3 class="text-xl font-semibold text-900 mb-3">Resultados</h3>
-                    <p class="text-600 line-height-3">Visualiza los resultados en tiempo real una vez finalizado el período de votación.</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Statistics -->
-        <div class="px-4 py-8 md:px-6 lg:px-8">
-            <div class="grid text-center">
-                <div class="col-6 md:col-3 p-3">
-                    <div class="text-4xl font-bold text-primary mb-2">{{ animatedStats.schools }}</div>
-                    <div class="text-600 font-medium">Instituciones</div>
-                </div>
-                <div class="col-6 md:col-3 p-3">
-                    <div class="text-4xl font-bold text-green-500 mb-2">{{ animatedStats.students }}</div>
-                    <div class="text-600 font-medium">Estudiantes</div>
-                </div>
-                <div class="col-6 md:col-3 p-3">
-                    <div class="text-4xl font-bold text-purple-500 mb-2">{{ animatedStats.elections }}</div>
-                    <div class="text-600 font-medium">Elecciones</div>
-                </div>
-                <div class="col-6 md:col-3 p-3">
-                    <div class="text-4xl font-bold text-orange-500 mb-2">{{ animatedStats.votes }}</div>
-                    <div class="text-600 font-medium">Votos Emitidos</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- CTA Section -->
-        <div class="surface-section px-4 py-8 md:px-6 lg:px-8 text-center">
-            <h2 class="text-4xl font-bold text-900 mb-4">¿Listo para Participar?</h2>
-            <p class="text-xl text-600 mb-6 max-w-3xl mx-auto">Tu voz es importante. Únete a miles de estudiantes que ya confían en nuestra plataforma para ejercer su derecho al voto de manera segura y transparente.</p>
-
-            <div class="flex flex-column md:flex-row gap-4 justify-content-center">
-                <button @click="showStudentDialog = true" class="p-button p-button-lg p-button-primary flex align-items-center gap-2 px-6 py-3 text-lg font-bold border-round shadow-3">
-                    <i class="pi pi-check-circle"></i>
-                    <span>Comenzar a Votar</span>
-                </button>
-                <button @click="showAdminDialog = true" class="p-button p-button-lg p-button-outlined flex align-items-center gap-2 px-6 py-3 text-lg font-bold border-round">
-                    <i class="pi pi-cog"></i>
-                    <span>Panel Administrativo</span>
-                </button>
             </div>
         </div>
 
         <!-- Footer -->
-        <footer id="contacto" class="surface-900 text-0 px-4 py-6 md:px-6 lg:px-8">
-            <div class="grid">
-                <div class="col-12 md:col-4 mb-4">
-                    <div class="flex align-items-center mb-3">
-                        <i class="pi pi-check-circle text-2xl text-primary mr-2"></i>
+        <footer id="contacto" class="bg-gray-900 text-white w-full px-4 py-12 md:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
+                <div class="mb-8 md:mb-0">
+                    <div class="flex items-center mb-4">
+                        <svg class="w-8 h-8 text-blue-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
                         <span class="text-xl font-bold">VotoEscolar</span>
                     </div>
-                    <p class="text-300 line-height-3">Democratizando las elecciones estudiantiles con tecnología segura, transparente y confiable.</p>
+                    <p class="text-gray-300 leading-relaxed">Democratizando las elecciones estudiantiles con tecnología segura, transparente y confiable.</p>
                 </div>
-                <div class="col-12 md:col-4 mb-4">
-                    <h3 class="text-lg font-semibold mb-3">Enlaces Útiles</h3>
-                    <ul class="list-none p-0 text-300">
-                        <li class="mb-2"><a href="#" class="text-300 hover:text-0 transition-colors transition-duration-150">Términos de Servicio</a></li>
-                        <li class="mb-2"><a href="#" class="text-300 hover:text-0 transition-colors transition-duration-150">Política de Privacidad</a></li>
-                        <li class="mb-2"><a href="#" class="text-300 hover:text-0 transition-colors transition-duration-150">Soporte Técnico</a></li>
-                        <li class="mb-2"><a href="#" class="text-300 hover:text-0 transition-colors transition-duration-150">Documentación</a></li>
+
+                <div class="mb-8 md:mb-0">
+                    <h3 class="text-lg font-semibold mb-4">Enlaces Útiles</h3>
+                    <ul class="space-y-2 text-gray-300">
+                        <li><a href="#" class="hover:text-white transition-colors duration-150">Términos de Servicio</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors duration-150">Política de Privacidad</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors duration-150">Soporte Técnico</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors duration-150">Documentación</a></li>
                     </ul>
                 </div>
-                <div class="col-12 md:col-4 mb-4">
-                    <h3 class="text-lg font-semibold mb-3">Contacto</h3>
-                    <div class="text-300">
-                        <div class="flex align-items-center mb-2">
-                            <i class="pi pi-envelope mr-2"></i>
+
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Contacto</h3>
+                    <div class="text-gray-300 space-y-2">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                            </svg>
                             <span>info@votoescolar.com</span>
                         </div>
-                        <div class="flex align-items-center mb-2">
-                            <i class="pi pi-phone mr-2"></i>
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                            </svg>
                             <span>+1 (555) 123-4567</span>
                         </div>
-                        <div class="flex align-items-center">
-                            <i class="pi pi-map-marker mr-2"></i>
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                            </svg>
                             <span>Educación Digital S.A.</span>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="border-top-1 surface-border pt-4 text-center">
-                <p class="text-300">&copy; 2024 VotoEscolar. Todos los derechos reservados.</p>
+            <div class="border-t border-gray-700 pt-8 mt-8 text-center">
+                <p class="text-gray-300">&copy; 2024 VotoEscolar. Todos los derechos reservados.</p>
             </div>
         </footer>
 
         <!-- Admin Login Dialog -->
-        <div v-if="showAdminDialog" class="fixed inset-0 bg-black-alpha-50 flex align-items-center justify-content-center z-5" @click="closeDialogs">
-            <div class="surface-card p-6 border-round shadow-5 w-full max-w-md mx-3" @click.stop>
-                <div class="text-center mb-5">
-                    <div class="bg-orange-100 inline-flex justify-content-center align-items-center border-circle mb-3" style="width: 60px; height: 60px">
-                        <i class="pi pi-shield text-2xl text-orange-600"></i>
+        <div v-if="showAdminDialog" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" @click="closeDialogs">
+            <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md mx-4" @click.stop>
+                <div class="text-center mb-6">
+                    <div class="bg-orange-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path
+                                fill-rule="evenodd"
+                                d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clip-rule="evenodd"
+                            />
+                        </svg>
                     </div>
-                    <h2 class="text-2xl font-bold text-900 mb-2">Login Administrador</h2>
-                    <p class="text-600">Acceso para personal autorizado únicamente</p>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2">Login Administrador</h2>
+                    <p class="text-gray-600">Acceso para personal autorizado únicamente</p>
                 </div>
 
-                <form @submit.prevent="handleLoginAdminstrador" class="flex flex-column gap-4">
-                    <div class="field">
-                        <label class="block text-900 font-medium mb-2">Usuario Administrador</label>
-                        <div class="p-input-icon-left w-full">
-                            <i class="pi pi-user-edit"></i>
-                            <input v-model="adminForm.nombre_usuario" type="text" required class="p-inputtext p-component w-full p-3 border-1 surface-border border-round" placeholder="admin@colegio.edu" />
+                <form @submit.prevent="handleLoginAdminstrador" class="space-y-6">
+                    <div>
+                        <label class="block text-gray-900 font-medium mb-2">Usuario Administrador</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <input v-model="adminForm.nombre_usuario" type="text" required class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="admin@colegio.edu" />
                         </div>
                     </div>
 
-                    <div class="field">
-                        <label class="block text-900 font-medium mb-2">Contraseña</label>
-                        <div class="p-input-icon-left w-full">
-                            <i class="pi pi-key"></i>
-                            <input v-model="adminForm.password" type="password" required class="p-inputtext p-component w-full p-3 border-1 surface-border border-round" placeholder="Contraseña de administrador" />
+                    <div>
+                        <label class="block text-gray-900 font-medium mb-2">Contraseña</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <input
+                                v-model="adminForm.password"
+                                type="password"
+                                required
+                                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="Contraseña de administrador"
+                            />
                         </div>
                     </div>
 
-                    <button type="submit" class="p-button p-button-secondary w-full p-3 text-lg font-bold border-round">
-                        <i class="pi pi-cog mr-2"></i>
+                    <button type="submit" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path
+                                fill-rule="evenodd"
+                                d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
+                                clip-rule="evenodd"
+                            />
+                        </svg>
                         Acceder al Panel
                     </button>
                 </form>
 
-                <button @click="closeDialogs" class="p-button p-button-text w-full mt-3 text-600">Cancelar</button>
+                <button @click="closeDialogs" class="w-full mt-4 text-gray-600 hover:text-gray-800 font-medium py-2 transition-colors duration-200">Cancelar</button>
             </div>
         </div>
     </div>
 </template>
-
-<style scoped>
-/* PrimeVue-like styles */
-.p-button {
-    display: inline-flex;
-    cursor: pointer;
-    user-select: none;
-    align-items: center;
-    vertical-align: bottom;
-    text-align: center;
-    overflow: hidden;
-    position: relative;
-    color: #ffffff;
-    background: #3b82f6;
-    border: 1px solid #3b82f6;
-    padding: 0.75rem 1rem;
-    font-size: 1rem;
-    transition:
-        background-color 0.2s,
-        color 0.2s,
-        border-color 0.2s,
-        box-shadow 0.2s;
-    border-radius: 6px;
-}
-
-.p-button:hover {
-    background: #2563eb;
-    border-color: #2563eb;
-}
-
-.p-button-secondary {
-    background: #6b7280;
-    border-color: #6b7280;
-}
-
-.p-button-secondary:hover {
-    background: #4b5563;
-    border-color: #4b5563;
-}
-
-.p-button-outlined {
-    background: transparent;
-    color: #3b82f6;
-    border: 1px solid #3b82f6;
-}
-
-.p-button-outlined:hover {
-    background: #3b82f6;
-    color: #ffffff;
-}
-
-.p-button-text {
-    background: transparent;
-    color: #6b7280;
-    border: 1px solid transparent;
-}
-
-.p-button-text:hover {
-    background: #f3f4f6;
-    color: #374151;
-}
-
-.p-inputtext {
-    font-family: inherit;
-    font-feature-settings: inherit;
-    font-size: 1rem;
-    color: #374151;
-    background: #ffffff;
-    padding: 0.75rem;
-    border: 1px solid #d1d5db;
-    transition:
-        background-color 0.2s,
-        color 0.2s,
-        border-color 0.2s,
-        box-shadow 0.2s;
-    appearance: none;
-    border-radius: 6px;
-}
-
-.p-inputtext:focus {
-    outline: 0 none;
-    outline-offset: 0;
-    box-shadow: 0 0 0 0.2rem #bfdbfe;
-    border-color: #3b82f6;
-}
-
-.p-input-icon-left > i:first-of-type {
-    position: absolute;
-    top: 50%;
-    margin-top: -0.5rem;
-    left: 0.75rem;
-    color: #6b7280;
-}
-
-.p-input-icon-left > .p-inputtext {
-    padding-left: 2.5rem;
-}
-
-/* PrimeVue Grid System */
-.grid {
-    display: flex;
-    flex-wrap: wrap;
-    margin-right: -0.5rem;
-    margin-left: -0.5rem;
-    margin-top: -0.5rem;
-}
-
-.col-12 {
-    flex: 0 0 auto;
-    padding: 0.5rem;
-    width: 100%;
-}
-.col-6 {
-    flex: 0 0 auto;
-    padding: 0.5rem;
-    width: 50%;
-}
-.col-4 {
-    flex: 0 0 auto;
-    padding: 0.5rem;
-    width: 33.3333%;
-}
-.col-3 {
-    flex: 0 0 auto;
-    padding: 0.5rem;
-    width: 25%;
-}
-
-@media screen and (min-width: 768px) {
-    .md\:col-4 {
-        width: 33.3333%;
-    }
-    .md\:col-3 {
-        width: 25%;
-    }
-}
-
-/* PrimeVue Colors and Surfaces */
-.surface-0 {
-    background-color: #ffffff;
-}
-.surface-card {
-    background-color: #ffffff;
-}
-.surface-ground {
-    background-color: #f8fafc;
-}
-.surface-section {
-    background-color: #f1f5f9;
-}
-.surface-900 {
-    background-color: #0f172a;
-}
-.surface-border {
-    border-color: #e2e8f0;
-}
-
-.text-0 {
-    color: #ffffff;
-}
-.text-300 {
-    color: #cbd5e1;
-}
-.text-600 {
-    color: #475569;
-}
-.text-900 {
-    color: #0f172a;
-}
-.text-primary {
-    color: #3b82f6;
-}
-
-.bg-primary {
-    background-color: #3b82f6;
-}
-.bg-primary-100 {
-    background-color: #dbeafe;
-}
-
-.shadow-2 {
-    box-shadow:
-        0 3px 6px rgba(0, 0, 0, 0.16),
-        0 3px 6px rgba(0, 0, 0, 0.23);
-}
-.shadow-3 {
-    box-shadow:
-        0 10px 20px rgba(0, 0, 0, 0.19),
-        0 6px 6px rgba(0, 0, 0, 0.23);
-}
-.shadow-4 {
-    box-shadow:
-        0 14px 28px rgba(0, 0, 0, 0.25),
-        0 10px 10px rgba(0, 0, 0, 0.22);
-}
-.shadow-5 {
-    box-shadow:
-        0 19px 38px rgba(0, 0, 0, 0.3),
-        0 15px 12px rgba(0, 0, 0, 0.22);
-}
-
-.border-round {
-    border-radius: 6px;
-}
-.border-circle {
-    border-radius: 50%;
-}
-
-/* Utility Classes */
-.flex {
-    display: flex;
-}
-.flex-column {
-    flex-direction: column;
-}
-.flex-row {
-    flex-direction: row;
-}
-.align-items-center {
-    align-items: center;
-}
-.justify-content-center {
-    justify-content: center;
-}
-.justify-content-between {
-    justify-content: space-between;
-}
-.text-center {
-    text-align: center;
-}
-.font-bold {
-    font-weight: 700;
-}
-.font-semibold {
-    font-weight: 600;
-}
-.font-medium {
-    font-weight: 500;
-}
-.line-height-2 {
-    line-height: 1.5;
-}
-.line-height-3 {
-    line-height: 1.75;
-}
-.w-full {
-    width: 100%;
-}
-.h-full {
-    height: 100%;
-}
-.gap-2 {
-    gap: 0.5rem;
-}
-.gap-3 {
-    gap: 0.75rem;
-}
-.gap-4 {
-    gap: 1rem;
-}
-.mb-2 {
-    margin-bottom: 0.5rem;
-}
-.mb-3 {
-    margin-bottom: 0.75rem;
-}
-.mb-4 {
-    margin-bottom: 1rem;
-}
-.mb-5 {
-    margin-bottom: 1.25rem;
-}
-.mb-6 {
-    margin-bottom: 1.5rem;
-}
-.mb-8 {
-    margin-bottom: 2rem;
-}
-.mr-2 {
-    margin-right: 0.5rem;
-}
-.mr-3 {
-    margin-right: 0.75rem;
-}
-.mt-3 {
-    margin-top: 0.75rem;
-}
-.p-3 {
-    padding: 0.75rem;
-}
-.p-4 {
-    padding: 1rem;
-}
-.p-6 {
-    padding: 1.5rem;
-}
-.px-3 {
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-}
-.px-4 {
-    padding-left: 1rem;
-    padding-right: 1rem;
-}
-.px-6 {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-}
-.py-3 {
-    padding-top: 0.75rem;
-    padding-bottom: 0.75rem;
-}
-.py-4 {
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-}
-.py-6 {
-    padding-top: 1.5rem;
-    padding-bottom: 1.5rem;
-}
-.py-8 {
-    padding-top: 2rem;
-    padding-bottom: 2rem;
-}
-
-.transition-all {
-    transition: all 0.2s;
-}
-.transition-colors {
-    transition:
-        color 0.2s,
-        background-color 0.2s,
-        border-color 0.2s;
-}
-.transition-duration-150 {
-    transition-duration: 150ms;
-}
-.transition-duration-300 {
-    transition-duration: 300ms;
-}
-
-.cursor-pointer {
-    cursor: pointer;
-}
-.list-none {
-    list-style: none;
-}
-
-.bg-black-alpha-50 {
-    background-color: rgba(0, 0, 0, 0.5);
-}
-.fixed {
-    position: fixed;
-}
-.inset-0 {
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-}
-.z-5 {
-    z-index: 1050;
-}
-.max-w-md {
-    max-width: 28rem;
-}
-.max-w-3xl {
-    max-width: 48rem;
-}
-.max-w-4xl {
-    max-width: 56rem;
-}
-.mx-auto {
-    margin-left: auto;
-    margin-right: auto;
-}
-.mx-3 {
-    margin-left: 0.75rem;
-    margin-right: 0.75rem;
-}
-
-/* Responsive utilities */
-@media screen and (min-width: 768px) {
-    .md\:flex-row {
-        flex-direction: row;
-    }
-    .md\:px-6 {
-        padding-left: 1.5rem;
-        padding-right: 1.5rem;
-    }
-    .md\:py-8 {
-        padding-top: 2rem;
-        padding-bottom: 2rem;
-    }
-}
-
-@media screen and (min-width: 1024px) {
-    .lg\:px-8 {
-        padding-left: 2rem;
-        padding-right: 2rem;
-    }
-}
-
-.hidden {
-    display: none;
-}
-@media screen and (min-width: 768px) {
-    .md\:flex {
-        display: flex;
-    }
-}
-
-/* PrimeVue Icons simulation */
-.pi {
-    font-family: 'primeicons';
-    speak: none;
-    font-style: normal;
-    font-weight: normal;
-    font-variant: normal;
-    text-transform: none;
-    line-height: 1;
-    display: inline-block;
-}
-
-.pi-check-circle:before {
-    content: '✓';
-}
-.pi-users:before {
-    content: '👥';
-}
-.pi-shield:before {
-    content: '🛡';
-}
-.pi-lock:before {
-    content: '🔒';
-}
-.pi-eye:before {
-    content: '👁';
-}
-.pi-mobile:before {
-    content: '📱';
-}
-.pi-user:before {
-    content: '👤';
-}
-.pi-id-card:before {
-    content: '🆔';
-}
-.pi-sign-in:before {
-    content: '➡';
-}
-.pi-cog:before {
-    content: '⚙';
-}
-.pi-user-edit:before {
-    content: '✏';
-}
-.pi-key:before {
-    content: '🔑';
-}
-.pi-envelope:before {
-    content: '✉';
-}
-.pi-phone:before {
-    content: '📞';
-}
-.pi-map-marker:before {
-    content: '📍';
-}
-
-.text-lg {
-    font-size: 1.125rem;
-}
-.text-xl {
-    font-size: 1.25rem;
-}
-.text-2xl {
-    font-size: 1.5rem;
-}
-.text-3xl {
-    font-size: 1.875rem;
-}
-.text-4xl {
-    font-size: 2.25rem;
-}
-.text-6xl {
-    font-size: 3.75rem;
-}
-
-.text-green-500 {
-    color: #10b981;
-}
-.text-green-600 {
-    color: #059669;
-}
-.text-blue-500 {
-    color: #3b82f6;
-}
-.text-blue-600 {
-    color: #2563eb;
-}
-.text-purple-500 {
-    color: #8b5cf6;
-}
-.text-purple-600 {
-    color: #7c3aed;
-}
-.text-orange-500 {
-    color: #f59e0b;
-}
-.text-orange-600 {
-    color: #d97706;
-}
-
-.bg-green-100 {
-    background-color: #dcfce7;
-}
-.bg-blue-100 {
-    background-color: #dbeafe;
-}
-.bg-purple-100 {
-    background-color: #f3e8ff;
-}
-.bg-orange-100 {
-    background-color: #fef3c7;
-}
-
-.bg-green-500 {
-    background-color: #10b981;
-}
-.bg-purple-500 {
-    background-color: #8b5cf6;
-}
-
-.border-1 {
-    border-width: 1px;
-}
-.border-top-1 {
-    border-top-width: 1px;
-}
-
-.field {
-    margin-bottom: 1rem;
-}
-.block {
-    display: block;
-}
-
-.hover\:shadow-4:hover {
-    box-shadow:
-        0 14px 28px rgba(0, 0, 0, 0.25),
-        0 10px 10px rgba(0, 0, 0, 0.22);
-}
-.hover\:text-0:hover {
-    color: #ffffff;
-}
-.hover\:text-primary:hover {
-    color: #3b82f6;
-}
-</style>

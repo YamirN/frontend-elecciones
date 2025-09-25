@@ -3,13 +3,15 @@ import InputError from '@/components/InputError.vue';
 import InputLabel from '@/components/InputLabel.vue';
 import { formatDateForApi } from '@/service/utils/dateUtil';
 import { validateExcelFile } from '@/service/utils/fileValidation';
+import { useEleccionStore } from '@/stores/eleccionesStore';
 import { useEstudianteStore } from '@/stores/estudianteStore';
 import { storeToRefs } from 'pinia';
 import { useToast } from 'primevue/usetoast';
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 
 const visible = ref(false);
-
+const eleccionStore = useEleccionStore();
+const { elecciones } = storeToRefs(eleccionStore);
 const estudianteStore = useEstudianteStore();
 
 const { estudiantes, loading: loadingEstudiantes } = storeToRefs(estudianteStore);
@@ -20,6 +22,8 @@ const closeDialog = () => {
     visible.value = false;
     file.value = '';
 };
+
+const eleccionActiva = computed(() => elecciones.value.some((e) => e.estado === 'en_proceso'));
 
 const onPageChange = (event) => {
     const nuevaPagina = event.page + 1; // PrimeVue empieza desde 0
@@ -328,7 +332,7 @@ const onFormSubmit = async () => {
 };
 
 const eliminarVotantes = async () => {
-    const success = await estudianteStore.EliminarTodosLosVotantes();
+    const success = await estudianteStore.eliminarTodosEstudiantes();
     if (success) {
         deleteConfirmVisible.value = false;
     } else {
@@ -353,8 +357,9 @@ const deleteEstudiante = async () => {
     }
 };
 
-onMounted(() => {
-    estudianteStore.obtenerEstudiantes();
+onMounted(async () => {
+    await estudianteStore.obtenerEstudiantes();
+    await eleccionStore.ListaEleccion();
 });
 
 watch(() => form.value, validateSelection, { deep: true });
@@ -473,8 +478,19 @@ watch(() => form.value, validateSelection, { deep: true });
                         </template>
                         <template v-else>
                             <Button icon="pi pi-eye" outlined rounded class="mr-2" severity="info" @click="verEstudiante(slotProps.data)" />
-                            <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="openEdit(slotProps.data)" />
-                            <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteUser(slotProps.data)" />
+                            <!-- Editar -->
+                            <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="openEdit(slotProps.data)" :disabled="eleccionActiva" v-tooltip="eleccionActiva ? 'No se puede editar mientras hay una elección en proceso' : ''" />
+
+                            <!-- Eliminar -->
+                            <Button
+                                icon="pi pi-trash"
+                                outlined
+                                rounded
+                                severity="danger"
+                                @click="confirmDeleteUser(slotProps.data)"
+                                :disabled="eleccionActiva"
+                                v-tooltip="eleccionActiva ? 'No se puede eliminar mientras hay una elección en proceso' : ''"
+                            />
                         </template>
                     </template>
                 </Column>
@@ -675,7 +691,16 @@ watch(() => form.value, validateSelection, { deep: true });
         <template #footer>
             <div class="flex justify-end gap-3 px-6 py-3 border-t">
                 <Button label="Cancelar" icon="pi pi-times" text class="p-button-secondary" @click="deleteConfirmVisible = false" />
-                <Button label="Eliminar" icon="pi pi-trash" severity="danger" :disabled="confirmText !== 'ELIMINAR'" @click="eliminarVotantes" />
+                <Button
+                    label="Eliminar"
+                    icon="pi pi-trash"
+                    outlined
+                    rounded
+                    severity="danger"
+                    @click="eliminarVotantes"
+                    :disabled="confirmText !== 'ELIMINAR' || eleccionActiva"
+                    v-tooltip="eleccionActiva ? 'No se puede eliminar mientras hay una elección en proceso' : ''"
+                />
             </div>
         </template>
     </Dialog>

@@ -6,7 +6,8 @@ export const useAuthStore = defineStore('auth', {
         accessToken: null,
         user: null,
         loading: false,
-        error: null
+        error: null,
+        yaVoto: false
     }),
     getters: {
         rol: (state) => state.user?.rol || null,
@@ -40,9 +41,16 @@ export const useAuthStore = defineStore('auth', {
             this.error = null;
             try {
                 const response = await loginVotante(dni, password);
+
                 if (response.data.success && response.data.token) {
-                    this.token = response.data.token;
-                    await this.fetchUser();
+                    this.user = response.data.user;
+                    this.yaVoto = response.data.ya_voto;
+
+                    // Solo asignar token si NO ha votado
+                    if (!this.yaVoto) {
+                        this.accessToken = response.data.token;
+                    }
+
                     return true;
                 }
                 this.error = 'Credenciales inválidas';

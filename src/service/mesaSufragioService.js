@@ -12,8 +12,12 @@ export const createMesa = async (data) => {
     });
 };
 
+export const updateMesa = async (id, data) => {
+    return await apiClient.put(`/mesas/${id}`, data);
+};
+
 export const deleteMesa = async (id) => {
-    return await apiClient.delete(`/api/mesas/${id}`);
+    return await apiClient.delete(`/mesas/${id}`);
 };
 
 export const asignarAulas = async (mesaId, aulas) => {
@@ -34,4 +38,9 @@ export const exportarZip = async (mesaId) => {
         responseType: 'blob'
     });
     return response.data; // <-- devolvemos solo el blob
+};
+
+export const obtenerHistorialAsignacion = async (mesaId) => {
+    const response = await apiClient.get(`/mesas/${mesaId}/historial-asignacion`);
+    return response.data; // asegúrate que aquí ya devuelva el array
 };
