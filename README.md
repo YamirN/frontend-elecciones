@@ -82,5 +82,6 @@ La estructura de carpetas sigue las convenciones estándar de un proyecto Vue.js
     * `views/` / `pages/` 📄 Componentes de página (Votacion, Resultados, Admin Dashboard)
     * `router/` 🧭 Configuración de Vue Router
     * `stores/` 💾 Módulos de Pinia/Vuex para la gestión de estado
-    * `services/` / `api/` 📡 Lógica para la comunicación con la API (Axios/Fetch)
+    * `services/` 📡 Lógica para la comunicación con la API (Axios/Fetch)
     * `main.js` ➡️ Punto de entrada de la aplicación
+
